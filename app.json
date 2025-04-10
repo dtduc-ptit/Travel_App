@@ -3,6 +3,7 @@
     "name": "TravelApp",
     "slug": "TravelApp",
     "version": "1.0.0",
+    "headerShown": false,
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -12,6 +13,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.travelapp.example",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"

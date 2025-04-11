@@ -2,7 +2,8 @@ import React from "react";
 import { View, Text, TextInput, Image, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+
 
 const featuredPlaces = [
   { id: "1", name: "Khu di tích Hải Thượng Lãn Ông", image: require("../assets/images/splash-image.png") },
@@ -15,7 +16,9 @@ const popularPlaces = [
 ];
 
 const HistoricalSite = () => {
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
+  const route = useRoute();
+  const isActive = (routeName: string) => route.name === routeName;
 
   const renderItem = ({ item }: { item: { id: string; name: string; image: any } }) => (
     <TouchableOpacity style={styles.placeContainer}>
@@ -59,27 +62,43 @@ const HistoricalSite = () => {
       />
 
       <View style={styles.bottomNav}>
-        <TouchableOpacity>
-          <FontAwesome name="map-marker" size={24} color="#007bff" />
-          <Text style={styles.activeTab}>Di tích</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <FontAwesome name="calendar" size={24} color="gray" />
-          <Text style={styles.inactiveTab}>Sự kiện</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <FontAwesome name="book" size={24} color="gray" />
-          <Text style={styles.inactiveTab}>Phong tục</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <FontAwesome name="users" size={24} color="gray" />
-          <Text style={styles.inactiveTab}>Cộng đồng</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <FontAwesome name="lightbulb-o" size={24} color="gray" />
-          <Text style={styles.inactiveTab}>Kiến thức</Text>
-        </TouchableOpacity>
-      </View>
+              <TouchableOpacity onPress={() => navigation.navigate("historical_site")}>
+                <FontAwesome
+                  name="map-marker"
+                  size={24}
+                  color={isActive("historical_site") ? "#007bff" : "gray"}
+                />
+                <Text style={isActive("historical_site") ? styles.activeTab : styles.inactiveTab}>
+                  Di tích
+                </Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity>
+                <FontAwesome name="calendar" size={24} color="gray" />
+                <Text style={styles.inactiveTab}>Sự kiện</Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity onPress={() => navigation.navigate("phongtuc")}>
+                <FontAwesome
+                  name="book"
+                  size={24}
+                  color={isActive("phongtuc") ? "#007bff" : "gray"}
+                />
+                <Text style={isActive("phongtuc") ? styles.activeTab : styles.inactiveTab}>
+                  Phong tục
+                </Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity>
+                <FontAwesome name="users" size={24} color="gray" />
+                <Text style={styles.inactiveTab}>Cộng đồng</Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity>
+                <FontAwesome name="lightbulb-o" size={24} color="gray" />
+                <Text style={styles.inactiveTab}>Kiến thức</Text>
+              </TouchableOpacity>
+            </View>
     </SafeAreaView>
   );
 };

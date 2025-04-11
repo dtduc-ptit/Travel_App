@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import HistoricalSite from "../historical_site";
 import { Ionicons } from "@expo/vector-icons";
+import TrangPhongTuc from "../phongtuc";
 
 const Tab = createBottomTabNavigator();
 
@@ -38,7 +39,7 @@ export default function Index() {
         />
         <Tab.Screen
           name="Phong tục"
-          component={HistoricalSite}
+          component={TrangPhongTuc}
           options={{
             tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" size={size} color={color} />,
           }}

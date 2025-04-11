@@ -8,7 +8,7 @@ export default function SplashScreen() {
   useEffect(() => {
     setTimeout(() => {
       router.replace("/welcome"); // Chuyển sang màn hình welcome
-    }, 5000); // Hiển thị splash trong 3 giây
+    }, 3000); // Hiển thị splash trong 3 giây
   }, []);
 
   return (

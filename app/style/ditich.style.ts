@@ -1,0 +1,70 @@
+import { StyleSheet } from "react-native";
+
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "white", padding: 16 },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  title: { fontSize: 20, fontWeight: "bold", color: "#333" },
+  highlight: { color: "#007bff" },
+  logo: { width: 32, height: 32 },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    borderRadius: 25,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  searchInput: { flex: 1, marginLeft: 8, color: "#333" },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginTop: 16,
+  },
+  placeContainer: {
+    width: 160,
+    height: 112,
+    marginRight: 12,
+    borderRadius: 8,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  placeImage: { width: "100%", height: "100%" },
+  overlay: {
+    position: "absolute",
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    width: "100%",
+    padding: 4,
+  },
+  placeText: { color: "white", fontSize: 12, fontWeight: "bold" },
+  bottomNav: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    paddingVertical: 12,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
+  activeTab: { fontSize: 12, color: "#007bff" },
+  inactiveTab: { fontSize: 12, color: "gray" },
+});
+
+export default styles;

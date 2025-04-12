@@ -1,6 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import styles from '../style/register.style'; // 👈 Import file style riêng
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function RegisterScreen() {
       {/* Login Link */}
       <View style={styles.links}>
         <Text style={styles.text}>Bạn đã có tài khoản?{" "}
-          <Text style={styles.link} onPress={() => router.push("/login")}>Đăng nhập</Text>
+          <Text style={styles.link} onPress={() => router.push("/auth/login")}>Đăng nhập</Text>
         </Text>
       </View>
 
@@ -47,55 +48,3 @@ export default function RegisterScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-  },
-  links: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  text: {
-    color: "gray",
-  },
-  link: {
-    color: "#007bff",
-    fontWeight: "bold",
-  },
-  button: {
-    backgroundColor: "#007bff",
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});

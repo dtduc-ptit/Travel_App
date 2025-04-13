@@ -1,36 +1,37 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const themeColor = Colors[colorScheme ?? 'light'];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
+        tabBarActiveTintColor: themeColor.tint,
+        tabBarInactiveTintColor: themeColor.tabIconDefault,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: 'absolute',
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: themeColor.background,
+            borderTopColor: themeColor.tint,
+            shadowColor: themeColor.tint,
           },
-          default: {},
-        }),
+        ],
       }}
     >
       <Tabs.Screen
         name="ditich"
         options={{
           title: 'Di tích',
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="business-outline" size={size} color={color} />
           ),
@@ -40,7 +41,6 @@ export default function TabLayout() {
         name="phongtuc"
         options={{
           title: 'Phong tục',
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="people-outline" size={size} color={color} />
           ),
@@ -50,7 +50,6 @@ export default function TabLayout() {
         name="sukien"
         options={{
           title: 'Sự kiện',
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
@@ -60,7 +59,6 @@ export default function TabLayout() {
         name="congdong"
         options={{
           title: 'Cộng đồng',
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubbles-outline" size={size} color={color} />
           ),
@@ -70,7 +68,6 @@ export default function TabLayout() {
         name="kienthuc"
         options={{
           title: 'Kiến thức',
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="book-outline" size={size} color={color} />
           ),
@@ -79,3 +76,21 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    height: 60,
+    borderTopWidth: 1,
+    elevation: 10,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: -3 },
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+    paddingTop: 5,
+  },
+});

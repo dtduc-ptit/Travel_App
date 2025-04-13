@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import axios from "axios";
 import styles from "../style/login.style";
-
+import { API_BASE_URL } from "../../constants/config";
 export default function LoginScreen() {
   const router = useRouter();
 
@@ -12,15 +12,36 @@ export default function LoginScreen() {
   const [matKhau, setMatKhau] = useState('');
 
   const handleLogin = async () => {
+    // Kiểm tra đầu vào trước khi gọi API
+    if (!taiKhoan.trim() && !matKhau.trim()) {
+      Alert.alert('⚠️ Vui lòng nhập tài khoản và mật khẩu');
+      return;
+    }
+  
+    if (!taiKhoan.trim()) {
+      Alert.alert('⚠️ Vui lòng nhập tài khoản');
+      return;
+    }
+  
+    if (!matKhau.trim()) {
+      Alert.alert('⚠️ Vui lòng nhập mật khẩu');
+      return;
+    }
+  
     try {
-      const res = await axios.post('http://192.168.0.102:8000/api/nguoidung/login', {
+      const res = await axios.post(`${API_BASE_URL}/api/nguoidung/login`, {
         taiKhoan,
         matKhau,
       });
+  
+      // Nếu phản hồi thành công
       Alert.alert('✅ Đăng nhập thành công');
-      router.replace('/(tabs)/ditich'); // hoặc màn hình chính sau đăng nhập
-    } catch (error) {
-      Alert.alert('❌ Sai tài khoản hoặc mật khẩu');
+      router.replace('/(tabs)/ditich'); // Màn hình chính sau đăng nhập
+  
+    } catch (error: any) {
+      // Có thể lấy chi tiết lỗi nếu backend trả về message cụ thể
+      const message = error?.response?.data?.message || 'Sai tài khoản hoặc mật khẩu';
+      Alert.alert('❌ Đăng nhập thất bại', message);
     }
   };
 

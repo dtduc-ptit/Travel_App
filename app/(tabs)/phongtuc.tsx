@@ -36,7 +36,7 @@ const TrangPhongTuc = () => {
 
     const fetchPopulerdPlaces = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/phongtucs/phobienphobien");
+        const response = await axios.get("http://192.168.0.102:3000/api/phongtucs/phobienphobien");
         setPopularPlaces(response.data); 
         console.log("Phong tuc pho bienbien:", response.data); // Log the fetched data
       } catch (error) {

@@ -7,7 +7,8 @@ import styles from '../style/register.style'; // style từ file 1
 import { API_BASE_URL } from "../../constants/config";
 export default function RegisterScreen() {
   const router = useRouter();
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [ten, setTen] = useState('');
   const [taiKhoan, setTaiKhoan] = useState('');
   const [matKhau, setMatKhau] = useState('');
@@ -89,10 +90,19 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Mật khẩu"
-          secureTextEntry
+          secureTextEntry={!showPassword}
           value={matKhau}
           onChangeText={setMatKhau}
         />
+
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons
+            name={showPassword ? "eye-off-outline" : "eye-outline"}
+            size={20}
+            color="gray"
+            style={styles.icon}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Confirm Password Input */}
@@ -101,10 +111,19 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Nhập lại mật khẩu"
-          secureTextEntry
+          secureTextEntry={!showConfirmPassword}
           value={xacNhanMatKhau}
           onChangeText={setXacNhanMatKhau}
         />
+
+      <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <Ionicons
+            name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+            size={20}
+            color="gray"
+            style={styles.icon}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Login Link */}

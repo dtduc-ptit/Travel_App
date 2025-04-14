@@ -5,9 +5,10 @@ import { useState } from "react";
 import axios from "axios";
 import styles from "../style/login.style";
 import { API_BASE_URL } from "../../constants/config";
+
 export default function LoginScreen() {
   const router = useRouter();
-
+  const [showPassword, setShowPassword] = useState(false);
   const [taiKhoan, setTaiKhoan] = useState('');
   const [matKhau, setMatKhau] = useState('');
 
@@ -61,17 +62,26 @@ export default function LoginScreen() {
         />
       </View>
 
-      {/* Mật khẩu Input */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={20} color="gray" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="Nhập mật khẩu của bạn"
-          secureTextEntry
-          value={matKhau}
-          onChangeText={setMatKhau}
+    <View style={styles.inputContainer}>
+      <Ionicons name="lock-closed-outline" size={20} color="gray" style={styles.icon} />
+      
+      <TextInput
+        style={styles.input}
+        placeholder="Nhập mật khẩu của bạn"
+        secureTextEntry={!showPassword}
+        value={matKhau}
+        onChangeText={setMatKhau}
+      />
+      
+      <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+        <Ionicons
+          name={showPassword ? "eye-off-outline" : "eye-outline"}
+          size={20}
+          color="gray"
+          style={styles.icon}
         />
-      </View>
+      </TouchableOpacity>
+    </View>
 
       {/* Links */}
       <View style={styles.links}>

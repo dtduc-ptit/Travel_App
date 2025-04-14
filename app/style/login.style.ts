@@ -13,11 +13,11 @@ const styles = StyleSheet.create({
       marginBottom: 20,
     },
     inputContainer: {
-      flexDirection: "row",
-      alignItems: "center",
+      flexDirection: 'row',
+      alignItems: 'center',
       borderWidth: 1,
-      borderColor: "#ddd",
-      borderRadius: 10,
+      borderColor: '#ccc',
+      borderRadius: 8,
       paddingHorizontal: 10,
       marginBottom: 15,
     },
@@ -26,6 +26,8 @@ const styles = StyleSheet.create({
     },
     input: {
       flex: 1,
+      paddingVertical: 10,
+      paddingHorizontal: 8,
       height: 50,
     },
     links: {

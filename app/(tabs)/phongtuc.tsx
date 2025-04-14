@@ -11,11 +11,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
+import { GestureHandlerRootView, ScrollView as GestureScrollView } from 'react-native-gesture-handler';
 
 const TrangPhongTuc = () => {
-  const navigation: any = useNavigation();
+  const router = useRouter();
   const route = useRoute();
   const [featuredPlaces, setFeaturedPlaces] = useState([]);
   const [popularPlaces, setPopularPlaces] = useState([]);
@@ -61,7 +63,10 @@ const TrangPhongTuc = () => {
   }, [selectedLocation]);
 
   const renderFeaturedItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
-    <TouchableOpacity style={styles.featuredItem}>
+    <TouchableOpacity 
+        style={styles.featuredItem}  
+        onPress={() => router.push({ pathname: "/screen/phongtucchitiet", params: { id: item._id } })}  
+        >
       <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
       <View style={styles.overlay}>
         <Text style={styles.placeText}>{item.ten}</Text>
@@ -70,16 +75,10 @@ const TrangPhongTuc = () => {
   );
   
   const renderPopularItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
-    <TouchableOpacity style={styles.placeContainer}>
-      <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
-      <View style={styles.overlay}>
-        <Text style={styles.placeText}>{item.ten}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-  
-  const renderMostViewedItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
-    <TouchableOpacity style={styles.placeContainer}>
+    <TouchableOpacity 
+      style={styles.placeContainer}
+      onPress={() => router.push({ pathname: "/screen/phongtucchitiet", params: { id: item._id } })} 
+      >
       <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
       <View style={styles.overlay}>
         <Text style={styles.placeText}>{item.ten}</Text>
@@ -88,72 +87,82 @@ const TrangPhongTuc = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          DU LỊCH <Text style={styles.highlight}>HÀ TĨNH</Text>
-        </Text>
-        <Image source={require("../../assets/images/logo.jpg")} style={styles.logo} />
-      </View>
-
-      <View style={styles.searchBar}>
-        <FontAwesome name="search" size={16} color="gray" />
-        <TextInput placeholder="Tìm kiếm..." style={styles.searchInput} />
-      </View>
-
-      <Text style={styles.sectionTitle}>Phong tục nổi bật</Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-      {locations.map((location) => (
-        <TouchableOpacity
-          key={location}
-          onPress={() => setSelectedLocation(location)}
-          style={{
-            backgroundColor: selectedLocation === location ? "#007bff" : "#f0f0f0",
-            paddingVertical: 6,
-            paddingHorizontal: 12,
-            borderRadius: 20,
-          }}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        {/* Header cố định */}
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            DU LỊCH <Text style={styles.highlight}>HÀ TĨNH</Text>
+          </Text>
+          <Image source={require("../../assets/images/logo.jpg")} style={styles.logo} />
+        </View>
+  
+        {/* Thanh tìm kiếm cố định */}
+        <View style={styles.searchBar}>
+          <FontAwesome name="search" size={16} color="gray" />
+          <TextInput placeholder="Tìm kiếm..." style={styles.searchInput} />
+        </View>
+  
+        {/* Nội dung cuộn */}
+        <GestureScrollView 
+          showsVerticalScrollIndicator={false} 
+          contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}
         >
-          <Text style={{ color: selectedLocation === location ? "white" : "#333" }}>{location}</Text>
-        </TouchableOpacity>
-      ))}
-      </View>
-      <FlatList
-          data={featuredPlaces}
-          renderItem={renderFeaturedItem}
-          keyExtractor={(item) => item._id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 8 }}
-        />
-      
-      <View style={styles.sectionWrapper}>
-        <Text style={styles.sectionTitle}>Phong tục phổ biến khác</Text>
-        <FlatList
-          data={popularPlaces}
-          renderItem={renderPopularItem}
-          keyExtractor={(item) => item._id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
-
-      <Text style={styles.sectionTitle}>Xem nhiều</Text>
-        <View>
+          <Text style={styles.sectionTitle}>Phong tục nổi bật</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+            {locations.map((location) => (
+              <TouchableOpacity
+                key={location}
+                onPress={() => setSelectedLocation(location)}
+                style={{
+                  backgroundColor: selectedLocation === location ? "#007bff" : "#f0f0f0",
+                  paddingVertical: 6,
+                  paddingHorizontal: 12,
+                  borderRadius: 20,
+                }}
+              >
+                <Text style={{ color: selectedLocation === location ? "white" : "#333" }}>
+                  {location}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+  
+          <FlatList
+            data={featuredPlaces}
+            renderItem={renderFeaturedItem}
+            keyExtractor={(item) => item._id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 8 }}
+          />
+  
+          <View style={styles.sectionWrapper}>
+            <Text style={styles.sectionTitle}>Phong tục phổ biến khác</Text>
+            <FlatList
+              data={popularPlaces}
+              renderItem={renderPopularItem}
+              keyExtractor={(item) => item._id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingVertical: 8 }}
+            />
+          </View>
+  
+          <Text style={styles.sectionTitle}>Xem nhiều</Text>
           <FlatList
             data={mostViewed}
             renderItem={renderFeaturedItem}
             keyExtractor={(item) => item._id}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingBottom: 100,
-            }}
+            contentContainerStyle={{ paddingVertical: 8 }}
           />
-        </View>
-
-    </SafeAreaView>
+        </GestureScrollView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
+  
 };
 
 export default TrangPhongTuc;

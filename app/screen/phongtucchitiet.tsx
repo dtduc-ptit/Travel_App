@@ -1,47 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from "react-native";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import { useRouter } from "expo-router";
 import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/phongtucchitiet.style";
+import YoutubeIframe from "react-native-youtube-iframe";
 
 const PhongTucChiTiet = () => {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
-  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
-  const [mainImage, setMainImage] = useState<string | null>(null);
+  const [media, setMedia] = useState<any[]>([]);
+  const [mainMedia, setMainMedia] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const [videoList, setVideoList] = useState<any[]>([]);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   useEffect(() => {
-    // Removed redundant router declaration
-
     const fetchData = async () => {
       try {
-        // Lấy phong tục
         const res = await axios.get(`${API_BASE_URL}/api/phongtucs/${id}`);
         const phongTuc = res.data;
         setData(phongTuc);
 
-        // Tăng lượt xem
-        await axios.patch(`${API_BASE_URL}/api/phongtucs/${id}/luotxem`); // API cập nhật lượt xem
+        await axios.patch(`${API_BASE_URL}/api/phongtucs/${id}/luotxem`);
 
-        // Lấy media nếu có
         if (phongTuc.media?.length > 0) {
-          const images = await Promise.all(
+          const mediaData = await Promise.all(
             phongTuc.media.map(async (mediaId: string) => {
               const res = await axios.get(`${API_BASE_URL}/api/media/${mediaId}`);
-              return res.data.url; // Giả định API trả về { url: "..." }
+              return res.data;
             })
           );
-          setMediaUrls(images);
-          setMainImage(images[0]);
+          setMedia(mediaData);
+
+          const videos = mediaData.filter((item) => item.type === "video");
+          setVideoList(videos);
+
+          setMainMedia({ url: phongTuc.imageUrl, type: "image" });
         } else {
-          setMainImage(phongTuc.imageUrl);
+          setMainMedia({ url: phongTuc.imageUrl, type: "image" });
         }
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
@@ -52,6 +61,28 @@ const PhongTucChiTiet = () => {
 
     fetchData();
   }, [id]);
+
+  const handleMediaPress = (item: any) => {
+    setMainMedia(item);
+    setIsPlayingVideo(item.type === "video");
+  };
+
+  const getYouTubeId = (url: string) => {
+    const match = url.match(/(?:v=|youtu\.be\/)([^&]+)/);
+    return match ? match[1] : "";
+  };
+
+  const handleNextVideo = () => {
+    const nextIndex = (currentVideoIndex + 1) % videoList.length;
+    setCurrentVideoIndex(nextIndex);
+    setMainMedia(videoList[nextIndex]);
+  };
+
+  const handlePrevVideo = () => {
+    const prevIndex = (currentVideoIndex - 1 + videoList.length) % videoList.length;
+    setCurrentVideoIndex(prevIndex);
+    setMainMedia(videoList[prevIndex]);
+  };
 
   if (loading) {
     return (
@@ -75,65 +106,116 @@ const PhongTucChiTiet = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <FontAwesome name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-        <View style={{ position: "relative" }}>
-        <Image
-            source={{ uri: mainImage || data.imageUrl }}
-            style={styles.mainImage}
-            resizeMode="cover"
-        />
-        
-        {mediaUrls.length > 1 && (
-            <View style={styles.thumbnailOverlay}>
-            {mediaUrls.slice(0, 4).map((item, index) => {
-                if (index === 3 && mediaUrls.length > 4) {
-                return (
-                    <TouchableOpacity
-                    key={index}
-                    onPress={() =>
-                        router.push({
-                        pathname: "/screen/danhsachanh",
-                        params: { id: data._id },
-                        })
-                    }
-                    style={styles.thumbnailWrapper}
-                    >
-                    <View style={[styles.thumbnail, styles.moreOverlay]}>
-                        <Text style={styles.moreText}>+{mediaUrls.length - 3}</Text>
-                    </View>
-                    </TouchableOpacity>
-                );
-                }
-
-                return (
-                <TouchableOpacity
-                    key={index}
-                    onPress={() => setMainImage(item)}
-                    style={styles.thumbnailWrapper}
-                >
-                    <Image source={{ uri: item }} style={styles.thumbnail} />
-                </TouchableOpacity>
-                );
-            })}
+  
+        <View style={styles.imageContainer}>
+          {mainMedia?.type === "video" ? (
+            <View style={styles.videoContainer}>
+              <YoutubeIframe
+                videoId={getYouTubeId(mainMedia.url)}
+                height={250}
+                play={isPlayingVideo}
+              />
+              {videoList.length > 1 && (
+                <View style={styles.videoNavigation}>
+                  <TouchableOpacity onPress={handlePrevVideo} style={styles.navButton}>
+                    <FontAwesome name="chevron-left" size={24} color="#fff" />
+                  </TouchableOpacity>
+                  <Text style={styles.videoIndicator}>
+                    {currentVideoIndex + 1}/{videoList.length}
+                  </Text>
+                  <TouchableOpacity onPress={handleNextVideo} style={styles.navButton}>
+                    <FontAwesome name="chevron-right" size={24} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
-        )}
+          ) : (
+            <Image
+              source={{ uri: mainMedia?.url }}
+              style={styles.mainImage}
+              resizeMode="cover"
+            />
+          )}
+          
+          {videoList.length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                if (mainMedia?.type === "video") {
+                  setIsPlayingVideo(false);
+                  setMainMedia({ url: data.imageUrl, type: "image" });
+                } else {
+                  setIsPlayingVideo(true);
+                  setMainMedia(videoList[0]);
+                }
+              }}
+              style={styles.videoButton}
+            >
+              <Text style={styles.videoButtonText}>
+                {mainMedia?.type === "video" ? "🎬 Xem ảnh" : `🎬 Xem video (${videoList.length})`}
+              </Text>
+            </TouchableOpacity>
+          )}
+  
+          {!isPlayingVideo && media.length > 1 && (
+            <View style={styles.thumbnailOverlay}>
+              {media
+                .filter((item) => item.type === "image")
+                .slice(0, 4)
+                .map((item, index) => {
+                  if (index === 3 && media.length > 4) {
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/screen/danhsachanh",
+                            params: {
+                              ten: data.ten,
+                              doiTuong: "PhongTuc",
+                              doiTuongId: data._id,
+                              type: "image",
+                            },
+                          })
+                        }
+                        style={styles.thumbnailWrapper}
+                      >
+                        <View style={[styles.thumbnail, styles.moreOverlay]}>
+                          <Text style={styles.moreText}>+{media.length - 3}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  }
+  
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleMediaPress(item)}
+                      style={styles.thumbnailWrapper}
+                    >
+                      <Image source={{ uri: item.url }} style={styles.thumbnail} />
+                    </TouchableOpacity>
+                  );
+                })}
+            </View>
+          )}
         </View>
-
+  
         <View style={styles.infoContainer}>
           <Text style={styles.title}>{data.ten}</Text>
-
+  
           <View style={styles.row}>
             <FontAwesome name="map-marker" size={16} color="#666" />
             <Text style={styles.location}>{data.diaDiem}</Text>
           </View>
-
+  
           <View style={styles.row}>
             <FontAwesome name="eye" size={16} color="#666" />
             <Text style={styles.views}>{data.luotXem + 1} lượt xem</Text>
           </View>
-
+  
           <Text style={styles.subTitle}>Ý nghĩa</Text>
           <Text style={styles.content}>{data.yNghia}</Text>
-
+  
           <Text style={styles.subTitle}>Mô tả</Text>
           <Text style={styles.content}>{data.moTa}</Text>
         </View>

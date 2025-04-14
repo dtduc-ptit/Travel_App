@@ -16,6 +16,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import { GestureHandlerRootView, ScrollView as GestureScrollView } from 'react-native-gesture-handler';
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import UserHeader from './tieude';  // Import UserHeader component
 
 const TrangDiTich = () => {
   const router = useRouter();
@@ -24,28 +25,8 @@ const TrangDiTich = () => {
   const [popularPlaces, setPopularPlaces] = useState([]);
   const [mostViewed, setMostViewed] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("Tất cả");
-  const [nguoiDung, setNguoiDung] = useState<{ ten: string; anhDaiDien?: string } | null>(null);
 
   const locations = ["Tất cả", "Hương Sơn", "Hương Khê"];
-
-  useEffect(() => {
-    const fetchNguoiDung = async () => {
-      try {
-        const idNguoiDung = await AsyncStorage.getItem("idNguoiDung"); // Lấy ID người dùng từ AsyncStorage
-        if (idNguoiDung) {
-          const res = await axios.get(`${API_BASE_URL}/api/nguoidung/${idNguoiDung}`);
-          console.log("Thông tin người dùng:", res.data);
-          setNguoiDung(res.data);
-        } else {
-          console.error("Không tìm thấy ID người dùng trong AsyncStorage");
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin người dùng:", error);
-      }
-    };
-
-    fetchNguoiDung();
-  }, []); // Chạy 1 lần khi component mount
 
   useEffect(() => {
     const fetchFeatured = async () => {
@@ -97,39 +78,8 @@ const TrangDiTich = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
-        {/* Header mới */}
-        <View style={styles.topHeader}>
-          {/* Avatar bên trái */}
-          <TouchableOpacity>
-            <Image
-              source={
-                nguoiDung?.anhDaiDien
-                  ? { uri: nguoiDung.anhDaiDien }
-                  : require("../../assets/images/logo.jpg")
-              }
-              style={styles.avatar}
-            />
-          </TouchableOpacity>
-
-          {/* Tiêu đề */}
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.title}>
-              DU LỊCH <Text style={styles.highlight}>HÀ TĨNH</Text>
-            </Text>
-            <Text style={styles.subTitle}>Hãy có chuyến du lịch vui vẻ</Text>
-          </View>
-
-          {/* Nút thông báo bên phải */}
-          <TouchableOpacity>
-            <Ionicons name="notifications-outline" size={26} color="#333" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Search */}
-        <View style={styles.searchBar}>
-          <FontAwesome name="search" size={16} color="gray" />
-          <TextInput placeholder="Tìm kiếm..." style={styles.searchInput} />
-        </View>
+        {/* Thêm UserHeader vào đây */}
+        <UserHeader />
 
         {/* Nội dung chính */}
         <GestureScrollView

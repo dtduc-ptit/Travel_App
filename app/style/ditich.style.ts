@@ -1,70 +1,145 @@
-import { StyleSheet } from "react-native";
-
+import { StyleSheet, Dimensions } from "react-native";
+const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "white", padding: 16 },
+  container: {
+    backgroundColor: "white",
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
-  title: { fontSize: 20, fontWeight: "bold", color: "#333" },
-  highlight: { color: "#007bff" },
-  logo: { width: 32, height: 32 },
+
+  title: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#222",
+    marginBottom: 6,
+  },
+
+  highlight: {
+    color: "#007bff",
+  },
+
+  logo: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+  },
+
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f0f0f0",
     borderRadius: 25,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginBottom: 18,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  searchInput: { flex: 1, marginLeft: 8, color: "#333" },
+
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    color: "#333",
+    fontSize: 16,
+  },
+
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 12,
+    marginTop: 4,
+  },
+
+  sectionWrapper: {
+    marginBottom: 16,
+  },
+
+  filterContainer: {
+    flexDirection: "row",
+    marginBottom: 16,
+    gap: 10,
+  },
+
+  filterButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#e0e0e0",
+  },
+
+  filterButtonActive: {
+    backgroundColor: "#007bff",
+  },
+
+  filterText: {
+    fontSize: 14,
     fontWeight: "600",
     color: "#333",
-    marginTop: 16,
   },
-  placeContainer: {
-    width: 160,
-    height: 112,
-    marginRight: 12,
-    borderRadius: 8,
+
+  filterTextActive: {
+    color: "white",
+  },
+
+  featuredItem: {
+    width: 200,
+    height: 135,
+    marginRight: 16,
+    marginBottom: 16,
+    borderRadius: 12,
     overflow: "hidden",
+    backgroundColor: "#f2f2f2",
+    justifyContent: "flex-end",
+  },
+
+  placeContainer: {
+    width: 140,
+    height: 190,
+    marginRight: 12,
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#f9f9f9",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
-  placeImage: { width: "100%", height: "100%" },
-  overlay: {
-    position: "absolute",
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+
+  placeImage: {
     width: "100%",
-    padding: 4,
+    height: "100%",
+    borderRadius: 12,
   },
-  placeText: { color: "white", fontSize: 12, fontWeight: "bold" },
-  bottomNav: {
+
+  overlay: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "white",
-    paddingVertical: 12,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
+    backgroundColor: "rgba(0,0,0,0.45)",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
   },
-  activeTab: { fontSize: 12, color: "#007bff" },
-  inactiveTab: { fontSize: 12, color: "gray" },
+
+  placeText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "700",
+  },
 });
 
 export default styles;

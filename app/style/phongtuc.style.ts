@@ -3,15 +3,16 @@ const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingTop: 24,
   },
 
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 24,
     marginBottom: 16,
   },
 
@@ -19,7 +20,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "800",
     color: "#222",
-    marginBottom: 6,
   },
 
   highlight: {
@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     marginBottom: 18,
+    marginHorizontal: 16,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -59,17 +60,20 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 12,
     marginTop: 4,
+    paddingHorizontal: 16,
   },
 
   sectionWrapper: {
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
 
-  // 👉 Nút chọn "Tất cả", "Hương Sơn", "Hương Khê"
   filterContainer: {
     flexDirection: "row",
-    marginBottom: 16,
-    gap: 10,
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+    paddingHorizontal: 16,
   },
 
   filterButton: {
@@ -97,7 +101,6 @@ const styles = StyleSheet.create({
     width: 200,
     height: 135,
     marginRight: 16,
-    marginBottom: 16,
     borderRadius: 12,
     overflow: "hidden",
     backgroundColor: "#f2f2f2",

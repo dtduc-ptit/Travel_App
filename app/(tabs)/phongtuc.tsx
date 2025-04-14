@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from '../style/ditich.style';
+import styles from '../style/phongtuc.style'; 
 import {
   View,
   Text,
@@ -14,13 +14,13 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 
-const TrangDiTich = () => {
+const TrangPhongTuc = () => {
   const navigation: any = useNavigation();
   const route = useRoute();
   const [featuredPlaces, setFeaturedPlaces] = useState([]);
   const [popularPlaces, setPopularPlaces] = useState([]);
-  const [mostViewed, setMostViewed] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("Tất cả");
+  const [mostViewed, setMostViewed] = useState([]);
 
   const locations = ["Tất cả", "Hương Sơn", "Hương Khê"];
   const isActive = (routeName: string) => route.name === routeName;
@@ -28,39 +28,57 @@ const TrangDiTich = () => {
   useEffect(() => {
     const fetchFeaturedPlaces = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/ditichs/noibat`, {
+        const response = await axios.get(`${API_BASE_URL}/api/phongtucs/noibat`, {
           params: selectedLocation !== "Tất cả" ? { diaDiem: selectedLocation } : {},
         });
         setFeaturedPlaces(response.data);
       } catch (error) {
-        console.error("Lỗi khi fetch di tích nổi bật:", error);
+        console.error("Lỗi khi fetch phong tục nổi bật:", error);
       }
     };
 
-    const fetchPopularPlaces = async () => {
+    const fetchPopulerdPlaces = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/ditichs/phobien`);
-        setPopularPlaces(response.data);
+        const response = await axios.get(`${API_BASE_URL}/api/phongtucs/phobien`);
+        setPopularPlaces(response.data); 
       } catch (error) {
-        console.error("Lỗi khi fetch di tích phổ biến:", error);
+        console.error("Lỗi khi fetch phong tục phổ biến:", error);
       }
     };
 
     const fetchMostViewed = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/ditichs/xemnhieu`);
+        const response = await axios.get(`${API_BASE_URL}/api/phongtucs/xemnhieu`);
         setMostViewed(response.data);
       } catch (error) {
-        console.error("Lỗi khi fetch di tích xem nhiều:", error);
+        console.error("Lỗi khi fetch phong tục xem nhiều:", error);
       }
     };
-
-    fetchFeaturedPlaces();
-    fetchPopularPlaces();
+  
     fetchMostViewed();
+    fetchPopulerdPlaces();
+    fetchFeaturedPlaces();
   }, [selectedLocation]);
 
-  const renderItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
+  const renderFeaturedItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
+    <TouchableOpacity style={styles.featuredItem}>
+      <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
+      <View style={styles.overlay}>
+        <Text style={styles.placeText}>{item.ten}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+  
+  const renderPopularItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
+    <TouchableOpacity style={styles.placeContainer}>
+      <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
+      <View style={styles.overlay}>
+        <Text style={styles.placeText}>{item.ten}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+  
+  const renderMostViewedItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
     <TouchableOpacity style={styles.placeContainer}>
       <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
       <View style={styles.overlay}>
@@ -83,40 +101,37 @@ const TrangDiTich = () => {
         <TextInput placeholder="Tìm kiếm..." style={styles.searchInput} />
       </View>
 
-      <Text style={styles.sectionTitle}>Di tích nổi bật</Text>
+      <Text style={styles.sectionTitle}>Phong tục nổi bật</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-        {locations.map((location) => (
-          <TouchableOpacity
-            key={location}
-            onPress={() => setSelectedLocation(location)}
-            style={{
-              backgroundColor: selectedLocation === location ? "#007bff" : "#f0f0f0",
-              paddingVertical: 6,
-              paddingHorizontal: 12,
-              borderRadius: 20,
-            }}
-          >
-            <Text style={{ color: selectedLocation === location ? "white" : "#333" }}>
-              {location}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      {locations.map((location) => (
+        <TouchableOpacity
+          key={location}
+          onPress={() => setSelectedLocation(location)}
+          style={{
+            backgroundColor: selectedLocation === location ? "#007bff" : "#f0f0f0",
+            paddingVertical: 6,
+            paddingHorizontal: 12,
+            borderRadius: 20,
+          }}
+        >
+          <Text style={{ color: selectedLocation === location ? "white" : "#333" }}>{location}</Text>
+        </TouchableOpacity>
+      ))}
       </View>
-
       <FlatList
-        data={featuredPlaces}
-        renderItem={renderItem}
-        keyExtractor={(item) => item._id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingVertical: 8 }}
-      />
-
+          data={featuredPlaces}
+          renderItem={renderFeaturedItem}
+          keyExtractor={(item) => item._id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 8 }}
+        />
+      
       <View style={styles.sectionWrapper}>
-        <Text style={styles.sectionTitle}>Di tích phổ biến khác</Text>
+        <Text style={styles.sectionTitle}>Phong tục phổ biến khác</Text>
         <FlatList
           data={popularPlaces}
-          renderItem={renderItem}
+          renderItem={renderPopularItem}
           keyExtractor={(item) => item._id}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -124,20 +139,21 @@ const TrangDiTich = () => {
       </View>
 
       <Text style={styles.sectionTitle}>Xem nhiều</Text>
-      <View>
-        <FlatList
-          data={mostViewed}
-          renderItem={renderItem}
-          keyExtractor={(item) => item._id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: 100,
-          }}
-        />
-      </View>
+        <View>
+          <FlatList
+            data={mostViewed}
+            renderItem={renderFeaturedItem}
+            keyExtractor={(item) => item._id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: 100,
+            }}
+          />
+        </View>
+
     </SafeAreaView>
   );
 };
 
-export default TrangDiTich;
+export default TrangPhongTuc;

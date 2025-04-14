@@ -12,7 +12,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import styles from "../style/ditich.style";
-import { API_BASE_URL } from "../../constants/config";
+import { API_BASE_URL } from "../../components/config/config";
 
 // Kiểu dữ liệu
 interface Media {

@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import axios from "axios";
 import styles from "../style/login.style";
-import { API_BASE_URL } from "../../constants/config";
+import { API_BASE_URL } from "../../components/config/config";
 export default function LoginScreen() {
   const router = useRouter();
 

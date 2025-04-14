@@ -5,6 +5,15 @@ import { useState } from "react";
 import axios from "axios";
 import styles from "../style/login.style";
 import { API_BASE_URL } from "../../constants/config";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const saveUserId = async (idNguoiDung: string) => {
+  try {
+    await AsyncStorage.setItem('idNguoiDung', idNguoiDung);
+  } catch (error) {
+    console.error('Lỗi khi lưu ID người dùng:', error);
+  }
+};
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -13,34 +22,32 @@ export default function LoginScreen() {
   const [matKhau, setMatKhau] = useState('');
 
   const handleLogin = async () => {
-    // Kiểm tra đầu vào trước khi gọi API
     if (!taiKhoan.trim() && !matKhau.trim()) {
       Alert.alert('⚠️ Vui lòng nhập tài khoản và mật khẩu');
       return;
     }
-  
     if (!taiKhoan.trim()) {
       Alert.alert('⚠️ Vui lòng nhập tài khoản');
       return;
     }
-  
     if (!matKhau.trim()) {
       Alert.alert('⚠️ Vui lòng nhập mật khẩu');
       return;
     }
-  
+
     try {
       const res = await axios.post(`${API_BASE_URL}/api/nguoidung/login`, {
         taiKhoan,
         matKhau,
       });
-  
-      // Nếu phản hồi thành công
+
       Alert.alert('✅ Đăng nhập thành công');
-      router.replace('/(tabs)/ditich'); // Màn hình chính sau đăng nhập
-  
+
+      const idNguoiDung = res.data.idNguoiDung; // ✅ Đã trả về từ backend
+      await saveUserId(idNguoiDung);
+
+      router.replace('/(tabs)/ditich');
     } catch (error: any) {
-      // Có thể lấy chi tiết lỗi nếu backend trả về message cụ thể
       const message = error?.response?.data?.message || 'Sai tài khoản hoặc mật khẩu';
       Alert.alert('❌ Đăng nhập thất bại', message);
     }
@@ -62,26 +69,25 @@ export default function LoginScreen() {
         />
       </View>
 
-    <View style={styles.inputContainer}>
-      <Ionicons name="lock-closed-outline" size={20} color="gray" style={styles.icon} />
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Nhập mật khẩu của bạn"
-        secureTextEntry={!showPassword}
-        value={matKhau}
-        onChangeText={setMatKhau}
-      />
-      
-      <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-        <Ionicons
-          name={showPassword ? "eye-off-outline" : "eye-outline"}
-          size={20}
-          color="gray"
-          style={styles.icon}
+      {/* Mật khẩu Input */}
+      <View style={styles.inputContainer}>
+        <Ionicons name="lock-closed-outline" size={20} color="gray" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập mật khẩu của bạn"
+          secureTextEntry={!showPassword}
+          value={matKhau}
+          onChangeText={setMatKhau}
         />
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons
+            name={showPassword ? "eye-off-outline" : "eye-outline"}
+            size={20}
+            color="gray"
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+      </View>
 
       {/* Links */}
       <View style={styles.links}>

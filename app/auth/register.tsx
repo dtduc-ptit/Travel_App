@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import styles from '../style/register.style'; // style từ file 1
-import { API_BASE_URL } from "../../components/config/config";
+import { API_BASE_URL } from "../../constants/config";
 export default function RegisterScreen() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);

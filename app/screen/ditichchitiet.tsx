@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, Button } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -134,7 +134,19 @@ const DiTichChiTiet = () => {
 
           <Text style={styles.subTitle}>Mô tả</Text>
           <Text style={styles.content}>{data.moTa}</Text>
+
         </View>
+        <Button 
+          title="Xem lịch trình tham quan"
+          onPress={() => 
+            router.push({
+              pathname: "/screen/lichtrinh",
+              params: { diTichId: data._id },
+            })
+          }
+        />
+
+
       </ScrollView>
     </SafeAreaView>
   );

@@ -34,7 +34,6 @@ const TrangDiTich = () => {
         const idNguoiDung = await AsyncStorage.getItem("idNguoiDung"); // Lấy ID người dùng từ AsyncStorage
         if (idNguoiDung) {
           const res = await axios.get(`${API_BASE_URL}/api/nguoidung/${idNguoiDung}`);
-          console.log("Thông tin người dùng:", res.data);
           setNguoiDung(res.data);
         } else {
           console.error("Không tìm thấy ID người dùng trong AsyncStorage");

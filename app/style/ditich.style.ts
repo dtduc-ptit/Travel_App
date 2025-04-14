@@ -3,57 +3,35 @@ const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingTop: 24,
   },
 
-  // Header top: logo - title - bell
-  topHeader: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingTop: 16,
-    marginBottom: 12,
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    marginLeft: 8,
-    backgroundColor: '#ccc',
-  },
-  
-
-  logo: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
-
-  headerTextContainer: {
-    flex: 1,
-    marginHorizontal: 12,
+    paddingTop: 24,
+    marginBottom: 16,
   },
 
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "800",
-    color: "#444",
+    color: "#222",
   },
 
   highlight: {
     color: "#007bff",
   },
 
-  subTitle: {
-    fontSize: 14,
-    color: "#888",
-    marginTop: 2,
+  logo: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
   },
 
-  // Search
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -61,8 +39,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    marginHorizontal: 16,
     marginBottom: 18,
+    marginHorizontal: 16,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -76,24 +54,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  // Section title
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
     color: "#333",
     marginBottom: 12,
     marginTop: 4,
+    paddingHorizontal: 16,
   },
 
   sectionWrapper: {
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
 
-  // Filters (if used)
   filterContainer: {
     flexDirection: "row",
-    marginBottom: 16,
-    gap: 10,
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+    paddingHorizontal: 16,
   },
 
   filterButton: {
@@ -117,16 +97,28 @@ const styles = StyleSheet.create({
     color: "white",
   },
 
-  // Item hiển thị địa điểm
   featuredItem: {
     width: 200,
     height: 135,
     marginRight: 16,
-    marginBottom: 16,
     borderRadius: 12,
     overflow: "hidden",
     backgroundColor: "#f2f2f2",
     justifyContent: "flex-end",
+  },
+
+  placeContainer: {
+    width: 140,
+    height: 190,
+    marginRight: 12,
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#f9f9f9",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
   placeImage: {

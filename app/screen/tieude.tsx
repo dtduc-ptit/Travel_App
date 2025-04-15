@@ -62,7 +62,11 @@ const UserHeader = () => {
           <Text style={styles.subTitle}>Hãy có chuyến du lịch vui vẻ</Text>
         </View>
 
-        <TouchableOpacity style={styles.iconWrapper}>
+        {/* Icon thông báo */}
+        <TouchableOpacity
+          style={styles.iconWrapper}
+          onPress={() => router.push("../screen/thongbao")}
+        >
           <Ionicons name="notifications-outline" size={24} color="#333" />
         </TouchableOpacity>
       </View>

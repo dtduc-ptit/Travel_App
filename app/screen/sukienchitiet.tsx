@@ -6,19 +6,16 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Button,
 } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
-import styles from "../style/phongtucchitiet.style";
+import styles from "../style/sukienchitiet.style";
 import YoutubeIframe from "react-native-youtube-iframe";
 
-
-
-const DiTichChiTiet = () => {
+const SuKienChiTiet = () => {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -30,19 +27,18 @@ const DiTichChiTiet = () => {
   const [videoList, setVideoList] = useState<any[]>([]);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/ditich/${id}`);
-        const ditich = res.data;
-        setData(ditich);
+        const res = await axios.get(`${API_BASE_URL}/api/sukien/${id}`);
+        const suKien = res.data;
+        setData(suKien);
 
-        await axios.patch(`${API_BASE_URL}/api/ditich/${id}/luotxem`);
+        await axios.patch(`${API_BASE_URL}/api/sukien/${id}/luotxem`);
 
-        if (ditich.media?.length > 0) {
+        if (suKien.media?.length > 0) {
           const mediaData = await Promise.all(
-            ditich.media.map(async (mediaId: string) => {
+            suKien.media.map(async (mediaId: string) => {
               const res = await axios.get(`${API_BASE_URL}/api/media/${mediaId}`);
               return res.data;
             })
@@ -52,9 +48,7 @@ const DiTichChiTiet = () => {
           const videos = mediaData.filter((item) => item.type === "video");
           setVideoList(videos);
 
-          setMainMedia({ url: ditich.imageUrl, type: "image" });
-        } else {
-          setMainMedia({ url: ditich.imageUrl, type: "image" });
+          setMainMedia({ url: mediaData[0]?.url, type: mediaData[0]?.type });
         }
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
@@ -99,7 +93,7 @@ const DiTichChiTiet = () => {
   if (!data) {
     return (
       <SafeAreaView style={styles.centered}>
-        <Text>Không tìm thấy di tích.</Text>
+        <Text>Không tìm thấy sự kiện.</Text>
       </SafeAreaView>
     );
   }
@@ -146,7 +140,7 @@ const DiTichChiTiet = () => {
               onPress={() => {
                 if (mainMedia?.type === "video") {
                   setIsPlayingVideo(false);
-                  setMainMedia({ url: data.imageUrl, type: "image" });
+                  setMainMedia(media.find((m) => m.type === "image"));
                 } else {
                   setIsPlayingVideo(true);
                   setMainMedia(videoList[0]);
@@ -175,7 +169,7 @@ const DiTichChiTiet = () => {
                             pathname: "/screen/danhsachanh",
                             params: {
                               ten: data.ten,
-                              doiTuong: "DTTich",
+                              doiTuong: "SuKien",
                               doiTuongId: data._id,
                               type: "image",
                             },
@@ -209,7 +203,14 @@ const DiTichChiTiet = () => {
 
           <View style={styles.row}>
             <FontAwesome name="map-marker" size={16} color="#666" />
-            <Text style={styles.location}>{data.viTri}</Text>
+            <Text style={styles.location}>{data.diaDiem}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <FontAwesome name="calendar" size={16} color="#666" />
+            <Text style={styles.time}>
+              {data.thoiGianBatDau} - {data.thoiGianKetThuc}
+            </Text>
           </View>
 
           <View style={styles.row}>
@@ -220,21 +221,16 @@ const DiTichChiTiet = () => {
           <Text style={styles.subTitle}>Mô tả</Text>
           <Text style={styles.content}>{data.moTa}</Text>
 
+          {data.huongDan && (
+            <>
+              <Text style={styles.subTitle}>Hướng dẫn</Text>
+              <Text style={styles.content}>{data.huongDan}</Text>
+            </>
+          )}
         </View>
-        <Button 
-          title="Xem lịch trình tham quan"
-          onPress={() => 
-            router.push({
-              pathname: "/screen/lichtrinh",
-              params: { diTichId: data._id },
-            })
-          }
-        />
-
-
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default DiTichChiTiet;
+export default SuKienChiTiet;

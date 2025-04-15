@@ -1,15 +1,17 @@
-import { View, Text, Image, Button } from "react-native"; 
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/thongtincanhan.style";
-import { useRouter } from "expo-router"; 
+import { useRouter, useNavigation } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
 
 const ThongTinNguoiDung = () => {
   const [nguoiDung, setNguoiDung] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter(); 
+  const router = useRouter();
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchNguoiDung = async () => {
@@ -32,21 +34,45 @@ const ThongTinNguoiDung = () => {
     fetchNguoiDung();
   }, []);
 
-  // 👇 Hàm đăng xuất
   const logout = async () => {
     try {
       await AsyncStorage.removeItem("idNguoiDung");
-      router.replace("../auth/login"); 
+      router.replace("../auth/login");
     } catch (err) {
       console.error("Lỗi khi đăng xuất:", err);
     }
   };
 
-  if (loading) return <Text>Đang tải thông tin...</Text>;
-  if (!nguoiDung) return <Text>Không tìm thấy thông tin người dùng</Text>;
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
+
+  if (!nguoiDung) {
+    return (
+      <View style={styles.centered}>
+        <Text>Không tìm thấy thông tin người dùng</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
+      {/* Nút quay lại & đăng xuất */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <FontAwesome name="arrow-left" size={24} color="#000" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={logout}>
+          <FontAwesome name="sign-out" size={24} color="red" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Avatar */}
       <Image
         source={
           nguoiDung.anhDaiDien
@@ -55,13 +81,14 @@ const ThongTinNguoiDung = () => {
         }
         style={styles.avatar}
       />
-      <Text style={styles.name}>{nguoiDung.ten}</Text>
-      <Text>Email: {nguoiDung.email}</Text>
-      <Text>Tài khoản: {nguoiDung.taiKhoan}</Text>
-      <Text>Mô tả: {nguoiDung.moTa || "Chưa có mô tả"}</Text>
 
-
-      <Button title="Đăng xuất" onPress={logout} />
+      {/* Thông tin người dùng */}
+      <View style={styles.infoBox}>
+        <Text style={styles.name}>{nguoiDung.ten}</Text>
+        <Text style={styles.infoText}>📧 Email: {nguoiDung.email}</Text>
+        <Text style={styles.infoText}>👤 Tài khoản: {nguoiDung.taiKhoan}</Text>
+        <Text style={styles.infoText}>📝 Mô tả: {nguoiDung.moTa || "Chưa có mô tả"}</Text>
+      </View>
     </View>
   );
 };

@@ -171,4 +171,9 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     marginHorizontal: 10,
   },
+  subText: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
 });

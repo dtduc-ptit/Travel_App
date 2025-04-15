@@ -190,4 +190,9 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  subText: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
 });

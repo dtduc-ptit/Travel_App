@@ -10,13 +10,21 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyD8sSrmOvP6y2NREPe_S1Gp8oOtHPzMKrw"
+      }
     },
     "android": {
       "package": "com.travelapp.example",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyD8sSrmOvP6y2NREPe_S1Gp8oOtHPzMKrw"
+        }
       }
     },
     "web": {

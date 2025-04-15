@@ -176,5 +176,18 @@ export default StyleSheet.create({
     color: '#444',
     marginBottom: 5,
   },
-  
+  viewScheduleButton :{
+    marginTop: 20,
+    marginBottom: 30,
+    backgroundColor: "#007bff",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  viewScheduleText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });

@@ -32,8 +32,6 @@ const DiTichChiTiet = () => {
 
   
   useEffect(() => {
-    console.log("ID đang gọi:", id);
-    console.log("URL:", `${API_BASE_URL}/api/ditich/${id}`);
     const fetchData = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/ditich/${id}`);

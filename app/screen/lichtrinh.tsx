@@ -13,6 +13,23 @@ import styles from "../style/lichtrinh.style";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { API_BASE_URL } from "../../constants/config";
 import moment from "moment";
+// Đặt phía trên component LichTrinh
+const getTimeStatus = (hoatDongTime: string) => {
+  const now = moment();
+  const hdTime = moment(hoatDongTime, "HH:mm");
+
+  if (now.isSame(hdTime, "hour")) return "⏳ Đang diễn ra";
+  if (hdTime.isAfter(now)) return "🕒 Sắp tới";
+  return "✅ Đã xong";
+};
+
+const groupByTimeOfDay = (hoatDongs: any[]) => {
+  const morning = hoatDongs.filter((h) => h.thoiGian < "12:00");
+  const afternoon = hoatDongs.filter((h) => h.thoiGian >= "12:00" && h.thoiGian < "18:00");
+  const evening = hoatDongs.filter((h) => h.thoiGian >= "18:00");
+  return { morning, afternoon, evening };
+};
+
 
 const LichTrinh = () => {
   const { diTichId } = useLocalSearchParams();
@@ -20,7 +37,22 @@ const LichTrinh = () => {
   const [diTich, setDiTich] = useState<any>(null);
   const [lichTrinh, setLichTrinh] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
+  const getIconForActivity = (title: string) => {
+    if (title.toLowerCase().includes("tập trung")) {
+      return <Ionicons name="people-outline" size={20} color="#007bff" />;
+    }
+    if (title.toLowerCase().includes("tham quan")) {
+      return <Ionicons name="map-outline" size={20} color="#28a745" />;
+    }
+    if (title.toLowerCase().includes("ăn trưa")) {
+      return <Ionicons name="restaurant-outline" size={20} color="#ff6347" />;
+    }
+    if (title.toLowerCase().includes("nghỉ ngơi")) {
+      return <Ionicons name="bed-outline" size={20} color="#6c757d" />;
+    }
+    // Default icon
+    return <Ionicons name="checkmark-circle-outline" size={20} color="#6c757d" />;
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -52,7 +84,7 @@ const LichTrinh = () => {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <FontAwesome name="arrow-left" size={24} color="black" />
       </TouchableOpacity>
@@ -99,28 +131,65 @@ const LichTrinh = () => {
           </Text>
         );
       })()}
-
-      {/* Timeline */}
       <Text style={styles.timelineTitle}>Lịch trình</Text>
-      <View style={styles.timelineContainer}>
-        {lichTrinh?.hoatDongs?.map((hoatDong: any, index: number) => (
-          <View key={hoatDong._id} style={styles.timelineItem}>
-            <View style={styles.leftColumn}>
-              <Text style={styles.timeText}>{hoatDong.thoiGian}</Text>
-              <View style={styles.dot} />
-              {index !== lichTrinh.hoatDongs.length - 1 && <View style={styles.verticalLine} />}
-            </View>
-            <View style={styles.rightColumn}>
-              <Text style={styles.actionTitle}>{hoatDong.noiDung}</Text>
-              <Text style={styles.desc}>📍 {hoatDong.diaDiem}</Text>
-              {hoatDong.ghiChu ? (
-                <Text style={styles.desc}>📝 {hoatDong.ghiChu}</Text>
-              ) : null}
-            </View>
+      <ScrollView style={styles.scrollSection} showsVerticalScrollIndicator={false}>
+        {lichTrinh?.hoatDongs?.length > 0 ? (
+          <View style={styles.timelineContainer}>
+            {Object.entries(groupByTimeOfDay(lichTrinh.hoatDongs)).map(([buoi, danhSach]) =>
+              danhSach.length === 0 ? null : (
+              <View key={buoi}>
+                <Text style={styles.timePeriodTitle}>
+                  {buoi === "morning" && "🌅 Buổi sáng"}
+                  {buoi === "afternoon" && "🌤️ Buổi chiều"}
+                  {buoi === "evening" && "🌙 Buổi tối"}
+                </Text>
+
+                {danhSach.map((hoatDong: any, index: number) => (
+                <View key={hoatDong._id} style={styles.timelineItem}>
+                  {/* Left: Hiển thị thời gian duy nhất 1 lần */}
+                  <View style={styles.leftColumn}>
+                    <View style={styles.timeWrapper}>
+                      <Text style={styles.timeText}>{hoatDong.thoiGian}</Text>
+                    </View>
+                    <View style={styles.dot} />
+                    {index !== danhSach.length - 1 && <View style={styles.verticalLine} />}
+                  </View>
+
+                  {/* Right: Nội dung hoạt động */}
+                  <View style={styles.cardItem}>
+                    <View style={styles.timeRow}>
+                      <Text style={styles.timeText}>{hoatDong.thoiGian}</Text>
+                      {getIconForActivity(hoatDong.noiDung)}
+                    </View>
+                    <Text style={styles.actionTitle}>
+                      {hoatDong.noiDung}
+                      {"  "}
+                      <Text style={{ fontSize: 12, color: "#999" }}>
+                        ({getTimeStatus(hoatDong.thoiGian)})
+                      </Text>
+                    </Text>
+                    <Text style={styles.desc}>📍 {hoatDong.diaDiem}</Text>
+                    {hoatDong.ghiChu ? (
+                      <Text style={styles.desc}>📝 {hoatDong.ghiChu}</Text>
+                    ) : null}
+                  </View>
+                </View>
+              ))}
+
+              </View>
+            ))}
           </View>
-        ))}
+        ) : (
+          <View style={styles.emptyNoticeContainer}>
+            <Ionicons name="information-circle-outline" size={24} color="#999" />
+            <Text style={styles.emptyNoticeText}>
+              Lịch trình hiện chưa có hoạt động nào. Vui lòng kiểm tra lại sau hoặc liên hệ người tổ chức để cập nhật.
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+
       </View>
-    </ScrollView>
   );
 };
 

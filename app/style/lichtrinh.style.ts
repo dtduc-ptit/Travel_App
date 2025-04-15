@@ -70,42 +70,108 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "relative",
   },
-  timeText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#007bff",
-    marginBottom: 4,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#007bff",
-  },
-  verticalLine: {
-    position: "absolute",
-    top: 32,
-    left: 25,
-    width: 2,
-    height: 50,
-    backgroundColor: "#ccc",
-  },
   rightColumn: {
     flex: 1,
     paddingLeft: 12,
     paddingRight: 4,
-  },
-  actionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-    color: "#333",
   },
   desc: {
     fontSize: 14,
     color: "#555",
     marginBottom: 2,
   },
+  emptyNoticeContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#f9f9f9",
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 10,
+    borderColor: "#ddd",
+    borderWidth: 1,
+  },
+  emptyNoticeText: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 14,
+    color: "#666",
+    lineHeight: 20,
+  },
+  timeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  
+  actionTitle: {
+    fontSize: 17,
+    fontWeight: "bold",
+    marginBottom: 4,
+    color: "#222",
+  },
+  timePeriodTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007bff",
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  timeWrapper: {
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  
+  timeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#007bff",
+  },
+  
+  cardItem: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 12,
+    marginBottom: 16,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#007bff",
+    marginBottom: 4,
+  },
+  
+  verticalLine: {
+    position: "absolute",
+    top: 24,
+    width: 2,
+    height: "100%",
+    backgroundColor: "#ccc",
+  },
+  fixedHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    backgroundColor: "#fff",
+    zIndex: 10,
+    elevation: 5,
+  },
+  
+  scrollSection: {
+    flex: 1,
+    paddingHorizontal: 16,
+    marginTop: 12,
+  },  
+   
 });
 
 export default styles;

@@ -1,5 +1,7 @@
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
+import 'react-native-get-random-values';
+
 
 export default function Index() {
   const [currentScreen, setCurrentScreen] = useState("splash");

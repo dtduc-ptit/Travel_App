@@ -1,145 +1,179 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import React, { useRef, useState, useEffect } from "react";
+import { View, Alert, Keyboard } from "react-native";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import { API_BASE_URL } from "../../constants/config";
+import { API_BASE_URL, GOOGLE_MAPS_API_KEY } from "../../constants/config";
+import { useLocalSearchParams } from "expo-router";
+import styles, { autoCompleteStyles } from "../style/bando.style";
+
+type Coordinate = {
+  latitude: number;
+  longitude: number;
+};
 
 const BanDo = () => {
   const { diTichId } = useLocalSearchParams();
-  const [placeholder, setPlaceholder] = useState("Tìm kiếm vị trí...");
-  const [region, setRegion] = useState<{
-    latitude: number;
-    longitude: number;
-    latitudeDelta: number;
-    longitudeDelta: number;
-  } | null>(null);
-  
-  const [marker, setMarker] = useState<{ latitude: number; longitude: number } | null>(null);
-  
-  const mapRef = useRef<MapView | null>(null);
+  const mapRef = useRef<MapView>(null);
+  const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
+  const [destination, setDestination] = useState<Coordinate | null>(null);
+  const [routeCoords, setRouteCoords] = useState<Coordinate[]>([]);
+  const [placeholder, setPlaceholder] = useState<string>("Nhập vị trí của bạn");
+  const [viTri, setViTri] = useState<string>("Đang tải vị trí...");
+
+  const geocodeAddress = async (address: string): Promise<Coordinate | null> => {
+    try {
+      const res = await axios.get("https://maps.googleapis.com/maps/api/geocode/json", {
+        params: { address, key: GOOGLE_MAPS_API_KEY },
+      });
+      const location = res.data.results[0]?.geometry?.location;
+      if (location) return { latitude: location.lat, longitude: location.lng };
+    } catch (error) {
+      Alert.alert("Lỗi khi tìm vị trí.");
+    }
+    return null;
+  };
+
+  const fetchRoute = async (origin: Coordinate, destination: Coordinate): Promise<void> => {
+    try {
+      const res = await axios.get("https://maps.googleapis.com/maps/api/directions/json", {
+        params: {
+          origin: `${origin.latitude},${origin.longitude}`,
+          destination: `${destination.latitude},${destination.longitude}`,
+          key: GOOGLE_MAPS_API_KEY,
+        },
+      });
+
+      const points = res.data.routes[0]?.overview_polyline?.points;
+      if (!points) return;
+
+      const decoded = decodePolyline(points);
+      setRouteCoords(decoded);
+
+      mapRef.current?.fitToCoordinates([origin, destination], {
+        edgePadding: { top: 50, bottom: 50, left: 50, right: 50 },
+        animated: true,
+      });
+    } catch (error) {
+      Alert.alert("Không tìm được đường đi.");
+    }
+  };
+
+  const decodePolyline = (t: string): Coordinate[] => {
+    let points = [];
+    let index = 0,
+      lat = 0,
+      lng = 0;
+
+    while (index < t.length) {
+      let b, shift = 0, result = 0;
+      do {
+        b = t.charAt(index++).charCodeAt(0) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      const dlat = result & 1 ? ~(result >> 1) : result >> 1;
+      lat += dlat;
+
+      shift = result = 0;
+      do {
+        b = t.charAt(index++).charCodeAt(0) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      const dlng = result & 1 ? ~(result >> 1) : result >> 1;
+      lng += dlng;
+
+      points.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
+    }
+
+    return points;
+  };
 
   useEffect(() => {
-    const fetchLocation = async () => {
+    const fetchViTri = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/ditich/${diTichId}`);
-        const viTri = res.data.viTri; // ví dụ: "Bảo tàng lịch sử TP.HCM"
-        setPlaceholder(viTri);
+        const vitriData = res.data.viTri;
+        setViTri(vitriData);
 
-        const geoRes = await axios.get(
-          `https://maps.googleapis.com/maps/api/geocode/json`,
-          {
-            params: {
-              address: viTri,
-              key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
-            },
-          }
-        );
-
-        const location = geoRes.data.results[0]?.geometry?.location;
-        if (location) {
-          const { lat, lng } = location;
-          setRegion({
-            latitude: lat,
-            longitude: lng,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
+        const destinationCoords = await geocodeAddress(vitriData);
+        if (destinationCoords) {
+          setDestination(destinationCoords);
+          mapRef.current?.animateToRegion({
+            latitude: destinationCoords.latitude,
+            longitude: destinationCoords.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
           });
-          setMarker({ latitude: lat, longitude: lng });
         }
       } catch (err) {
-        console.error("Lỗi lấy vị trí di tích:", err);
+        console.error("Lỗi lấy dữ liệu vị trí:", err);
       }
     };
 
-    if (diTichId) {
-      fetchLocation();
-    }
+    if (diTichId) fetchViTri();
   }, [diTichId]);
+
+  const handleUserLocation = async (text: string): Promise<void> => {
+    const coords = await geocodeAddress(text);
+    if (coords) {
+      setUserLocation(coords);
+      Keyboard.dismiss();
+      if (destination) {
+        fetchRoute(coords, destination);
+      }
+    }
+  };
 
   return (
     <View style={styles.container}>
+      {/* Ô nhập vị trí người dùng */}
       <GooglePlacesAutocomplete
         placeholder={placeholder}
-        fetchDetails
-
         onPress={(data, details = null) => {
-            if (!details) return;
-            const loc = details.geometry.location;
-          
-            setRegion({
-              latitude: loc.lat,
-              longitude: loc.lng,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            });
-          
-            setMarker({ latitude: loc.lat, longitude: loc.lng });
-          
-            if (mapRef.current) {
-              mapRef.current.animateToRegion(
-                {
-                  latitude: loc.lat,
-                  longitude: loc.lng,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                },
-                1000
-              );
-            }
-          }}
-        query={{
-          key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
-          language: "vi",
+          if (details) {
+            handleUserLocation(details.formatted_address);
+          }
         }}
-        styles={autoCompleteStyles}
+        fetchDetails
+        query={{ key: GOOGLE_MAPS_API_KEY, language: "vi" }}
+        styles={autoCompleteStyles("top")}
+        textInputProps={{
+          onSubmitEditing: (event) => {
+            handleUserLocation(event.nativeEvent.text);
+          },
+        }}
       />
 
-      {region && (
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          initialRegion={region}
-          showsUserLocation
-          showsMyLocationButton
-        >
-          {marker && <Marker coordinate={marker} />}
-        </MapView>
-      )}
+      {/* Ô hiển thị vị trí đích */}
+      <GooglePlacesAutocomplete
+        placeholder={viTri}
+        query={{ key: GOOGLE_MAPS_API_KEY, language: "vi" }}
+        styles={autoCompleteStyles("below")}
+        textInputProps={{ editable: false }}
+      />
+
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        initialRegion={{
+          latitude: destination?.latitude || 21.0285,
+          longitude: destination?.longitude || 105.8542,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }}
+        showsUserLocation
+        showsMyLocationButton
+      >
+        {destination && <Marker coordinate={destination} title="Địa điểm" />}
+        {userLocation && <Marker coordinate={userLocation} title="Vị trí của bạn" pinColor="blue" />}
+        {routeCoords.length > 0 && (
+          <Polyline coordinates={routeCoords} strokeWidth={4} strokeColor="blue" />
+        )}
+      </MapView>
     </View>
   );
-};
-
-const { width, height } = Dimensions.get("window");
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    width,
-    height,
-  },
-});
-
-const autoCompleteStyles = {
-  container: {
-    position: "absolute",
-    width: "100%",
-    zIndex: 1,
-    top: 10,
-    paddingHorizontal: 10,
-  },
-  listView: {
-    backgroundColor: "white",
-  },
-  textInput: {
-    height: 44,
-    backgroundColor: "#fff",
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    fontSize: 16,
-  },
 };
 
 export default BanDo;

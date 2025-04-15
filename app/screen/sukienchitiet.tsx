@@ -14,6 +14,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/sukienchitiet.style";
 import YoutubeIframe from "react-native-youtube-iframe";
+import sukienchitietStyle from "../style/sukienchitiet.style";
 
 const SuKienChiTiet = () => {
   const navigation = useNavigation();
@@ -228,6 +229,22 @@ const SuKienChiTiet = () => {
             </>
           )}
         </View>
+        <TouchableOpacity
+          style={sukienchitietStyle.viewScheduleButton}
+          onPress={() => {
+            router.push({
+              pathname: "/screen/lichtrinh",
+              params: {
+                ten: data.ten,
+                suKienId: data._id,
+              },
+            });
+          }}
+        >
+        <Text style={sukienchitietStyle.viewScheduleText}>
+          📅 Xem lịch trình sự kiện
+        </Text>
+      </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

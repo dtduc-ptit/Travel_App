@@ -15,6 +15,8 @@ import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/sukienchitiet.style";
 import YoutubeIframe from "react-native-youtube-iframe";
 import sukienchitietStyle from "../style/sukienchitiet.style";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const SuKienChiTiet = () => {
   const navigation = useNavigation();
@@ -27,29 +29,45 @@ const SuKienChiTiet = () => {
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [videoList, setVideoList] = useState<any[]>([]);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const userId = await AsyncStorage.getItem("idNguoiDung");
         const res = await axios.get(`${API_BASE_URL}/api/sukien/${id}`);
-        const suKien = res.data;
-        setData(suKien);
-
+        const sukien = res.data;
+  
+        setData(sukien);
+  
+        // Kiểm tra nếu người dùng đã đánh giá
+        if (userId && sukien.danhGiaNguoiDung) {
+          const userRating = sukien.danhGiaNguoiDung.find(
+            (rating: any) => rating.userId === userId
+          );
+          if (userRating) {
+            setSelectedRating(userRating.diem); // Cập nhật điểm đã đánh giá
+          }
+        }
+  
         await axios.patch(`${API_BASE_URL}/api/sukien/${id}/luotxem`);
-
-        if (suKien.media?.length > 0) {
+  
+        if (sukien.media?.length > 0) {
           const mediaData = await Promise.all(
-            suKien.media.map(async (mediaId: string) => {
+            sukien.media.map(async (mediaId: string) => {
               const res = await axios.get(`${API_BASE_URL}/api/media/${mediaId}`);
               return res.data;
             })
           );
           setMedia(mediaData);
-
+  
           const videos = mediaData.filter((item) => item.type === "video");
           setVideoList(videos);
-
-          setMainMedia({ url: mediaData[0]?.url, type: mediaData[0]?.type });
+  
+          setMainMedia({ url: sukien.imageUrl, type: "image" });
+        } else {
+          setMainMedia({ url: sukien.imageUrl, type: "image" });
         }
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
@@ -57,7 +75,7 @@ const SuKienChiTiet = () => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [id]);
 
@@ -82,6 +100,44 @@ const SuKienChiTiet = () => {
     setCurrentVideoIndex(prevIndex);
     setMainMedia(videoList[prevIndex]);
   };
+  const handleRating = async (rating: number) => {
+    setSelectedRating(rating);
+    setIsSubmitting(true);
+  
+    try {
+      const userId = await AsyncStorage.getItem("idNguoiDung");
+      console.log("UserId:", userId);
+      console.log("Rating:", rating);
+  
+      if (!userId) {
+        alert("Vui lòng đăng nhập để đánh giá.");
+        setIsSubmitting(false);
+        return;
+      }
+  
+      // Gửi yêu cầu đánh giá sự kiện
+      const res = await axios.patch(`${API_BASE_URL}/api/sukien/${id}/danhgia`, {
+        diem: rating,
+        userId,
+      });
+      console.log("Response:", res.data);
+  
+      alert(`Đánh giá sự kiện thành công: ${res.data.danhGia} ⭐`);
+  
+      // Cập nhật lại dữ liệu sự kiện trong state
+      setData((prev: any) => ({
+        ...prev,
+        danhGia: res.data.danhGia,
+        soNguoiDanhGia: res.data.soNguoiDanhGia,
+      }));
+    } catch (error) {
+      console.error("Lỗi khi đánh giá sự kiện:", error);
+      alert("Đánh giá sự kiện thất bại");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
 
   if (loading) {
     return (
@@ -218,7 +274,18 @@ const SuKienChiTiet = () => {
             <FontAwesome name="eye" size={16} color="#666" />
             <Text style={styles.views}>{data.luotXem + 1} lượt xem</Text>
           </View>
-
+          
+          <View style={styles.row}>
+            <FontAwesome name="star" size={16} color="#f1c40f" />
+            <Text style={styles.views}>
+              {data.danhGia ? `${data.danhGia.toFixed(1)} / 5 sao` : "Chưa có đánh giá"}
+            </Text>
+          </View>
+          {data.soNguoiDanhGia > 0 && (
+            <Text style={styles.subText}>
+              ({data.soNguoiDanhGia} người đã đánh giá)
+            </Text>
+          )}
           <Text style={styles.subTitle}>Mô tả</Text>
           <Text style={styles.content}>{data.moTa}</Text>
 
@@ -245,6 +312,23 @@ const SuKienChiTiet = () => {
           📅 Xem lịch trình sự kiện
         </Text>
       </TouchableOpacity>
+      <View style={{ flexDirection: "row", marginVertical: 10 ,alignItems: "center", justifyContent: "center"}}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <TouchableOpacity
+            key={star}
+            onPress={() => handleRating(star)}
+            disabled={isSubmitting}
+          >
+            <FontAwesome
+              name={star <= selectedRating ? "star" : "star-o"}
+              size={32}
+              color="#f1c40f"
+              style={{ marginHorizontal: 4 }}
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+
       </ScrollView>
     </SafeAreaView>
   );

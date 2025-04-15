@@ -60,6 +60,17 @@ export default StyleSheet.create({
     height: 220,
     borderRadius: 12,
   },
+  videoContainer: {
+    width: "100%",
+    height: 220,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#000",
+  },
+  video: {
+    flex: 1,
+    borderRadius: 12,
+  },
   moreOverlay: {
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
@@ -71,7 +82,6 @@ export default StyleSheet.create({
     left: 12,
     flexDirection: "row",
   },
-  
   thumbnailWrapper: {
     width: 44,
     height: 44,
@@ -81,14 +91,13 @@ export default StyleSheet.create({
     borderColor: "#fff",
     marginRight: 6,
     backgroundColor: "#eee",
-    elevation: 4, // đổ bóng Android
-    shadowColor: "#000", // đổ bóng iOS
+    elevation: 4, // Android shadow
+    shadowColor: "#000", // iOS shadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     zIndex: 10,
   },
-  
   thumbnail: {
     width: "100%",
     height: "100%",
@@ -98,5 +107,73 @@ export default StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  videoIconOverlay: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -12 }, { translateY: -12 }],
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    borderRadius: 20,
+    padding: 4,
+  },
+  videoButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignSelf: 'flex-end', // Change from 'center' to 'flex-end'
+    marginBottom: 12,
+    marginTop: 20, // Added marginTop to create space
+  },
+  videoButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  thumbnailListContainer: {
+    marginTop: 20, // Added marginTop to create space
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  prevButton: {
+    position: 'absolute',
+    left: 10,
+    top: '50%',
+    transform: [{ translateY: -12 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    padding: 10,
+    zIndex: 20,
+  },
+  nextButton: {
+    position: 'absolute',
+    right: 10,
+    top: '50%',
+    transform: [{ translateY: -12 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    padding: 10,
+    zIndex: 20,
+  },
+  videoNavigation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  navButton: {
+    padding: 10,
+  },
+  videoIndicator: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
+  },
+  subText: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
   },
 });

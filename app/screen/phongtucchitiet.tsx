@@ -14,6 +14,8 @@ import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/phongtucchitiet.style";
 import YoutubeIframe from "react-native-youtube-iframe";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const PhongTucChiTiet = () => {
   const navigation = useNavigation();
@@ -26,31 +28,46 @@ const PhongTucChiTiet = () => {
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [videoList, setVideoList] = useState<any[]>([]);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const userId = await AsyncStorage.getItem("idNguoiDung");
         const res = await axios.get(`${API_BASE_URL}/api/phongtucs/${id}`);
-        const phongTuc = res.data;
-        setData(phongTuc);
-
+        const phongtuc = res.data;
+  
+        setData(phongtuc);
+  
+        // Kiểm tra nếu người dùng đã đánh giá
+        if (userId && phongtuc.danhGiaNguoiDung) {
+          const userRating = phongtuc.danhGiaNguoiDung.find(
+            (rating: any) => rating.userId === userId
+          );
+          if (userRating) {
+            setSelectedRating(userRating.diem);
+          }
+        }
+  
         await axios.patch(`${API_BASE_URL}/api/phongtucs/${id}/luotxem`);
-
-        if (phongTuc.media?.length > 0) {
+  
+        if (phongtuc.media?.length > 0) {
           const mediaData = await Promise.all(
-            phongTuc.media.map(async (mediaId: string) => {
+            phongtuc.media.map(async (mediaId: string) => {
               const res = await axios.get(`${API_BASE_URL}/api/media/${mediaId}`);
               return res.data;
             })
           );
           setMedia(mediaData);
-
+  
           const videos = mediaData.filter((item) => item.type === "video");
           setVideoList(videos);
-
-          setMainMedia({ url: phongTuc.imageUrl, type: "image" });
+  
+          setMainMedia({ url: phongtuc.imageUrl, type: "image" });
         } else {
-          setMainMedia({ url: phongTuc.imageUrl, type: "image" });
+          setMainMedia({ url: phongtuc.imageUrl, type: "image" });
         }
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
@@ -58,7 +75,7 @@ const PhongTucChiTiet = () => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [id]);
 
@@ -83,6 +100,48 @@ const PhongTucChiTiet = () => {
     setCurrentVideoIndex(prevIndex);
     setMainMedia(videoList[prevIndex]);
   };
+
+  const handleRating = async (rating: number) => {
+    setSelectedRating(rating);
+    setIsSubmitting(true);
+  
+    try {
+      // Lấy userId từ AsyncStorage
+      const userId = await AsyncStorage.getItem("idNguoiDung");
+      console.log("UserId:", userId);
+      console.log("Rating:", rating);
+  
+      if (!userId) {
+        alert("Vui lòng đăng nhập để đánh giá.");
+        setIsSubmitting(false);
+        return;
+      }
+  
+      // Gửi yêu cầu đánh giá lên Backend
+      const res = await axios.patch(`${API_BASE_URL}/api/phongtucs/${id}/danhgia`, {
+        diem: rating,
+        userId,
+      });
+      console.log("Response:", res.data);
+  
+      // Hiển thị thông báo sau khi đánh giá thành công
+      alert(`Đánh giá thành công: ${res.data.danhGia} ⭐`);
+  
+      // Cập nhật lại dữ liệu di tích trong state
+      setData((prev: any) => ({
+        ...prev,
+        danhGia: res.data.danhGia,
+        soNguoiDanhGia: res.data.soNguoiDanhGia,
+      }));
+    } catch (error) {
+      console.error("Lỗi khi đánh giá:", error);
+      alert("Đánh giá thất bại");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  
 
   if (loading) {
     return (
@@ -212,6 +271,17 @@ const PhongTucChiTiet = () => {
             <FontAwesome name="eye" size={16} color="#666" />
             <Text style={styles.views}>{data.luotXem + 1} lượt xem</Text>
           </View>
+          <View style={styles.row}>
+            <FontAwesome name="star" size={16} color="#f1c40f" />
+            <Text style={styles.views}>
+              {data.danhGia ? `${data.danhGia.toFixed(1)} / 5 sao` : "Chưa có đánh giá"}
+            </Text>
+          </View>
+          {data.soNguoiDanhGia > 0 && (
+            <Text style={styles.subText}>
+              ({data.soNguoiDanhGia} người đã đánh giá)
+            </Text>
+          )}
   
           <Text style={styles.subTitle}>Ý nghĩa</Text>
           <Text style={styles.content}>{data.yNghia}</Text>
@@ -219,6 +289,19 @@ const PhongTucChiTiet = () => {
           <Text style={styles.subTitle}>Mô tả</Text>
           <Text style={styles.content}>{data.moTa}</Text>
         </View>
+        <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: 20 }}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <TouchableOpacity key={star} onPress={() => handleRating(star)} disabled={isSubmitting}>
+              <FontAwesome
+                name={star <= selectedRating ? "star" : "star-o"}
+                size={32}
+                color="#f1c40f"
+                style={{ marginHorizontal: 5 }}
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );

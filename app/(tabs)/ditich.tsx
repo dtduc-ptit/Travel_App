@@ -15,8 +15,8 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import { GestureHandlerRootView, ScrollView as GestureScrollView } from 'react-native-gesture-handler';
-import AsyncStorage from "@react-native-async-storage/async-storage"; 
-import UserHeader from '../screen/tieude';  
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import UserHeader from '../screen/tieude';  // Import UserHeader component
 
 const TrangDiTich = () => {
   const router = useRouter();

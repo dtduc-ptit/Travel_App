@@ -25,6 +25,8 @@ const TrangSuKien = () => {
   const [popularEvents, setPopularEvents] = useState([]);
   const [mostViewed, setMostViewed] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("Tất cả");
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+
 
   const locations = ["Tất cả", "Hà Tĩnh", "Hương Sơn", "Hương Khê"];
 
@@ -58,6 +60,16 @@ const TrangSuKien = () => {
       }
     };
 
+    const fetchUpcoming = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/sukien/sapdienra`);
+        setUpcomingEvents(response.data);
+      } catch (error) {
+        console.error("Lỗi khi fetch sự kiện sắp diễn ra:", error);
+      }
+    };
+    
+    fetchUpcoming();
     fetchFeatured();
     fetchPopular();
     fetchViewed();
@@ -84,7 +96,7 @@ const TrangSuKien = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 16 }}
         >
-          <Text style={styles.sectionTitle}>Sự kiện nổi bật</Text>
+          <Text style={[styles.sectionTitle,styles.titleStyle]}>Sự kiện nổi bật</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
             {locations.map((location) => (
               <TouchableOpacity
@@ -112,9 +124,22 @@ const TrangSuKien = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: 8 }}
           />
+        <View style={styles.sectionWrapper}>
+          <TouchableOpacity onPress={() => router.push("/screen/sukiensapxep")}>
+            <Text style={[styles.sectionTitle,styles.titleStyle]}>Sự kiện sắp diễn ra</Text>
+          </TouchableOpacity>
+          <FlatList
+            data={upcomingEvents}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 8 }}
+          />
+        </View>
 
           <View style={styles.sectionWrapper}>
-            <Text style={styles.sectionTitle}>Sự kiện phổ biến khác</Text>
+            <Text style={[styles.sectionTitle,styles.titleStyle]}>Sự kiện phổ biến khác</Text>
             <FlatList
               data={popularEvents}
               renderItem={renderItem}
@@ -125,7 +150,7 @@ const TrangSuKien = () => {
             />
           </View>
 
-          <Text style={styles.sectionTitle}>Xem nhiều</Text>
+          <Text style={[styles.sectionTitle,styles.titleStyle]}>Xem nhiều</Text>
           <FlatList
             data={mostViewed}
             renderItem={renderItem}

@@ -144,6 +144,26 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
   },
+  titleWithSort: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  
+  sortButton: {
+    backgroundColor: "#eee",
+    padding: 6,
+    borderRadius: 20,
+    marginLeft: 8,
+  },
+  titleStyle: {
+    fontWeight: 'bold',
+    fontSize: 20,
+    textAlign: 'left',  // Đảm bảo các tiêu đề đều căn trái
+  }
 });
+
 
 export default styles;

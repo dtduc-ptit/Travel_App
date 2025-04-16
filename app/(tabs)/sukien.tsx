@@ -14,6 +14,7 @@ import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
+
 import { GestureHandlerRootView, ScrollView as GestureScrollView } from 'react-native-gesture-handler';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UserHeader from '../screen/tieude';

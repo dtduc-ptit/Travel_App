@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { HapticTab } from '@/components/HapticTab';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Stack } from "expo-router";
+
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();

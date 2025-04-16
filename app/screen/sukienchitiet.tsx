@@ -12,10 +12,10 @@ import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
-import styles from "../style/sukienchitiet.style";
 import YoutubeIframe from "react-native-youtube-iframe";
 import sukienchitietStyle from "../style/sukienchitiet.style";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import styles from "../style/sukienchitiet.style";
 
 
 const SuKienChiTiet = () => {

@@ -63,6 +63,15 @@ const styles = StyleSheet.create({
     highlight: {
       color: "#007AFF",
     },
+    eventTitle: {
+      color: "#fff",
+      fontSize: 18,
+      fontWeight: "bold",
+      textShadowColor: "rgba(0, 0, 0, 0.75)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
+    },
+    
   });
   
   export default styles;

@@ -79,7 +79,7 @@ const SuKienSapDienRaScreen = () => {
             <ImageBackground source={{ uri: item.imageUrl }} style={styles.item}>
               <View style={styles.overlay}>
                 <Text style={styles.time}>{item.thoiGianBatDau}</Text>
-                <Text style={styles.title}>{item.ten}</Text>
+                <Text style={styles.eventTitle}>{item.ten}</Text>
               </View>
             </ImageBackground>
           </TouchableOpacity>

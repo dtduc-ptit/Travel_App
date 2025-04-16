@@ -15,6 +15,8 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import { GestureHandlerRootView, ScrollView as GestureScrollView } from 'react-native-gesture-handler';
+import UserHeader from "../screen/tieude";
+
 
 const TrangPhongTuc = () => {
   const router = useRouter();
@@ -89,20 +91,7 @@ const TrangPhongTuc = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
-        {/* Header cố định */}
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            DU LỊCH <Text style={styles.highlight}>HÀ TĨNH</Text>
-          </Text>
-          <Image source={require("../../assets/images/logo.jpg")} style={styles.logo} />
-        </View>
-  
-        {/* Thanh tìm kiếm cố định */}
-        <View style={styles.searchBar}>
-          <FontAwesome name="search" size={16} color="gray" />
-          <TextInput placeholder="Tìm kiếm..." style={styles.searchInput} />
-        </View>
-  
+        <UserHeader /> 
         {/* Nội dung cuộn */}
         <GestureScrollView 
           showsVerticalScrollIndicator={false} 
@@ -137,7 +126,6 @@ const TrangPhongTuc = () => {
             contentContainerStyle={{ paddingVertical: 8 }}
           />
   
-          <View style={styles.sectionWrapper}>
             <Text style={styles.sectionTitle}>Phong tục phổ biến khác</Text>
             <FlatList
               data={popularPlaces}
@@ -147,7 +135,6 @@ const TrangPhongTuc = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingVertical: 8 }}
             />
-          </View>
   
           <Text style={styles.sectionTitle}>Xem nhiều</Text>
           <FlatList

@@ -115,7 +115,6 @@ const TrangDiTich = () => {
             contentContainerStyle={{ paddingVertical: 8 }}
           />
 
-          <View style={styles.sectionWrapper}>
             <Text style={styles.sectionTitle}>Di tích phổ biến khác</Text>
             <FlatList
               data={popularPlaces}
@@ -125,7 +124,6 @@ const TrangDiTich = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingVertical: 8 }}
             />
-          </View>
 
           <Text style={styles.sectionTitle}>Xem nhiều</Text>
           <FlatList

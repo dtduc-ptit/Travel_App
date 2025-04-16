@@ -61,7 +61,7 @@ const UserHeader = () => {
         <TouchableOpacity
           onPress={() =>
             router.push({
-              pathname: "/auth/trangcanhan",
+              pathname: "../auth/trangcanhan",
               params: { id: nguoiDung?._id }
             })
           }

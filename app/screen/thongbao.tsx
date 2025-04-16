@@ -18,8 +18,13 @@ type ThongBao = {
   tieuDe: string;
   noiDung: string;
   thoiGianGui: string;
-  daDoc: boolean; 
+  daDoc: boolean;
+  suKien: {
+    _id: string; 
+    ten?: string; 
+  };
 };
+
 
 
 const ThongBaoScreen = () => {
@@ -54,7 +59,7 @@ const ThongBaoScreen = () => {
   }, [userId]);
 
   const renderItem = ({ item }: { item: ThongBao }) => (
-    <TouchableOpacity onPress={() => handlePressThongBao(item._id)}>
+    <TouchableOpacity onPress={() => handlePressThongBao(item._id, item.suKien._id)}>
       <View
         style={[
           styles.notification,
@@ -74,20 +79,26 @@ const ThongBaoScreen = () => {
     </TouchableOpacity>
   );
   
-  const handlePressThongBao = async (idThongBao: string) => {
+  const handlePressThongBao = async (idThongBao: string, idSuKien: string) => {
     try {
       await axios.patch(`${API_BASE_URL}/api/thongbao/${idThongBao}/doc`);
-      
-      // Cập nhật lại trạng thái đã đọc trong local state
+  
       setThongBao((prev) =>
         prev.map((tb) =>
           tb._id === idThongBao ? { ...tb, daDoc: true } : tb
         )
       );
+  
+      // ➤ Chuyển sang trang sự kiện chi tiết
+      router.push({
+        pathname: "/screen/sukienchitiet",
+        params: { id: idSuKien },
+      });
     } catch (error) {
       console.error("Lỗi khi đánh dấu đã đọc:", error);
     }
   };
+  
   
 
   return (

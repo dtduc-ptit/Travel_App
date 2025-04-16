@@ -37,9 +37,10 @@ const styles = StyleSheet.create({
       marginBottom: 6,
     },
     title: {
-      color: "white",
-      fontSize: 18,
+      fontSize: 24,
       fontWeight: "bold",
+      textAlign: "center",
+      color: "#333",
     },
     header: {
         flexDirection: "row",
@@ -55,7 +56,22 @@ const styles = StyleSheet.create({
         marginBottom:10,
         color: "#333",
       },
-      
+    headerTextContainer: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    highlight: {
+      color: "#007AFF",
+    },
+    eventTitle: {
+      color: "#fff",
+      fontSize: 18,
+      fontWeight: "bold",
+      textShadowColor: "rgba(0, 0, 0, 0.75)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
+    },
+    
   });
   
   export default styles;

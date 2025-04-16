@@ -87,6 +87,18 @@ const TrangSuKien = () => {
     </TouchableOpacity>
   );
 
+  const renderPopularItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
+    <TouchableOpacity 
+      style={styles.placeContainer}
+      onPress={() => router.push({ pathname: "/screen/sukienchitiet", params: { id: item._id } })} 
+      >
+      <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
+      <View style={styles.overlay}>
+        <Text style={styles.placeText}>{item.ten}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
@@ -138,7 +150,7 @@ const TrangSuKien = () => {
 
             <FlatList
               data={upcomingEvents}
-              renderItem={renderItem}
+              renderItem={renderPopularItem}
               keyExtractor={(item) => item._id}
               horizontal
               showsHorizontalScrollIndicator={false}

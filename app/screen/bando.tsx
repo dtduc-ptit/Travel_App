@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useState, useEffect } from "react";
 import { View, Alert, TextInput, Keyboard, Text } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -6,6 +7,7 @@ import axios from "axios";
 import { API_BASE_URL, OPENROUTESERVICE_API_KEY } from "../../constants/config";
 import { useLocalSearchParams } from "expo-router";
 import styles from "../style/bando.style";
+import { FontAwesome } from "@expo/vector-icons";
 
 type Coordinate = {
   latitude: number;
@@ -115,36 +117,62 @@ const BanDo = () => {
     }
   };
 
-  const handleSearch = async () => {
+  // const handleSearch = async () => {
+  //   if (!originInput || !destinationInput) {
+  //     Alert.alert("Thiếu thông tin", "Vui lòng nhập cả hai địa chỉ.");
+  //     return;
+  //   }
+  
+  //   const [origin, destination] = await Promise.all([
+  //     geocodeAddress(originInput),
+  //     geocodeAddress(destinationInput),
+  //   ]);
+  
+  //   if (origin && destination) {
+  //     try {
+  //       const [snappedOrigin, snappedDestination] = await Promise.all([
+  //         snapToRoad(origin),
+  //         snapToRoad(destination),
+  //       ]);
+  
+  //       setOriginCoords(snappedOrigin);
+  //       setDestinationCoords(snappedDestination);
+  //       fetchRoute(snappedOrigin, snappedDestination);
+  //       Keyboard.dismiss();
+  //     } catch (err) {
+  //       Alert.alert("Lỗi", "Không thể định vị gần đường để tìm đường đi.");
+  //     }
+  //   } else {
+  //     Alert.alert("Lỗi", "Không xác định được vị trí hợp lệ từ địa chỉ.");
+  //   }
+  // };
+  
+    const handleSearch = async () => {
     if (!originInput || !destinationInput) {
       Alert.alert("Thiếu thông tin", "Vui lòng nhập cả hai địa chỉ.");
       return;
     }
-  
+
+    if (!validateAddress(originInput) || !validateAddress(destinationInput)) {
+      Alert.alert("Địa chỉ không hợp lệ", "Vui lòng nhập địa chỉ rõ ràng.");
+      return;
+    }
+
     const [origin, destination] = await Promise.all([
       geocodeAddress(originInput),
       geocodeAddress(destinationInput),
     ]);
-  
+
     if (origin && destination) {
-      try {
-        const [snappedOrigin, snappedDestination] = await Promise.all([
-          snapToRoad(origin),
-          snapToRoad(destination),
-        ]);
-  
-        setOriginCoords(snappedOrigin);
-        setDestinationCoords(snappedDestination);
-        fetchRoute(snappedOrigin, snappedDestination);
-        Keyboard.dismiss();
-      } catch (err) {
-        Alert.alert("Lỗi", "Không thể định vị gần đường để tìm đường đi.");
-      }
-    } else {
-      Alert.alert("Lỗi", "Không xác định được vị trí hợp lệ từ địa chỉ.");
+      const snappedOrigin = await snapToRoad(origin);
+      const snappedDestination = await snapToRoad(destination);
+
+      setOriginCoords(snappedOrigin);
+      setDestinationCoords(snappedDestination);
+      fetchRoute(snappedOrigin, snappedDestination);
+      Keyboard.dismiss();
     }
   };
-  
 
   useEffect(() => {
     const fetchViTriDiTich = async () => {
@@ -178,24 +206,53 @@ const BanDo = () => {
   return (
     <View style={styles.container}>
       {/* Ô nhập địa chỉ bạn đang ở */}
-      <TextInput
+      {/* <TextInput
         style={[styles.input, { marginTop: 40 }]}
         placeholder="Nhập địa chỉ bạn đang ở"
         value={originInput}
         onChangeText={setOriginInput}
         returnKeyType="next"
         onSubmitEditing={handleSearch}
-      />
+      /> */}
 
       {/* Ô nhập địa chỉ đích */}
-      <TextInput
+      {/* <TextInput
         style={[styles.input, { marginTop: 10 }]}
         placeholder="Nhập địa chỉ bạn muốn đến"
         value={destinationInput}
         onChangeText={setDestinationInput}
         returnKeyType="search"
         onSubmitEditing={handleSearch}
-      />
+      /> */}
+
+      <View style={styles.inputBox}>
+        {/* Ô nhập vị trí của bạn */}
+        <View style={styles.inputRow}>
+          <View style={styles.iconCircle} />
+          <TextInput
+            style={styles.input}
+            placeholder="Vị trí của bạn"
+            value={originInput}
+            onChangeText={setOriginInput}
+            returnKeyType="next"
+            onSubmitEditing={handleSearch}
+          />
+        </View>
+
+        {/* Ô nhập địa điểm đến */}
+        <View style={styles.inputRow}>
+          <View style={styles.iconPin} />
+          <TextInput
+            style={styles.input}
+            placeholder="Khu di tích bạn muốn đến"
+            value={destinationInput}
+            onChangeText={setDestinationInput}
+            returnKeyType="search"
+            onSubmitEditing={handleSearch}
+          />
+        </View>
+      </View>
+
 
       {/* Bản đồ */}
       <MapView

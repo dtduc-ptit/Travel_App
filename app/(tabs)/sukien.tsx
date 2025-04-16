@@ -124,21 +124,28 @@ const TrangSuKien = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: 8 }}
           />
-        <View style={styles.sectionWrapper}>
-          <TouchableOpacity onPress={() => router.push("/screen/sukiensapxep")}>
-            <Text style={[styles.sectionTitle,styles.titleStyle]}>Sự kiện sắp diễn ra</Text>
-          </TouchableOpacity>
-          <FlatList
-            data={upcomingEvents}
-            renderItem={renderItem}
-            keyExtractor={(item) => item._id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 8 }}
-          />
-        </View>
+            <View style={styles.headerRow}>
+              <Text style={[styles.sectionTitle, styles.titleStyle]}>
+                Sự kiện sắp diễn ra
+              </Text>
 
-          <View style={styles.sectionWrapper}>
+              <TouchableOpacity onPress={() => router.push("/screen/sukiensapxep")}>
+                <Text style={styles.sortButton}>Sắp xếp</Text>
+                {/* Hoặc dùng icon:
+                <Ionicons name="filter" size={20} color="#007AFF" /> */}
+              </TouchableOpacity>
+            </View>
+
+            <FlatList
+              data={upcomingEvents}
+              renderItem={renderItem}
+              keyExtractor={(item) => item._id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingVertical: 8 }}
+            />
+
+
             <Text style={[styles.sectionTitle,styles.titleStyle]}>Sự kiện phổ biến khác</Text>
             <FlatList
               data={popularEvents}
@@ -148,7 +155,6 @@ const TrangSuKien = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingVertical: 8 }}
             />
-          </View>
 
           <Text style={[styles.sectionTitle,styles.titleStyle]}>Xem nhiều</Text>
           <FlatList

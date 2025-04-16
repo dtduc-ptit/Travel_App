@@ -287,15 +287,19 @@ const DiTichChiTiet = () => {
           <Text style={styles.content}>{data.moTa}</Text>
         </View>
 
-        <Button
-          title="Xem lịch trình tham quan"
-          onPress={() =>
-            router.push({
-              pathname: "/screen/lichtrinh",
-              params: { diTichId: data._id },
-            })
-          }
-        />
+        <View style={{ marginTop: 16, paddingHorizontal: 20 }}>
+          <Button
+            title="Xem lịch trình tham quan"
+            color="#007bff"
+            onPress={() =>
+              router.push({
+                pathname: "/screen/lichtrinh",
+                params: { diTichId: data._id },
+              })
+            }
+          />
+        </View>
+
 
         <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: 20 }}>
           {[1, 2, 3, 4, 5].map((star) => (

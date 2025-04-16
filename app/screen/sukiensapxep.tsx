@@ -7,7 +7,7 @@ import styles from "../style/sukiensapxep.style";
 import { StatusBar, Platform ,TouchableOpacity} from "react-native";
 import { useNavigation } from '@react-navigation/native'; 
 import { Ionicons } from '@expo/vector-icons';
-
+import { useRouter } from "expo-router";
 
 interface SuKien {
   _id: string;
@@ -49,10 +49,23 @@ const SuKienSapDienRaScreen = () => {
     fetchData();
   }, []);
   const navigation = useNavigation();
-
+  const router = useRouter();
   return (
     <View style={{ paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, flex: 1 }}>
-        <Text style={styles.mainTitle}>Sự kiện diễn ra trong năm</Text>
+      {/* Back button */}
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={{ position: "absolute", top: 40, left: 20, zIndex: 1 }}
+      >
+        <Ionicons name="arrow-back" size={28} color="black" />
+      </TouchableOpacity>
+      <View style={{ marginTop: 40, alignItems: "center", paddingHorizontal: 20 }}>
+        <Text style={styles.title}>
+          DU LỊCH <Text style={styles.highlight}>HÀ TĨNH</Text>
+        </Text>
+      </View>
+      <Text style={[styles.mainTitle, { marginTop: 5 }]}>Sự kiện diễn ra trong năm</Text>
+
       <SectionList
         sections={sections}
         keyExtractor={(item) => item._id}
@@ -60,15 +73,20 @@ const SuKienSapDienRaScreen = () => {
           <Text style={styles.sectionHeader}>Tháng {title}</Text>
         )}
         renderItem={({ item }) => (
-          <ImageBackground source={{ uri: item.imageUrl }} style={styles.item}>
-            <View style={styles.overlay}>
-              <Text style={styles.time}>{item.thoiGianBatDau}</Text>
-              <Text style={styles.title}>{item.ten}</Text>
-            </View>
-          </ImageBackground>
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: "/screen/sukienchitiet", params: { id: item._id } })}
+          >
+            <ImageBackground source={{ uri: item.imageUrl }} style={styles.item}>
+              <View style={styles.overlay}>
+                <Text style={styles.time}>{item.thoiGianBatDau}</Text>
+                <Text style={styles.title}>{item.ten}</Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
         )}
       />
     </View>
+
   );
   
 };

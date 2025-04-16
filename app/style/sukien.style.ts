@@ -162,7 +162,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
     textAlign: 'left',  // Đảm bảo các tiêu đề đều căn trái
-  }
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+  
+  
 });
 
 

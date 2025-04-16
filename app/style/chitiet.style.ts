@@ -55,4 +55,28 @@ export default StyleSheet.create({
     color: "#333",
     marginBottom: 40,
   },
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.7)", // Lớp phủ mờ
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999, // Đảm bảo Modal hiển thị lên trên
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 8,
+    width: "90%",
+    alignItems: "center",
+    minHeight: 250, // Đảm bảo chiều cao cho WebView
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+  },
 });

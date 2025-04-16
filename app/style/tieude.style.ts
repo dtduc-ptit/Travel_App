@@ -57,21 +57,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
-  notificationDot: {
+
+  notificationBadge: {
     position: 'absolute',
-    top: 2,
-    right: 2,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    top: -4,
+    right: -4,
     backgroundColor: 'red',
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 10,
-    shadowColor: 'red',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 4,
-    elevation: 5, // glow cho Android
   },
+  notificationBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  
+  
 });
 
 export default styles;

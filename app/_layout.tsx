@@ -8,7 +8,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Ngăn splash auto hide cho đến khi load font xong
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -23,23 +23,31 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: 'fade',
+          animation: 'slide_from_right', // 🔥 Hiệu ứng chuyển trang
         }}
       >
+        {/* Các trang gốc */}
         <Stack.Screen name="index" />
         <Stack.Screen name="splash" />
         <Stack.Screen name="auth" />
         <Stack.Screen name="(tabs)" />
+
+        {/* ✅ Khai báo các trang trong thư mục screen/ để animation hoạt động */}
+        <Stack.Screen name="screen/sukienchitiet" />
+        <Stack.Screen name="screen/ditichchitiet" />
+        <Stack.Screen name="screen/phongtucchitiet" />
+        <Stack.Screen name="screen/ketquatimkiem" />
+        <Stack.Screen name="screen/bando" />
+        {/* Thêm các trang khác nếu có */}
       </Stack>
+
       <StatusBar style="auto" />
     </ThemeProvider>
   );

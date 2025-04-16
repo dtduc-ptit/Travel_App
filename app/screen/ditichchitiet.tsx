@@ -287,32 +287,36 @@ const DiTichChiTiet = () => {
           <Text style={styles.content}>{data.moTa}</Text>
         </View>
 
-        <View style={{ marginTop: 16, paddingHorizontal: 20 }}>
-          <Button
-            title="Xem lịch trình tham quan"
-            color="#007bff"
+        <View style={styles.buttonLichTrinhContainer}>
+          <TouchableOpacity
+            style={styles.buttonLichTrinh}
             onPress={() =>
               router.push({
                 pathname: "/screen/lichtrinh",
                 params: { diTichId: data._id },
               })
             }
-          />
+          >
+            <Text style={styles.buttonLichTrinhText}>Xem lịch trình</Text>
+          </TouchableOpacity>
         </View>
 
 
-        <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: 20 }}>
+
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginVertical: 20 }}>
+          <Text style={{ marginRight: 8, fontSize: 18, fontWeight: "500" }}>Đánh giá:</Text>
           {[1, 2, 3, 4, 5].map((star) => (
             <TouchableOpacity key={star} onPress={() => handleRating(star)} disabled={isSubmitting}>
               <FontAwesome
                 name={star <= selectedRating ? "star" : "star-o"}
-                size={32}
+                size={20} 
                 color="#f1c40f"
-                style={{ marginHorizontal: 5 }}
+                style={{ marginHorizontal: 3 }}
               />
             </TouchableOpacity>
           ))}
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );

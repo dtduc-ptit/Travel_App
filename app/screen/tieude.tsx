@@ -99,10 +99,16 @@ const UserHeader = () => {
           onPress={() => router.push("../screen/thongbao")}
         >
           <Ionicons name="notifications-outline" size={24} color="#333" />
+
           {soThongBaoChuaDoc > 0 && (
-            <View style={styles.notificationDot} />
+            <View style={styles.notificationBadge}>
+              <Text style={styles.notificationBadgeText}>
+                {soThongBaoChuaDoc > 99 ? '99+' : soThongBaoChuaDoc}
+              </Text>
+            </View>
           )}
-        </TouchableOpacity>
+</TouchableOpacity>
+
       </View>
 
       {/* Search bar */}

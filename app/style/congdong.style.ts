@@ -1,145 +1,181 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 
-const styles = StyleSheet.create({
+const screenWidth = Dimensions.get("window").width;
+
+export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-  },
-  headerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#fff',
-    justifyContent: 'space-between',  // Căn đều giữa chữ và các icon
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  highlight: {
-    color: '#0058ff',
-  },
-  iconsContainer: {
-    flexDirection: 'row',  // Đặt các icon theo hàng ngang
-    justifyContent: 'space-between',  // Cách đều các icon
-    width: 120,  // Đảm bảo đủ không gian cho 3 icon
-  },
-  icon: {
-    marginHorizontal: 5,  // Khoảng cách giữa các icon
-  },
-  postSection: {
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    margin: 15,
-    marginBottom: 0,
-  },
-  postPlaceholder: {
-    fontSize: 16,
-    color: '#777',
-    marginBottom: 15,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',  // Căn đều hai bên
-    marginTop: 10,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',  // Đặt icon và text cạnh nhau
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    margin: 5,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  actionText: {
-    fontSize: 14,
-    marginLeft: 5,  // Khoảng cách giữa icon và chữ
-    color: 'black', // Chữ vẫn là màu đen
-  },
-  postContainer: {
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 10,
   },
-  userName: {
-    fontWeight: 'bold',
-    fontSize: 16,
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    flexDirection: "row",
+    alignItems: "center",
   },
-  time: {
-    fontSize: 12,
-    color: 'gray',
+  duLichText: {
+    color: "#555",
+    fontWeight: "bold",
+  },
+  haTinhText: {
+    color: "#007bff",
+    fontWeight: "bold",
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  iconButton: {
+    marginLeft: 12,
+  },
+  // giữ nguyên phần cũ
+  backButton: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  image: {
+    width: screenWidth / 2 - 20,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  title: {
+    width: screenWidth / 2 - 20,
+    fontSize: 18,
+    fontWeight: "bold",
+    flexWrap: "wrap",
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  button: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    marginLeft: 6,
+    fontSize: 14,
   },
   content: {
     fontSize: 16,
-    marginVertical: 10,
+    lineHeight: 24,
+    color: "#333",
+    marginBottom: 40,
   },
-  image: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  iconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,  // Thêm khoảng cách giữa các icon
-  },
-  iconText: {
-    marginLeft: 5,
-    fontSize: 14,
-    color: 'gray',
-  },
-
-  // New styles for modal and input fields
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark background for modal
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
   },
   modalContent: {
-    backgroundColor: 'white',
-    width: '80%',
-    padding: 20,
-    borderRadius: 10,
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 8,
+    width: "90%",
+    alignItems: "center",
+    minHeight: 250,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
-  input: {
-    height: 40,
-    borderColor: '#ddd',
+
+  // New Post Section Styles
+  postContainer: {
+    marginTop: 20,
     borderWidth: 1,
-    marginBottom: 15,
-    paddingLeft: 10,
-    borderRadius: 5,
+    borderColor: "#ddd",
+    padding: 12,
+    borderRadius: 8,
   },
-  modalButtons: {
+  postHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  placeholderText: {
+    color: "#aaa",
+    fontSize: 16,
+  },
+
+  // Media Section (Image and Video)
+  mediaContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 12,
+  },
+  mediaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginHorizontal: 16,
+  },
+  mediaText: {
+    color: "#007bff",
+    fontSize: 14,
+  },
+  userInfo: {
+    flexDirection: 'column',
+  },
+  userName: {
+    fontWeight: 'bold',
+  },
+  postTime: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  postContent: {
+    fontSize: 16,
+    marginVertical: 8,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    marginVertical: 8,
+    borderRadius: 8,
+  },
+  postActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });
-
-export default styles;

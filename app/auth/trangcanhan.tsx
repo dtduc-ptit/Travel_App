@@ -17,14 +17,15 @@ import styles from "../style/trangcanhan.style";
 import { useNavigation } from "@react-navigation/native";
 
 
-const TAB_OPTIONS = ['Phong tục', 'Di Tích', 'Địa điểm', 'Sự kiện'];
+const TAB_OPTIONS = ['Phong tục', 'Di Tích', 'Sự kiện'];
 
 const TrangCaNhan = () => {
   const [nguoiDung, setNguoiDung] = useState<any>(null);
   const router = useRouter();
   const navigation = useNavigation();
+  const [soThongBaoChuaDoc, setSoThongBaoChuaDoc] = useState<number>(0);
 
-  const [selectedTab, setSelectedTab] = useState('Địa điểm');
+  const [selectedTab, setSelectedTab] = useState('Di Tích');
   interface DiaDiem {
     _id: string;
     ten: string;
@@ -80,7 +81,7 @@ const TrangCaNhan = () => {
 
       setDiaDiemData(res.data.diaDiems);
     } catch (error) {
-      console.error('Lỗi khi fetch dữ liệu địa điểm:', error);
+      console.error('Lỗi khi fetch dữ liệu di tích:', error);
     } finally {
       setLoading(false);
     }
@@ -98,12 +99,29 @@ const TrangCaNhan = () => {
         console.error("Lỗi khi lấy thông tin người dùng:", error);
       }
     };
-    if (selectedTab === 'Địa điểm') {
+  
+    fetchNguoiDung();
+  }, []); // chỉ chạy 1 lần khi component mount
+  
+  useEffect(() => {
+    if (selectedTab === 'Di Tích') {
       fetchDiaDiem();
     }
+  
+    const fetchSoThongBaoChuaDoc = async () => {
+      if (!nguoiDung?._id) return;
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/thongbao/chuadoc/${nguoiDung._id}`);
+        setSoThongBaoChuaDoc(res.data.soLuongChuaDoc || 0);
+      } catch (error) {
+        console.error("Lỗi khi lấy số lượng thông báo chưa đọc:", error);
+      }
+    };
+  
+    fetchSoThongBaoChuaDoc();
+  }, [selectedTab, nguoiDung?._id]); // chỉ phụ thuộc id người dùng thôi
+  
 
-    fetchNguoiDung();
-  }, [selectedTab]);
   const logout = async () => {
     try {
       await AsyncStorage.removeItem("idNguoiDung");
@@ -115,10 +133,13 @@ const TrangCaNhan = () => {
 
   const renderDiaDiem = ({ item }: any) => (
     <View style={styles.itemWrapper}>
-      <View style={styles.item}>
+      <TouchableOpacity 
+        style={styles.item}       
+        onPress={() => router.push({ pathname: "/screen/ditichchitiet", params: { id: item._id } })}
+        >
         <Text style={styles.ten}>{item.ten}</Text>
         <Text style={styles.viTri}>{item.viTri}</Text>
-      </View>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.deleteButton}
@@ -167,9 +188,21 @@ const TrangCaNhan = () => {
           </TouchableOpacity>
 
           <View style={styles.iconRow}>
-            <TouchableOpacity style={styles.iconWrapper} onPress={() => router.push("../screen/thongbao")}>
-              <Ionicons name="notifications-outline" size={22} color="#333" />
-            </TouchableOpacity>
+        {/* Icon thông báo */}
+        <TouchableOpacity
+          style={styles.iconWrapper}
+          onPress={() => router.push("../screen/thongbao")}
+        >
+          <Ionicons name="notifications-outline" size={24} color="#333" />
+
+          {soThongBaoChuaDoc > 0 && (
+            <View style={styles.notificationBadge}>
+              <Text style={styles.notificationBadgeText}>
+                {soThongBaoChuaDoc > 99 ? '99+' : soThongBaoChuaDoc}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
 
             <TouchableOpacity onPress={logout}>
               <FontAwesome name="sign-out" size={22} color="red" />
@@ -199,7 +232,7 @@ const TrangCaNhan = () => {
     </View>
 
     <View style={styles.content}>
-    {selectedTab === "Địa điểm" ? (
+    {selectedTab === "Di Tích" ? (
     loading ? (
       <Text>Đang tải...</Text>
     ) : diaDiemData.length > 0 ? (
@@ -218,8 +251,6 @@ const TrangCaNhan = () => {
     </View>
   </ScrollView>
 </View>
-
-
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,12 +11,15 @@ import axios from "axios";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { API_BASE_URL } from "../../constants/config";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native"; // <-- THÊM DÒNG NÀY
 import styles from "../style/tieude.style";
 
 const UserHeader = () => {
   const [nguoiDung, setNguoiDung] = useState<any>(null);
+  const [soThongBaoChuaDoc, setSoThongBaoChuaDoc] = useState<number>(0);
   const router = useRouter();
 
+  // Lấy thông tin người dùng
   useEffect(() => {
     const fetchNguoiDung = async () => {
       try {
@@ -32,6 +35,24 @@ const UserHeader = () => {
 
     fetchNguoiDung();
   }, []);
+
+  // Tự động cập nhật số lượng thông báo chưa đọc mỗi lần focus
+  useFocusEffect(
+    useCallback(() => {
+      const fetchSoThongBaoChuaDoc = async () => {
+        if (!nguoiDung?._id) return;
+
+        try {
+          const res = await axios.get(`${API_BASE_URL}/api/thongbao/chuadoc/${nguoiDung._id}`);
+          setSoThongBaoChuaDoc(res.data.soLuongChuaDoc || 0);
+        } catch (error) {
+          console.error("Lỗi khi lấy số lượng thông báo chưa đọc:", error);
+        }
+      };
+
+      fetchSoThongBaoChuaDoc();
+    }, [nguoiDung])
+  );
 
   return (
     <View style={styles.headerWrapper}>
@@ -68,6 +89,9 @@ const UserHeader = () => {
           onPress={() => router.push("../screen/thongbao")}
         >
           <Ionicons name="notifications-outline" size={24} color="#333" />
+          {soThongBaoChuaDoc > 0 && (
+            <View style={styles.notificationDot} />
+          )}
         </TouchableOpacity>
       </View>
 

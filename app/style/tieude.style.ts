@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     padding: 6,
+    position: "relative", // cần thiết để định vị dot
   },
   searchBar: {
     flexDirection: "row",
@@ -55,6 +56,21 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     fontSize: 14,
     color: "#333",
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'red',
+    zIndex: 10,
+    shadowColor: 'red',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 4,
+    elevation: 5, // glow cho Android
   },
 });
 

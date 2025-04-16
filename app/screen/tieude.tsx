@@ -18,6 +18,16 @@ const UserHeader = () => {
   const [nguoiDung, setNguoiDung] = useState<any>(null);
   const [soThongBaoChuaDoc, setSoThongBaoChuaDoc] = useState<number>(0);
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    router.push({
+      pathname: "/screen/ketquatimkiem",
+      params: { q: searchQuery },
+    });
+    
+    
+  };
 
   // Lấy thông tin người dùng
   useEffect(() => {
@@ -97,9 +107,16 @@ const UserHeader = () => {
 
       {/* Search bar */}
       <View style={styles.searchBar}>
-        <FontAwesome name="search" size={16} color="gray" />
-        <TextInput placeholder="Tìm kiếm..." style={styles.searchInput} />
-      </View>
+      <FontAwesome name="search" size={16} color="gray" onPress={handleSearch} />
+      <TextInput
+        placeholder="Tìm kiếm..."
+        style={styles.searchInput}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        onSubmitEditing={handleSearch} // nhấn Enter cũng tìm
+        returnKeyType="search"
+      />
+    </View>
     </View>
   );
 };

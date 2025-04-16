@@ -1,13 +1,16 @@
 
 
 import React, { useRef, useState, useEffect } from "react";
-import { View, Alert, TextInput, Keyboard, Text } from "react-native";
+import { View, Alert, TextInput, Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import axios from "axios";
 import { API_BASE_URL, OPENROUTESERVICE_API_KEY } from "../../constants/config";
 import { useLocalSearchParams } from "expo-router";
 import styles from "../style/bando.style";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { showLocation, DirectionMode } from "react-native-map-link";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 type Coordinate = {
   latitude: number;
@@ -24,6 +27,13 @@ const BanDo = () => {
   const [routeCoords, setRouteCoords] = useState<Coordinate[]>([]);
   const [distance, setDistance] = useState<string | null>(null);
   const [duration, setDuration] = useState<string | null>(null);
+  const [huongDan, setHuongDan] = useState<string | null>(null);
+  const [showHuongDan, setShowHuongDan] = useState(false);
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [moTa, setMoTa] = useState('');
+  const [showOptions, setShowOptions] = useState(false);
+
+
 
   const validateAddress = (input: string): boolean => {
     return /^[a-zA-ZÀ-ỹ0-9\s,.-]{3,}$/.test(input.trim());
@@ -65,7 +75,7 @@ const BanDo = () => {
         },
       });
 
-      const snapped = res.data.coordinates[0]; // [lon, lat]
+      const snapped = res.data.coordinates[0]; // [longitude, latitude]
       return {
         latitude: snapped[1],
         longitude: snapped[0],
@@ -116,36 +126,6 @@ const BanDo = () => {
       Alert.alert("Lỗi", "Không tìm được đường đi giữa hai điểm.");
     }
   };
-
-  // const handleSearch = async () => {
-  //   if (!originInput || !destinationInput) {
-  //     Alert.alert("Thiếu thông tin", "Vui lòng nhập cả hai địa chỉ.");
-  //     return;
-  //   }
-  
-  //   const [origin, destination] = await Promise.all([
-  //     geocodeAddress(originInput),
-  //     geocodeAddress(destinationInput),
-  //   ]);
-  
-  //   if (origin && destination) {
-  //     try {
-  //       const [snappedOrigin, snappedDestination] = await Promise.all([
-  //         snapToRoad(origin),
-  //         snapToRoad(destination),
-  //       ]);
-  
-  //       setOriginCoords(snappedOrigin);
-  //       setDestinationCoords(snappedDestination);
-  //       fetchRoute(snappedOrigin, snappedDestination);
-  //       Keyboard.dismiss();
-  //     } catch (err) {
-  //       Alert.alert("Lỗi", "Không thể định vị gần đường để tìm đường đi.");
-  //     }
-  //   } else {
-  //     Alert.alert("Lỗi", "Không xác định được vị trí hợp lệ từ địa chỉ.");
-  //   }
-  // };
   
     const handleSearch = async () => {
     if (!originInput || !destinationInput) {
@@ -173,6 +153,52 @@ const BanDo = () => {
       Keyboard.dismiss();
     }
   };
+  const getUserId = async () => {
+    try {
+      const id = await AsyncStorage.getItem('idNguoiDung');
+      return id;
+    } catch (error) {
+      console.error('Lỗi khi lấy ID người dùng:', error);
+      return null;
+    }
+  };
+  const handleSaveLocation = async () => {
+    const idNguoiDung = await getUserId();
+    if (!idNguoiDung) return;
+  
+    try {
+      // Bước 1: Gọi API kiểm tra
+      const resCheck = await axios.get(`${API_BASE_URL}/api/noidungluutru/kiemtra`, {
+        params: {
+          nguoiDung: idNguoiDung,
+          loaiNoiDung: 'DiaDiem',
+          idNoiDung: diTichId, 
+        },
+      });
+  
+      if (resCheck.data.daLuu) {
+        Alert.alert("Bạn đã lưu vị trí này rồi!");
+        setShowSavePopup(false);
+        return;
+      }
+  
+      // Bước 2: Nếu chưa có, tiến hành lưu
+      await axios.post(`${API_BASE_URL}/api/noidungluutru`, {
+        nguoiDung: idNguoiDung,
+        loaiNoiDung: 'DiaDiem',
+        idNoiDung: diTichId,
+        moTa: moTa
+      });
+  
+      Alert.alert("Đã lưu vị trí thành công!");
+      setShowSavePopup(false);
+      setMoTa('');
+    } catch (error) {
+      console.error("Lỗi khi lưu vị trí:", error);
+      Alert.alert("Có lỗi xảy ra khi lưu!");
+    }
+  };
+  
 
   useEffect(() => {
     const fetchViTriDiTich = async () => {
@@ -181,6 +207,7 @@ const BanDo = () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/ditich/${diTichId}`);
         const viTri = res.data.viTri;
+        setHuongDan(res.data.huongDan);
 
         setDestinationInput(viTri);
 
@@ -205,25 +232,6 @@ const BanDo = () => {
 
   return (
     <View style={styles.container}>
-      {/* Ô nhập địa chỉ bạn đang ở */}
-      {/* <TextInput
-        style={[styles.input, { marginTop: 40 }]}
-        placeholder="Nhập địa chỉ bạn đang ở"
-        value={originInput}
-        onChangeText={setOriginInput}
-        returnKeyType="next"
-        onSubmitEditing={handleSearch}
-      /> */}
-
-      {/* Ô nhập địa chỉ đích */}
-      {/* <TextInput
-        style={[styles.input, { marginTop: 10 }]}
-        placeholder="Nhập địa chỉ bạn muốn đến"
-        value={destinationInput}
-        onChangeText={setDestinationInput}
-        returnKeyType="search"
-        onSubmitEditing={handleSearch}
-      /> */}
 
       <View style={styles.inputBox}>
         {/* Ô nhập vị trí của bạn */}
@@ -249,8 +257,11 @@ const BanDo = () => {
             onChangeText={setDestinationInput}
             returnKeyType="search"
             onSubmitEditing={handleSearch}
+            editable={false}
+            pointerEvents="none"
           />
         </View>
+        
       </View>
 
 
@@ -274,12 +285,111 @@ const BanDo = () => {
         )}
       </MapView>
 
+      {showHuongDan && (
+        <View style={styles.guidePanel}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setShowHuongDan(false)}
+          >
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+          <Text style={styles.guideTitle}>Hướng dẫn tham quan</Text>
+          <Text style={styles.guideContent}>{huongDan || "Hướng dẫn đang được cập nhật, bạn quay lại sau nha 💫"}</Text>
+        </View>
+      )}
+    
+        {/* Nút hướng dẫn */}
+      <TouchableOpacity
+        style={styles.guideButton}
+        onPress={() => setShowHuongDan(true)}
+      >
+        <Text style={styles.guideButtonText}>📖 Cẩm nang mini</Text>
+      </TouchableOpacity>
+
+      {/* Nút FAB chính */}
+      <TouchableOpacity
+        style={styles.mainFab}
+        onPress={() => setShowOptions(!showOptions)}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
+
+      {/* Các lựa chọn hiển thị khi mở FAB */}
+      {showOptions && (
+        <View style={styles.fabOptions}>
+
+        <TouchableWithoutFeedback onPress={() => setShowOptions(false)}>
+            <View style={styles.overlayCloseArea} />
+          </TouchableWithoutFeedback>
+                  
+          {/* Nút lưu địa điểm */}
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={() => {
+              setShowSavePopup(true);
+              setShowOptions(false);
+            }}
+          >
+            <Ionicons name="bookmark-outline" size={22} color="#fff" />
+            <Text style={styles.optionText}>Lưu địa điểm</Text>
+          </TouchableOpacity>
+
+          {/* Nút mở Google Map */}
+          {destinationCoords && (
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={() => {
+                setShowOptions(false);
+                showLocation({
+                  latitude: destinationCoords.latitude,
+                  longitude: destinationCoords.longitude,
+                  title: "Điểm đến của bạn",
+                  googleForceLatLon: true,
+                  directionsMode: "driving" as DirectionMode,
+                });
+              }}
+            >
+              <Ionicons name="navigate-outline" size={22} color="#fff" />
+              <Text style={styles.optionText}>Đi bằng Google Map</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      {/* Popup nhập mô tả */}
+      {showSavePopup && (
+        <View style={styles.popupOverlay}>
+          <View style={styles.popupBox}>
+            <Text style={styles.popupTitle}>Nhập mô tả cho địa điểm</Text>
+            <TextInput
+              style={styles.popupInput}
+              placeholder="Ví dụ: Địa điểm này rất đẹp"
+              value={moTa}
+              onChangeText={setMoTa}
+              multiline
+            />
+            <View style={styles.popupButtons}>
+              <TouchableOpacity onPress={handleSaveLocation} style={styles.saveBtn}>
+                <Text style={{ color: "#fff" }}>Lưu</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowSavePopup(false)}
+                style={styles.cancelBtn}
+              >
+                <Text>❌</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
       {/* Thông tin quãng đường */}
       {(distance && duration) && (
         <View style={styles.routeInfo}>
           <Text style={styles.routeText}>Quãng đường: {distance} km - Thời gian: {duration} phút</Text>
         </View>
       )}
+      
     </View>
   );
 };

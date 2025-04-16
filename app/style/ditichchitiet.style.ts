@@ -176,4 +176,23 @@ export default StyleSheet.create({
     color: "#666",
     marginTop: 4,
   },
+  buttonLichTrinhContainer : {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    alignItems: "flex-end",
+  },
+  
+  buttonLichTrinh : {
+    backgroundColor: "#007bff",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+  },
+  
+  buttonLichTrinhText : {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  
 });

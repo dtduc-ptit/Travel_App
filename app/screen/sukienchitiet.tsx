@@ -296,38 +296,33 @@ const SuKienChiTiet = () => {
             </>
           )}
         </View>
-        <TouchableOpacity
-          style={sukienchitietStyle.viewScheduleButton}
-          onPress={() => {
-            router.push({
-              pathname: "/screen/lichtrinh",
-              params: {
-                ten: data.ten,
-                suKienId: data._id,
-              },
-            });
-          }}
-        >
-        <Text style={sukienchitietStyle.viewScheduleText}>
-          📅 Xem lịch trình sự kiện
-        </Text>
-      </TouchableOpacity>
-      <View style={{ flexDirection: "row", marginVertical: 10 ,alignItems: "center", justifyContent: "center"}}>
-        {[1, 2, 3, 4, 5].map((star) => (
+        <View style={styles.buttonLichTrinhContainer}>
           <TouchableOpacity
-            key={star}
-            onPress={() => handleRating(star)}
-            disabled={isSubmitting}
+            style={styles.buttonLichTrinh}
+            onPress={() =>
+              router.push({
+                pathname: "/screen/lichtrinh",
+                params: { diTichId: data._id },
+              })
+            }
           >
-            <FontAwesome
-              name={star <= selectedRating ? "star" : "star-o"}
-              size={32}
-              color="#f1c40f"
-              style={{ marginHorizontal: 4 }}
-            />
+            <Text style={styles.buttonLichTrinhText}>Xem lịch trình</Text>
           </TouchableOpacity>
-        ))}
-      </View>
+        </View>
+
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginVertical: 20 }}>
+          <Text style={{ marginRight: 8, fontSize: 18, fontWeight: "500" }}>Đánh giá:</Text>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <TouchableOpacity key={star} onPress={() => handleRating(star)} disabled={isSubmitting}>
+              <FontAwesome
+                name={star <= selectedRating ? "star" : "star-o"}
+                size={20} 
+                color="#f1c40f"
+                style={{ marginHorizontal: 3 }}
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
 
       </ScrollView>
     </SafeAreaView>

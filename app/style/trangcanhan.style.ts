@@ -78,20 +78,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
-  item: {
-    backgroundColor: '#f5f5f5',
-    marginBottom: 10,
-    padding: 12,
-    borderRadius: 10,
-  },
-  ten: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  viTri: {
-    fontSize: 14,
-    color: '#666',
-  },
   fixedHeader: {
     paddingTop: 40, // nếu có notch
     paddingHorizontal: 16,
@@ -104,20 +90,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  itemWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    padding: 12,
-    marginVertical: 6,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  
   itemTitle: {
     fontSize: 16,
     fontWeight: '600',
@@ -127,14 +99,6 @@ const styles = StyleSheet.create({
   itemSubtitle: {
     fontSize: 14,
     color: '#666',
-  },
-  
-  deleteButton: {
-    backgroundColor: '#FF4D4F',
-    padding: 8,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   notificationBadge: {
     position: 'absolute',
@@ -154,7 +118,62 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
   },
+  itemWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   
+  item: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+  },
+  
+  image: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 12,
+  },
+  
+  textWrapper: {
+    flexShrink: 1,
+  },
+  
+  ten: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  
+  viTri: {
+    fontSize: 14,
+    color: '#555',
+  },
+  
+  moTa: {
+    fontSize: 13,
+    color: '#999',
+  },
+  
+  deleteButton: {
+    backgroundColor: '#F44336',
+    borderRadius: 20,
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
   
 });
 

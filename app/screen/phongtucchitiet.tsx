@@ -6,9 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
+  TextInput,
 } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
@@ -30,7 +32,8 @@ const PhongTucChiTiet = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [moTa, setMoTa] = useState('');
+  const [showSavePopup, setShowSavePopup] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,8 +143,41 @@ const PhongTucChiTiet = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleSaveLocation = async () => {
+    const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
+    if (!idNguoiDung) return;
   
+    try {
+      // Bước 1: Gọi API kiểm tra
+      const resCheck = await axios.get(`${API_BASE_URL}/api/noidungluutru/kiemtra`, {
+        params: {
+          nguoiDung: idNguoiDung,
+          loaiNoiDung: 'PhongTuc',
+          idNoiDung: id, 
+        },
+      });
   
+      if (resCheck.data.daLuu) {
+        Alert.alert("Bạn đã lưu phong tục này rồi!");
+        return;
+      }
+  
+      // Bước 2: Nếu chưa có, tiến hành lưu
+      await axios.post(`${API_BASE_URL}/api/noidungluutru`, {
+        nguoiDung: idNguoiDung,
+        loaiNoiDung: 'PhongTuc',
+        idNoiDung: id,
+        moTa: moTa
+      });
+  
+      Alert.alert("Đã lưu phong tục thành công!");
+      setMoTa('');
+    } catch (error) {
+      console.error("Lỗi khi lưu phong tục:", error);
+      Alert.alert("Có lỗi xảy ra khi lưu!");
+    }
+  };
 
   if (loading) {
     return (
@@ -260,7 +296,17 @@ const PhongTucChiTiet = () => {
         </View>
   
         <View style={styles.infoContainer}>
+        <View style={styles.titleRow}>
           <Text style={styles.title}>{data.ten}</Text>
+
+          <TouchableOpacity
+            style={styles.optionButtonSmall}
+            onPress={() => setShowSavePopup(true)}
+          >
+            <Ionicons name="bookmark-outline" size={16} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
   
           <View style={styles.row}>
             <FontAwesome name="map-marker" size={16} color="#666" />
@@ -302,6 +348,34 @@ const PhongTucChiTiet = () => {
             </TouchableOpacity>
           ))}
         </View>
+
+
+      {/* Popup nhập mô tả */}
+      {showSavePopup && (
+        <View style={styles.popupOverlay}>
+          <View style={styles.popupBox}>
+            <Text style={styles.popupTitle}>Nhập mô tả</Text>
+            <TextInput
+              style={styles.popupInput}
+              placeholder="Phong tục này có ý nghĩa gì với bạn?"
+              value={moTa}
+              onChangeText={setMoTa}
+              multiline
+            />
+            <View style={styles.popupButtons}>
+              <TouchableOpacity onPress={handleSaveLocation} style={styles.saveBtn}>
+                <Text style={{ color: "#fff" }}>Lưu</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowSavePopup(false)}
+                style={styles.cancelBtn}
+              >
+                <Text>❌</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
 
       </ScrollView>
     </SafeAreaView>

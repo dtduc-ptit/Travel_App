@@ -44,6 +44,7 @@ export default function RootLayout() {
         <Stack.Screen name="screen/ditichchitiet" />
         <Stack.Screen name="screen/phongtucchitiet" />
         <Stack.Screen name="screen/ketquatimkiem" />
+        <Stack.Screen name="screen/bando" />
         {/* Thêm các trang khác nếu có */}
       </Stack>
 

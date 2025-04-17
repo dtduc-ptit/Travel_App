@@ -210,7 +210,7 @@ const PhongTucChiTiet = () => {
               style={styles.videoButton}
             >
               <Text style={styles.videoButtonText}>
-                {mainMedia?.type === "video" ? "🎬 Xem ảnh" : `🎬 Xem video (${videoList.length})`}
+                {mainMedia?.type === "video" ? "🎬 Xem ảnh" : `🎬 video (${videoList.length})`}
               </Text>
             </TouchableOpacity>
           )}

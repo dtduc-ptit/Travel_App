@@ -20,6 +20,7 @@ export default function TabLayout() {
           headerShown: false,
           tabBarActiveTintColor: themeColor.tint,
           tabBarInactiveTintColor: themeColor.tabIconDefault,
+          tabBarHideOnKeyboard: true,
           tabBarButton: HapticTab,
           tabBarStyle: [
             styles.tabBar,

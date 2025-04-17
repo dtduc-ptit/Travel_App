@@ -13,7 +13,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import YoutubeIframe from "react-native-youtube-iframe";
-import sukienchitietStyle from "../style/sukienchitiet.style";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../style/sukienchitiet.style";
 
@@ -206,7 +205,7 @@ const SuKienChiTiet = () => {
               style={styles.videoButton}
             >
               <Text style={styles.videoButtonText}>
-                {mainMedia?.type === "video" ? "🎬 Xem ảnh" : `🎬 Xem video (${videoList.length})`}
+                {mainMedia?.type === "video" ? "🎬 Xem ảnh" : `🎬 video (${videoList.length})`}
               </Text>
             </TouchableOpacity>
           )}
@@ -302,7 +301,7 @@ const SuKienChiTiet = () => {
             onPress={() =>
               router.push({
                 pathname: "/screen/lichtrinh",
-                params: { diTichId: data._id },
+                params: { suKienId: data._id },
               })
             }
           >

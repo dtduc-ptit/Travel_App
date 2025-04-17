@@ -235,12 +235,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   
-  optionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  
   optionText: {
     color: 'white',
     fontSize: 14,

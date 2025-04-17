@@ -14,6 +14,11 @@ import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/thongtincanhan.style";
 import { useRouter, useNavigation } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker';
+import { Modal } from "react-native";
+import { uploadToCloudinary } from '../utils/uploadImage';
+
+
 
 const ThongTinNguoiDung = () => {
   const [nguoiDung, setNguoiDung] = useState<any>(null);
@@ -29,6 +34,7 @@ const ThongTinNguoiDung = () => {
 
   const router = useRouter();
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchNguoiDung = async () => {
@@ -103,6 +109,37 @@ const ThongTinNguoiDung = () => {
       setDangLuu(false);
     }
   };
+  const chonAnhMoi = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+  
+      try {
+        const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
+  
+        // Upload lên Cloudinary
+        const cloudinaryUrl = await uploadToCloudinary(uri);
+  
+        // Gửi URL ảnh vào backend
+        const updateRes = await axios.patch(`${API_BASE_URL}/api/nguoidung/${idNguoiDung}`, {
+          anhDaiDien: cloudinaryUrl,
+        });
+  
+        if (updateRes.status === 200) {
+          setNguoiDung(updateRes.data.user);
+          Alert.alert("✅ Cập nhật avatar thành công");
+          setModalVisible(false);
+        }
+      } catch (err: any) {
+        console.error("❌ Lỗi cập nhật avatar:", err.response?.data || err.message);
+        Alert.alert("❌ Lỗi cập nhật avatar");
+      }
+    }
+  };
   
 
   if (loading) {
@@ -134,14 +171,59 @@ const ThongTinNguoiDung = () => {
       </View>
 
       {/* Avatar */}
-      <Image
-        source={
-          nguoiDung.anhDaiDien
-            ? { uri: nguoiDung.anhDaiDien }
-            : require("../../assets/images/logo.jpg")
-        }
-        style={styles.avatar}
-      />
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Image
+            source={
+              nguoiDung.anhDaiDien
+                ? { uri: nguoiDung.anhDaiDien }
+                : require("../../assets/images/logo.jpg")
+            }
+            style={styles.avatar}
+          />
+        </TouchableOpacity>
+
+        {/* Modal để hiển thị ảnh đại diện */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.9)",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              style={{ position: "absolute", top: 40, right: 20 }}
+            >
+              <FontAwesome name="close" size={30} color="#fff" />
+            </TouchableOpacity>
+
+            <Image
+              source={
+                nguoiDung.anhDaiDien
+                  ? { uri: nguoiDung.anhDaiDien }
+                  : require("../../assets/images/logo.jpg")
+              }
+              style={{ width: 300, height: 300, borderRadius: 150 }}
+            />
+
+            <TouchableOpacity
+              onPress={chonAnhMoi}
+              style={{
+                marginTop: 30,
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+                backgroundColor: "#00aaff",
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 16 }}>📷 Đổi ảnh đại diện</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+
 
       {/* Thông tin cá nhân */}
       <View style={styles.infoBox}>

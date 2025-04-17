@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useCallback} from "react";
+import { useFocusEffect } from "@react-navigation/native"; 
 import {
   View,
   Text,
@@ -87,21 +88,25 @@ const TrangCaNhan = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchNguoiDung = async () => {
-      try {
-        const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
-        if (idNguoiDung) {
-          const res = await axios.get(`${API_BASE_URL}/api/nguoidung/${idNguoiDung}`);
-          setNguoiDung({ ...res.data, _id: idNguoiDung });
+// Lấy thông tin người dùng mỗi khi màn hình focus
+  useFocusEffect(
+    useCallback(() => {
+      const fetchNguoiDung = async () => {
+        try {
+          const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
+          if (idNguoiDung) {
+            const res = await axios.get(`${API_BASE_URL}/api/nguoidung/${idNguoiDung}`);
+            setNguoiDung({ ...res.data, _id: idNguoiDung });
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin người dùng:", error);
         }
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin người dùng:", error);
-      }
-    };
-  
-    fetchNguoiDung();
-  }, []); // chỉ chạy 1 lần khi component mount
+      };
+
+      fetchNguoiDung();
+    }, [])
+  );
+
   
   useEffect(() => {
     if (selectedTab === 'Di Tích') {

@@ -10,7 +10,7 @@ export default function WelcomeScreen() {
 
   return (
     <ImageBackground
-      source={require("@/assets/images/welcome-bg1.jpg")} 
+      source={require("@/assets/images/image.jpg")} 
       style={styles.background}
     >
       <LinearGradient colors={["transparent", "rgba(0,0,0,0.7)"]} style={styles.overlay} />

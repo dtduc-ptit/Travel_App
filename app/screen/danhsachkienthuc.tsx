@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, SafeAreaView, Platform, TextInput } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { API_BASE_URL } from '@/constants/config';
 import axios from 'axios';
@@ -72,6 +72,7 @@ const DanhSachKienThuc = () => {
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() =>
@@ -98,17 +99,17 @@ const DanhSachKienThuc = () => {
 
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={() => { /* handle bookmark */ }}>
-            <FontAwesome name="bookmark" size={24} color="black" style={styles.icon} />
+            <Ionicons name="bookmark-outline" size={24} color="black" style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => { /* handle history */ }}>
-            <FontAwesome name="history" size={24} color="black" style={styles.icon} />
+            <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={[styles.header, { marginTop: 10 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <FontAwesome name="arrow-left" size={24} color="black" />
+          <Ionicons name="arrow-back-outline" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Nội dung {`${typeof categoryTitle === 'string' ? categoryTitle.toLowerCase() : ''}`}</Text>
       </View>

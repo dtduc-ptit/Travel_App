@@ -8,6 +8,12 @@ export default StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 16,
   },
+
+  econtainer: {
+    marginLeft: 12,
+    marginBottom:-12,
+  },
+  
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -15,18 +21,18 @@ export default StyleSheet.create({
     paddingTop: 10,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     flexDirection: "row",
     alignItems: "center",
   },
   duLichText: {
     color: "#555",
-    fontWeight: "bold",
+    fontWeight: "900",
   },
   haTinhText: {
     color: "#007bff",
-    fontWeight: "bold",
+    fontWeight: "900",
   },
   iconContainer: {
     flexDirection: "row",
@@ -114,13 +120,14 @@ export default StyleSheet.create({
     marginTop: 20,
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: 12,
-    borderRadius: 8,
+    paddingTop: 12 ,
+    paddingBottom: 12,
+    borderRadius: 28,
+    // alignItems: "center",
   },
   postHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
   },
   avatar: {
     width: 40,
@@ -130,7 +137,7 @@ export default StyleSheet.create({
   },
   placeholderText: {
     color: "#aaa",
-    fontSize: 16,
+    fontSize: 14,
   },
 
   // Media Section (Image and Video)
@@ -152,31 +159,60 @@ export default StyleSheet.create({
   },
   userInfo: {
     flexDirection: 'column',
+    marginLeft: 10,
   },
   userName: {
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 16,
   },
   postTime: {
     fontSize: 12,
-    color: 'gray',
+    color: '#aaa',
   },
   postContent: {
-    fontSize: 16,
-    marginVertical: 8,
+    marginTop: 12,
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#333',
+    textAlign: 'justify',
+    fontWeight: '500',
   },
+
+  postContentCover: {
+    width: '90%',
+  },
+
   postImage: {
-    width: '100%',
+    marginTop: 12,
+    width: '90%',
     height: 200,
-    marginVertical: 8,
-    borderRadius: 8,
+    borderRadius: 12,
+    resizeMode: 'cover',    
   },
+
+  imageJustify: {
+    alignItems: 'center',
+  },
+
   postActions: {
     flexDirection: 'row',
+    marginTop: 10,
     justifyContent: 'space-between',
+    width: '90%',
+    alignItems: 'center',
+  },
+  itemCenter: {
+    alignItems: 'center',
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  actionText: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: "#555",
   },
   commentContainer: {
     flexDirection: 'row',
@@ -222,7 +258,7 @@ export default StyleSheet.create({
     marginRight: 10,
   },
   sendButton: {
-    padding: 5,
+    padding: 10,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -235,5 +271,21 @@ export default StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  postHeaderWithBorder: {
+    borderColor: '#ddd',
+    paddingBottom: 12,
+  },
+  createPostContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingLeft: 10,
+    paddingRight: 12,
+    borderRadius: 20,
+    flex: 1,
+  },
+  imageIcon: {
+    marginRight: 10,
   },
 });

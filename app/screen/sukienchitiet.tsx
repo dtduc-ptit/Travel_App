@@ -121,7 +121,8 @@ const SuKienChiTiet = () => {
       });
       console.log("Response:", res.data);
   
-      alert(`Đánh giá sự kiện thành công: ${res.data.danhGia} ⭐`);
+      // alert(`Đánh giá sự kiện thành công: ${res.data.danhGia} ⭐`);
+      alert(`Đánh giá thành công: ${rating} ⭐`);
   
       // Cập nhật lại dữ liệu sự kiện trong state
       setData((prev: any) => ({

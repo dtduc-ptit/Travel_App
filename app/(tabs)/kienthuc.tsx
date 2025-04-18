@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -61,14 +61,14 @@ const TrangKienThuc = () => {
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>{title}</Text>
         <TouchableOpacity
-          onPress={() => 
+          onPress={() =>
             router.push({
-              pathname: '../screen/danhsachkienthuc', // Điều hướng đến màn hình danh sách kiến thức
+              pathname: "../screen/danhsachkienthuc", // Điều hướng đến màn hình danh sách kiến thức
               params: { categoryTitle: title, categoryKey: categoryKey } // Truyền tham số qua params
             })
           }
         >
-          <FontAwesome name="chevron-right" size={16} />
+          <Ionicons name="chevron-forward-outline" size={16} />
         </TouchableOpacity>
       </View>
       <View style={styles.itemsContainer}>
@@ -105,11 +105,7 @@ const TrangKienThuc = () => {
           }
         >
           <Image
-            source={
-              nguoiDung?.anhDaiDien
-                ? { uri: nguoiDung.anhDaiDien }
-                : require("../../assets/images/logo.jpg")
-            }
+            source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
             style={styles.avatar}
           />
         </TouchableOpacity>
@@ -125,10 +121,10 @@ const TrangKienThuc = () => {
 
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={() => { /* handle bookmark */ }}>
-            <FontAwesome name="bookmark" size={24} color="black" style={styles.icon} />
+            <Ionicons name="bookmark-outline" size={24} color="black" style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => { /* handle history */ }}>
-            <FontAwesome name="history" size={24} color="black" style={styles.icon} />
+            <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>

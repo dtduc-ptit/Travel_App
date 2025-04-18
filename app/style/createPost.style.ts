@@ -30,6 +30,7 @@ export default StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
+    marginBottom: 20,  // Add margin to separate buttons
   },
   buttonText: {
     color: '#fff',
@@ -67,5 +68,41 @@ export default StyleSheet.create({
    fontWeight: 'bold',
    color: '#333',
  },
- 
-});
+ background: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100%",
+  height: "100%",
+},
+overlay: {
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  flex: 1, // Added flex: 1
+},
+content: {
+  position: "absolute",
+  bottom: 80,
+  alignItems: "center",
+  width: "80%",
+},
+title: {
+  fontSize: 24,
+  fontWeight: "bold",
+  color: "#fff",
+  textAlign: "center",
+},
+subtitle: {
+  fontSize: 14,
+  color: "#eee",
+  textAlign: "center",
+  marginVertical: 10,
+},
+selectedImage: {
+  width: '100%',
+  height: 200,
+  marginTop: 16,
+  borderRadius: 8,
+},
+},);

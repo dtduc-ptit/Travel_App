@@ -1,52 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, FlatList, Modal, TextInput, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Cập nhật icon từ Ionicons
+import { View, Text, TouchableOpacity, Image, FlatList, Modal, TextInput } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { API_BASE_URL } from '@/constants/config';
-import { formatDistanceToNow } from 'date-fns'; 
-import styles from '../style/congdong.style'; 
+import { formatDistanceToNow } from 'date-fns';
+import styles from '../style/congdong.style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 const TrangCongDong = () => {
   const [baiVietList, setBaiVietList] = useState<any[]>([]);
   const [nguoiDung, setNguoiDung] = useState<any>(null);
-  const [selectedPost, setSelectedPost] = useState<any>(null); 
-  const [comments, setComments] = useState<any[]>([]); 
-  const [newComment, setNewComment] = useState(''); 
-  const [modalVisible, setModalVisible] = useState(false); 
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const fetchNguoiDung = async () => {
       try {
-        const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
+        const idNguoiDung = await AsyncStorage.getItem('idNguoiDung');
         if (idNguoiDung) {
           const res = await axios.get(`${API_BASE_URL}/api/nguoidung/${idNguoiDung}`);
           setNguoiDung({ ...res.data, _id: idNguoiDung });
         }
       } catch (error) {
-        console.error("Lỗi khi lấy thông tin người dùng:", error);
+        console.error('Lỗi khi lấy thông tin người dùng:', error);
       }
     };
 
     fetchNguoiDung();
   }, []);
 
-  // Thêm trạng thái like vào từng bài viết ngay khi fetch data
   useEffect(() => {
     const fetchBaiViet = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/baiviet`);
-        const postsWithLikeStatus = response.data.map((post: { luotThich: string | any[]; }) => ({
+        const postsWithLikeStatus = response.data.map((post: { luotThich: string | any[] }) => ({
           ...post,
-          isLikedByUser: false, // Mặc định chưa like
-          likeCount: post.luotThich?.length || 0
+          isLikedByUser: false,
+          likeCount: post.luotThich?.length || 0,
         }));
         setBaiVietList(postsWithLikeStatus);
       } catch (error) {
-        console.error("Lỗi khi lấy bài viết:", error);
+        console.error('Lỗi khi lấy bài viết:', error);
       }
     };
     fetchBaiViet();
@@ -55,96 +55,138 @@ const TrangCongDong = () => {
   const openCommentModal = async (postId: string) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/luotbinhluan/${postId}`);
-      setComments(response.data); 
+      
+      // Sắp xếp bình luận theo thời gian giảm dần (mới nhất đầu tiên)
+      const sortedComments = response.data.sort((a: any, b: any) => {
+        const dateA = new Date(a.thoiGian).getTime();
+        const dateB = new Date(b.thoiGian).getTime();
+        return dateB - dateA;
+      });
+      
+      setComments(sortedComments);
       setSelectedPost(postId);
-      setModalVisible(true); 
+      setModalVisible(true);
     } catch (error) {
-      console.error("Lỗi khi lấy bình luận:", error);
+      console.error('Lỗi khi lấy bình luận:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: 'Không thể tải bình luận'
+      });
     }
   };
+  
 
   const submitComment = async () => {
+    if (!newComment.trim()) return;
+  
+    // Tạo ID tạm độc nhất
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // 1. Tạo bình luận tạm với animation
+    const tempComment = {
+      _id: tempId,
+      noiDung: newComment,
+      nguoiDung: {
+        _id: nguoiDung?._id,
+        ten: nguoiDung?.ten || 'Bạn',
+        anhDaiDien: nguoiDung?.anhDaiDien
+      },
+      thoiGian: new Date().toISOString(),
+      isTemp: true,
+      isSending: true // Thêm trạng thái loading
+    };
+  
+    // 2. Optimistic update
+    setComments(prev => [tempComment, ...prev]);
+    setNewComment('');
+  
     try {
+      // 3. Gọi API
       const response = await axios.post(`${API_BASE_URL}/api/luotbinhluan`, {
         nguoiDung: nguoiDung?._id,
         baiViet: selectedPost,
         noiDung: newComment,
       });
-      setComments([response.data, ...comments]); 
-      setNewComment(''); 
+  
+      // 4. Thay thế bằng dữ liệu thật
+      setComments(prev => [
+        {
+          ...response.data,
+          nguoiDung: tempComment.nguoiDung,
+          thoiGian: response.data.thoiGian || new Date().toISOString()
+        },
+        ...prev.filter(c => c._id !== tempId)
+      ]);
+  
+      // 5. Cập nhật UI
+      setBaiVietList(prev => prev.map(post => 
+        post._id === selectedPost 
+          ? { ...post, luotBinhLuan: [...(post.luotBinhLuan || []), response.data._id] } 
+          : post
+      ));
+  
     } catch (error) {
-      console.error("Lỗi khi gửi bình luận:", error);
+      // 6. Rollback UI
+      setComments(prev => prev.filter(c => c._id !== tempId));
+      setNewComment(tempComment.noiDung);
+      
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: 'Gửi bình luận không thành công'
+      });
     }
   };
+  
+  
+  
 
   const toggleLike = async (baiVietId: string) => {
     console.log('----- BẮT ĐẦU DEBUG -----');
     console.log('Bài viết ID:', baiVietId);
-    
+
     try {
-      // 1. Lấy user ID
       const nguoiDungId = await AsyncStorage.getItem('idNguoiDung');
       console.log('User ID từ AsyncStorage:', nguoiDungId || 'KHÔNG TÌM THẤY');
-  
+
       if (!nguoiDungId) return;
-  
-      // 2. Tìm bài viết và clone mảng
+
       const postIndex = baiVietList.findIndex((p: any) => p._id === baiVietId);
       if (postIndex === -1) return;
-  
-      const updatedPosts = [...baiVietList]; // Khai báo biến ở đây
+
+      const updatedPosts = [...baiVietList];
       const post = updatedPosts[postIndex];
-  
-      // 3. Log trạng thái trước khi like
-      console.log('Trạng thái trước:', {
-        luotThich: post.luotThich,
-        likeCount: post.likeCount
-      });
-  
-      // 4. Gọi API
+
       const isLiked = post.luotThich?.includes(nguoiDungId);
       const apiUrl = `${API_BASE_URL}/api/luotthich/like`;
-      
+
       console.log('Sending request to:', apiUrl);
       console.log('Payload:', { baiVietId, nguoiDungId });
-  
+
       if (isLiked) {
         await axios.delete(apiUrl, { data: { baiVietId, nguoiDungId } });
       } else {
         await axios.post(apiUrl, { baiVietId, nguoiDungId });
       }
-  
-      // 5. Cập nhật state
+
       updatedPosts[postIndex] = {
         ...post,
         luotThich: isLiked
           ? post.luotThich.filter((id: string) => id !== nguoiDungId)
           : [...(post.luotThich || []), nguoiDungId],
-        likeCount: isLiked ? post.likeCount - 1 : post.likeCount + 1
+        likeCount: isLiked ? post.likeCount - 1 : post.likeCount + 1,
       };
-  
+
       setBaiVietList(updatedPosts);
-  
-      // 6. Log kết quả
-      console.log('Trạng thái sau:', {
-        luotThich: updatedPosts[postIndex].luotThich,
-        likeCount: updatedPosts[postIndex].likeCount
-      });
-  
     } catch (error) {
-      console.error('----- LỖI -----', error); 
+      console.error('----- LỖI -----', error);
     }
   };
-  
-  
-  
-  
-  
-  
 
   const renderBaiViet = (baiViet: any) => {
     const timeAgo = formatDistanceToNow(new Date(baiViet.thoiGian), { addSuffix: true });
-  
+
     return (
       <View style={styles.postContainer} key={baiViet._id}>
         <View style={styles.imageJustify}>
@@ -152,7 +194,7 @@ const TrangCongDong = () => {
             <View style={styles.postHeader}>
               <TouchableOpacity>
                 <Image
-                  source={baiViet.nguoiDung?.anhDaiDien ? { uri: baiViet.nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
+                  source={baiViet.nguoiDung?.anhDaiDien ? { uri: baiViet.nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')}
                   style={styles.avatar}
                 />
               </TouchableOpacity>
@@ -163,39 +205,23 @@ const TrangCongDong = () => {
             </View>
             <Text style={styles.postContent}>{baiViet.noiDung}</Text>
           </View>
-          <Image
-            source={{ uri: baiViet.hinhAnh }}
-            style={styles.postImage}
-          />
+          <Image source={{ uri: baiViet.hinhAnh }} style={styles.postImage} />
         </View>
-  
+
         <View style={styles.itemCenter}>
           <View style={styles.postActions}>
-            {/* Thumbs up icon + Like count */}
-            <TouchableOpacity 
-              style={styles.actionButton} 
-              onPress={() => {
-                console.log('Nút like được bấm! ID:', baiViet._id); 
-                toggleLike(baiViet._id);
-              }}
-            >
+            <TouchableOpacity style={styles.actionButton} onPress={() => toggleLike(baiViet._id)}>
               <Ionicons
-                name={baiViet.luotThich?.includes(nguoiDung?._id) ? "thumbs-up" : "thumbs-up-outline"}
+                name={baiViet.luotThich?.includes(nguoiDung?._id) ? 'thumbs-up' : 'thumbs-up-outline'}
                 size={24}
                 color={baiViet.luotThich?.includes(nguoiDung?._id) ? '#007bff' : 'black'}
               />
               <Text style={styles.actionText}>{baiViet.likeCount || 0}</Text>
             </TouchableOpacity>
-    
-    
-              {/* Heart icon + Love count */}          
-            {/* Chat bubble icon + Comment count */}
             <TouchableOpacity style={styles.actionButton} onPress={() => openCommentModal(baiViet._id)}>
               <Ionicons name="chatbubble-outline" size={24} color="black" />
-              <Text style={styles.actionText}>{baiViet.luotBinhLuan?.length || 0}</Text>  {/* Hiển thị số bình luận */}
+              <Text style={styles.actionText}>{baiViet.luotBinhLuan?.length || 0}</Text>
             </TouchableOpacity>
-  
-            {/* Other action icons */}
             <TouchableOpacity style={styles.actionButton}>
               <Ionicons name="share-social-outline" size={24} color="black" />
             </TouchableOpacity>
@@ -231,44 +257,30 @@ const TrangCongDong = () => {
       <View style={styles.postContainer}>
         <View style={styles.econtainer}>
           <View style={[styles.postHeader, styles.postHeaderWithBorder]}>
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "../screen/thongtincanhan",  
-                  params: { id: nguoiDung?._id }
-                })
-              }
-            >
-              <Image
-                source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
-                style={styles.avatar}
-              />
+            <TouchableOpacity onPress={() => router.push({ pathname: '../screen/thongtincanhan', params: { id: nguoiDung?._id } })}>
+              <Image source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')} style={styles.avatar} />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push('../screen/createPost')} style={styles.createPostContainer}>            
-              <Text style={styles.placeholderText}>Bạn đang nghĩ gì?</Text>            
+            <TouchableOpacity onPress={() => router.push('../screen/createPost')} style={styles.createPostContainer}>
+              <Text style={styles.placeholderText}>Bạn đang nghĩ gì?</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.iconButton}>
               <Ionicons name="image-outline" size={32} color="black" style={styles.imageIcon} />
             </TouchableOpacity>
-            
           </View>
         </View>
       </View>
 
+
       <FlatList
-        data={baiVietList}
+        data={baiVietList || []}
         renderItem={({ item }) => renderBaiViet(item)}
-        keyExtractor={(item) => item._id.toString()}
+        keyExtractor={(item) => item._id ? item._id.toString() : String(item)}
         contentContainerStyle={{ paddingBottom: 16 }}
       />
 
-      <Modal
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-        animationType="slide"
-      >
+      <Modal visible={modalVisible} onRequestClose={() => setModalVisible(false)} animationType="slide">
         <SafeAreaView style={styles.container}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Bình luận</Text>
@@ -278,26 +290,37 @@ const TrangCongDong = () => {
           </View>
 
           <FlatList
-            data={comments}
+            data={comments || []}
             renderItem={({ item }) => (
-              <View style={styles.commentContainer}>
-                <Image
-                  source={item.nguoiDung?.anhDaiDien ? { uri: item.nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
-                  style={styles.commentAvatar}
-                />
-                <View style={styles.commentContent}>
-                  <Text style={styles.commentUserName}>{item.nguoiDung?.ten}</Text>
-                  <Text style={styles.commentText}>{item.noiDung}</Text>
+              <View style={styles.cmtContainer}>
+                <View style={styles.commentContainer}>
+                  <Image
+                    source={item.nguoiDung?.anhDaiDien ? { uri: item.nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')}
+                    style={styles.commentAvatar}
+                  />
+                  <View style={styles.commentContent}>
+                    <Text style={styles.commentUserName}>{item.nguoiDung?.ten || 'Không xác định'}</Text>
+                    <Text style={styles.commentText}>{item.noiDung}</Text>
+                  </View>
+                </View>
+                <View style={styles.cmtTime}>
+                  <Text style={styles.commentTime}>
+                    {item.thoiGian ? formatDistanceToNow(new Date(item.thoiGian), { addSuffix: true }) : 'Thời gian không xác định'}
+                  </Text>
+                  <TouchableOpacity style={styles.repButton}>
+                    <Text style={styles.repButtontext}>Trả lời</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}
-            keyExtractor={(item) => item._id.toString()}
+            keyExtractor={(item) => item._id ? item._id.toString() : String(item)}
             contentContainerStyle={{ paddingBottom: 16 }}
           />
 
+
           <View style={styles.commentInputContainer}>
             <Image
-              source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
+              source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')}
               style={styles.commentInputAvatar}
             />
             <TextInput
@@ -312,8 +335,9 @@ const TrangCongDong = () => {
           </View>
         </SafeAreaView>
       </Modal>
+      <Toast />
     </SafeAreaView>
   );
 };
-export default TrangCongDong;
 
+export default TrangCongDong;

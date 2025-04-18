@@ -215,10 +215,15 @@ export default StyleSheet.create({
     color: "#555",
   },
   commentContainer: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    padding: 8,
+    flexDirection: 'row',    
+    padding: 4,
   },
+
+  cmtContainer: {
+    flexDirection: 'column',
+    marginBottom: 16,
+  },
+
   commentAvatar: {
     width: 40,
     height: 40,
@@ -235,6 +240,26 @@ export default StyleSheet.create({
     fontSize: 14,
     marginTop: 5,
   },
+  commentTime: {
+    fontSize: 10,
+    color: '#888',
+    marginTop: 5,
+  },
+  repButton: {
+    marginLeft: 5,
+  },
+  repButtontext: {
+    marginLeft: 5,
+    fontSize: 10,
+    color: '#888',
+    marginTop: 5,
+    fontWeight: '700',
+  },
+
+  cmtTime: {
+    flexDirection: 'row',
+  },
+  
   commentInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',

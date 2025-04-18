@@ -178,4 +178,62 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  commentContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    padding: 8,
+  },
+  commentAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  commentContent: {
+    flex: 1,
+  },
+  commentUserName: {
+    fontWeight: 'bold',
+  },
+  commentText: {
+    fontSize: 14,
+    marginTop: 5,
+  },
+  commentInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+  },
+  commentInputAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+  },
+  commentInput: {
+    flex: 1,
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingLeft: 10,
+    marginRight: 10,
+  },
+  sendButton: {
+    padding: 5,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });

@@ -16,6 +16,15 @@ const CreatePostScreen = () => {
   const [nguoiDung, setNguoiDung] = useState<any>(null);
 
   useEffect(() => {
+    Toast.show({
+      type: 'success',
+      position: 'top',
+      text1: 'Ứng dụng đang chạy!',
+      text2: 'Toast đang hoạt động bình thường.',
+    });
+  }, []);
+
+  useEffect(() => {
     const fetchNguoiDung = async () => {
       try {
         const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
@@ -45,7 +54,8 @@ const CreatePostScreen = () => {
       });
   
       if (response.status === 201) {
-        // Hiển thị thông báo Toast thành công
+        // Kiểm tra nếu Toast được gọi
+        console.log('Bài viết thành công, hiển thị Toast!');
         Toast.show({
           type: 'success',
           position: 'top',
@@ -62,7 +72,7 @@ const CreatePostScreen = () => {
       console.error("Lỗi khi gửi bài viết:", error);
     }
   };
-
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>

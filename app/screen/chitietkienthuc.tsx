@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions, Modal } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  StyleSheet,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
-import { SafeAreaView } from "react-native-safe-area-context"; // ✅ để tránh bị đè lên vùng notch
-import { WebView } from "react-native-webview"; // Thêm WebView
+import { SafeAreaView } from "react-native-safe-area-context";
+import { WebView } from "react-native-webview";
 import styles from "../style/chitiet.style";
 import { API_BASE_URL } from "@/constants/config";
+
+const screenWidth = Dimensions.get("window").width;
 
 const ChiTietKienThuc = () => {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const [kienThuc, setKienThuc] = useState<any>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false); // state cho Modal
-  const [videoUrl, setVideoUrl] = useState<string | null>(null); // lưu videoUrl
+  const [kienThuc, setKienThuc] = useState<any>(null); 
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -26,28 +34,20 @@ const ChiTietKienThuc = () => {
     };
 
     fetchDetail();
-  }, [id]);
+  }, [id]);  
+  
 
   if (!kienThuc) return <Text>Đang tải...</Text>;
 
-  const handleVideoPress = (url: string) => {
-    setVideoUrl(url);
-    setIsModalVisible(true); // hiển thị pop-up
-  };
-
-  const handleCloseModal = () => {
-    setIsModalVisible(false); // đóng pop-up khi nhấn ngoài
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      {/* Nút quay lại */}
+      {/* Nút back */}
       <TouchableOpacity onPress={() => router.push("/kienthuc")} style={styles.backButton}>
         <FontAwesome name="arrow-left" size={24} />
       </TouchableOpacity>
 
       <ScrollView>
-        {/* Ảnh và tiêu đề nằm cùng 1 hàng */}
+        {/* Ảnh và tiêu đề */}
         <View style={styles.topRow}>
           <Image
             source={
@@ -61,48 +61,36 @@ const ChiTietKienThuc = () => {
           <Text style={styles.title} numberOfLines={3}>{kienThuc.tieuDe}</Text>
         </View>
 
-        {/* Các nút chức năng */}
+        {/* Nút chức năng */}
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} >
             <FontAwesome name="volume-up" size={18} color="#fff" />
             <Text style={styles.buttonText}>Nghe audio</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleVideoPress(kienThuc.videoUrl)}>
+          <TouchableOpacity style={styles.button}>
             <FontAwesome name="video-camera" size={18} color="#fff" />
             <Text style={styles.buttonText}>Xem video</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} >
             <FontAwesome name="bookmark" size={18} color="#fff" />
             <Text style={styles.buttonText}>Lưu</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Nhúng video nếu có */}
+        {kienThuc.videoUrl && (
+          <View style={{ height: 200, marginBottom: 16 }}>
+            <WebView
+              source={{ uri: kienThuc.videoUrl }}
+              style={{ flex: 1 }}
+              allowsFullscreenVideo
+            />
+          </View>
+        )}
+
         {/* Nội dung */}
         <Text style={styles.content}>{kienThuc.noiDung}</Text>
-      </ScrollView>
-
-      {/* Modal Pop-up hiển thị video */}
-      <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={handleCloseModal}
-        >
-          <View style={styles.modalOverlay} onTouchStart={handleCloseModal}>
-            <View style={styles.modalContent}>
-              {videoUrl && (
-                <WebView
-                  source={{ uri: videoUrl }}
-                  style={{ width: '100%', height: 250 }}
-                  allowsFullscreenVideo={true}
-                />
-              )}
-              <TouchableOpacity style={styles.closeButton} onPress={handleCloseModal}>
-                <FontAwesome name="times" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          </View>
-      </Modal>
+      </ScrollView>     
     </SafeAreaView>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, FlatList, Modal, TextInput, Button, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -12,6 +12,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const TrangCongDong = () => {
   const [baiVietList, setBaiVietList] = useState<any[]>([]);
   const [nguoiDung, setNguoiDung] = useState<any>(null);
+  const [selectedPost, setSelectedPost] = useState<any>(null); // Lưu bài viết đã chọn để comment
+  const [comments, setComments] = useState<any[]>([]); // Lưu danh sách bình luận
+  const [newComment, setNewComment] = useState(''); // Lưu nội dung bình luận mới
+  const [modalVisible, setModalVisible] = useState(false); // Điều khiển popup
   const router = useRouter();
 
   useEffect(() => {
@@ -42,6 +46,33 @@ const TrangCongDong = () => {
 
     fetchBaiViet();
   }, []);
+
+  // Hàm mở popup bình luận và lấy danh sách bình luận
+  const openCommentModal = async (postId: string) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/luotbinhluan/${postId}`);
+      setComments(response.data); // Lấy bình luận của bài viết
+      setSelectedPost(postId);
+      setModalVisible(true); // Mở popup bình luận
+    } catch (error) {
+      console.error("Lỗi khi lấy bình luận:", error);
+    }
+  };
+
+  // Hàm gửi bình luận
+  const submitComment = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/luotbinhluan`, {
+        nguoiDung: nguoiDung?._id,
+        baiViet: selectedPost,
+        noiDung: newComment,
+      });
+      setComments([response.data, ...comments]); // Thêm bình luận mới vào đầu danh sách
+      setNewComment(''); // Reset nội dung bình luận
+    } catch (error) {
+      console.error("Lỗi khi gửi bình luận:", error);
+    }
+  };
 
   const renderBaiViet = (baiViet: any) => {
     const timeAgo = formatDistanceToNow(new Date(baiViet.thoiGian), { addSuffix: true });
@@ -76,7 +107,7 @@ const TrangCongDong = () => {
           <TouchableOpacity style={styles.actionButton}>
             <FontAwesome name="thumbs-up" size={24} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => openCommentModal(baiViet._id)}>
             <FontAwesome name="comment" size={24} color="black" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
@@ -162,6 +193,58 @@ const TrangCongDong = () => {
         keyExtractor={(item) => item._id.toString()}
         contentContainerStyle={{ paddingBottom: 16 }} // Add padding at the bottom to avoid cutting off the last item
       />
+
+      {/* Modal for Comments */}
+      <Modal
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+        animationType="slide"
+      >
+        <SafeAreaView style={styles.container}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Bình luận</Text>
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <FontAwesome name="times" size={30} color="black" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Comments */}
+          <FlatList
+            data={comments}
+            renderItem={({ item }) => (
+              <View style={styles.commentContainer}>
+                <Image
+                  source={item.nguoiDung?.anhDaiDien ? { uri: item.nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
+                  style={styles.commentAvatar}
+                />
+                <View style={styles.commentContent}>
+                  <Text style={styles.commentUserName}>{item.nguoiDung?.ten}</Text>
+                  <Text style={styles.commentText}>{item.noiDung}</Text>
+                </View>
+              </View>
+            )}
+            keyExtractor={(item) => item._id.toString()}
+            contentContainerStyle={{ paddingBottom: 16 }}
+          />
+
+          {/* Input for new comment */}
+          <View style={styles.commentInputContainer}>
+            <Image
+              source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
+              style={styles.commentInputAvatar}
+            />
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Viết bình luận..."
+              value={newComment}
+              onChangeText={setNewComment}
+            />
+            <TouchableOpacity onPress={submitComment} style={styles.sendButton}>
+              <FontAwesome name="paper-plane" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 };

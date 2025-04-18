@@ -54,6 +54,7 @@ export default StyleSheet.create({
     lineHeight: 24,
     color: "#333",
     marginBottom: 40,
+    textAlign: "justify",
   },
   modalOverlay: {
     position: "absolute",
@@ -78,5 +79,37 @@ export default StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
+  },
+  audioOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)", // lớp phủ mờ
+    zIndex: 10,
+  },
+  audioBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  audioPlayer: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    alignItems: "center",
+  },
+  audioTitle: {
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  audioControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 10,
   },
 });

@@ -145,6 +145,33 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  views: {
+    marginLeft: 6,
+    color: "#666",
+  },
+  ratingBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  ratingText: {
+    color: '#fff',
+    fontSize: 12,
+    marginLeft: 4,
+    fontWeight: '500',
+  },
   
 });
 

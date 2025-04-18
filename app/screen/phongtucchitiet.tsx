@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -15,8 +15,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/phongtucchitiet.style";
+import stylesBinhLuan from "../style/binhluan.style";
 import YoutubeIframe from "react-native-youtube-iframe";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BottomSheet from '@gorhom/bottom-sheet';
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 
 const PhongTucChiTiet = () => {
@@ -34,6 +37,12 @@ const PhongTucChiTiet = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [moTa, setMoTa] = useState('');
   const [showSavePopup, setShowSavePopup] = useState(false);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [noiDungBinhLuan, setNoiDungBinhLuan] = useState('');
+  const [danhSachBinhLuan, setDanhSachBinhLuan] = useState<any[]>([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,6 +91,16 @@ const PhongTucChiTiet = () => {
     fetchData();
   }, [id]);
 
+
+  const fetchBinhLuan = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/luotbinhluan/${id}`);
+      setDanhSachBinhLuan(res.data);
+    } catch (error) {
+      console.log("Lỗi khi lấy bình luận:", error);
+    }
+  };
+  
   const handleMediaPress = (item: any) => {
     setMainMedia(item);
     setIsPlayingVideo(item.type === "video");
@@ -103,7 +122,34 @@ const PhongTucChiTiet = () => {
     setCurrentVideoIndex(prevIndex);
     setMainMedia(videoList[prevIndex]);
   };
+  
 
+  const handleGuiBinhLuan = async () => {
+    try {
+      const userId = await AsyncStorage.getItem("idNguoiDung");
+      if (!userId) {
+        Alert.alert("Thông báo", "Vui lòng đăng nhập để bình luận.");
+        return;
+      }
+  
+      if (!noiDungBinhLuan.trim()) return;
+  
+      const res = await axios.post(`${API_BASE_URL}/api/luotbinhluan`, {
+        baiViet: id,
+        nguoiDung: userId,
+        noiDung: noiDungBinhLuan,
+      });
+  
+      setNoiDungBinhLuan('');
+      bottomSheetRef.current?.close();
+      Alert.alert("✅ Thành công", "Đã gửi bình luận!");
+      // TODO: Có thể gọi hàm load lại danh sách bình luận nếu bạn có hiển thị nó.
+    } catch (error) {
+      console.log("Lỗi gửi bình luận:", error);
+      Alert.alert("❌ Lỗi", "Không thể gửi bình luận.");
+    }
+  };
+  
   const handleRating = async (rating: number) => {
     setSelectedRating(rating);
     setIsSubmitting(true);
@@ -128,7 +174,7 @@ const PhongTucChiTiet = () => {
       console.log("Response:", res.data);
   
       // Hiển thị thông báo sau khi đánh giá thành công
-      alert(`Đánh giá thành công: ${res.data.danhGia} ⭐`);
+      alert(`Đánh giá thành công: ${rating} ⭐`);
   
       // Cập nhật lại dữ liệu di tích trong state
       setData((prev: any) => ({
@@ -250,7 +296,6 @@ const PhongTucChiTiet = () => {
               </Text>
             </TouchableOpacity>
           )}
-  
           {!isPlayingVideo && media.length > 1 && (
             <View style={styles.thumbnailOverlay}>
               {media
@@ -328,6 +373,19 @@ const PhongTucChiTiet = () => {
               ({data.soNguoiDanhGia} người đã đánh giá)
             </Text>
           )}
+
+          <TouchableOpacity
+            style={{ margin: 16, flexDirection: 'row', alignItems: 'center' }}
+            onPress={() => {
+              console.log("Mở bottom sheet");
+              bottomSheetRef.current?.expand();
+              fetchBinhLuan(); // Load dữ liệu
+            }}
+          >
+            <Ionicons name="chatbubble-outline" size={20} color="black" />
+            <Text style={{ marginLeft: 8 }}>Bình luận</Text>
+          </TouchableOpacity>
+
   
           <Text style={styles.subTitle}>Ý nghĩa</Text>
           <Text style={styles.content}>{data.yNghia}</Text>
@@ -348,8 +406,6 @@ const PhongTucChiTiet = () => {
             </TouchableOpacity>
           ))}
         </View>
-
-
       {/* Popup nhập mô tả */}
       {showSavePopup && (
         <View style={styles.popupOverlay}>
@@ -375,11 +431,69 @@ const PhongTucChiTiet = () => {
             </View>
           </View>
         </View>
-      )}
 
+      )}
+      
       </ScrollView>
+
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={['50%', '80%']}
+        enablePanDownToClose
+      >
+        <View style={stylesBinhLuan.sheetContainer}>
+        <TouchableOpacity onPress={() => setModalVisible(false)} style={stylesBinhLuan.closeBtn}>
+        <Text style={{ fontSize: 18 }}>✖</Text>
+      </TouchableOpacity>
+          <Text style={stylesBinhLuan.title}>Bình luận</Text>
+
+          <ScrollView
+            style={stylesBinhLuan.commentList}
+            showsVerticalScrollIndicator={false}
+          >
+            {danhSachBinhLuan.map((bl, index) => (
+              <View key={index} style={stylesBinhLuan.commentItem}>
+                <Image
+                  source={{ uri: bl.nguoiDung?.anhDaiDien || 'https://via.placeholder.com/40' }}
+                  style={stylesBinhLuan.avatar}
+                />
+                <View style={stylesBinhLuan.commentContent}>
+                  <Text style={stylesBinhLuan.userName}>
+                    {bl.nguoiDung?.ten || "Người dùng"}
+                  </Text>
+                  <Text style={stylesBinhLuan.commentText}>{bl.noiDung}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+
+          <TextInput
+            placeholder="Nhập bình luận..."
+            style={stylesBinhLuan.input}
+            multiline
+            value={noiDungBinhLuan}
+            onChangeText={setNoiDungBinhLuan}
+          />
+
+          <TouchableOpacity
+            onPress={async () => {
+              await handleGuiBinhLuan();
+              fetchBinhLuan();
+            }}
+            style={stylesBinhLuan.submitButton}
+          >
+            <Text style={stylesBinhLuan.submitButtonText}>Gửi bình luận</Text>
+          </TouchableOpacity>
+        </View>
+      </BottomSheet>
+
+
     </SafeAreaView>
+    
   );
+
+  
 };
 
 export default PhongTucChiTiet;

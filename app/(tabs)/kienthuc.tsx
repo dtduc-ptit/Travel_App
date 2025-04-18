@@ -56,36 +56,41 @@ const TrangKienThuc = () => {
     fetchData();
   }, []);
 
-  const renderSection = (title: string, items: any[]) => (
-   <View style={styles.section} key={title}>
-     <View style={styles.sectionHeader}>
-       <Text style={styles.sectionTitle}>{title}</Text>
-       <FontAwesome name="chevron-right" size={16} />
-     </View>
-     <View style={styles.itemsContainer}>
-       {(items || []).slice(0, 2).map((item, index) => (
-         <View key={index} style={styles.item}>
-           <TouchableOpacity
-               onPress={() => router.replace({ pathname: "../screen/chitietkienthuc", params: { id: item._id } })}
-               >
-               <Image
-                  source={
-                     item?.hinhAnh?.[0]
-                     ? { uri: item.hinhAnh[0] }
-                     : require("../../assets/images/splash-image.png")
-                  }
-                  style={styles.itemImage}
-                  resizeMode="cover"
-               />
-               <Text style={styles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
-                  {item?.tieuDe}
-               </Text>
+  const renderSection = (title: string, items: any[], categoryKey: string) => (
+    <View style={styles.section} key={title}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        <TouchableOpacity
+          onPress={() => 
+            router.push({
+              pathname: '../screen/danhsachkienthuc', // Điều hướng đến màn hình danh sách kiến thức
+              params: { categoryTitle: title, categoryKey: categoryKey } // Truyền tham số qua params
+            })
+          }
+        >
+          <FontAwesome name="chevron-right" size={16} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.itemsContainer}>
+        {(items || []).slice(0, 2).map((item, index) => (
+          <View key={index} style={styles.item}>
+            <TouchableOpacity
+              onPress={() => router.replace({ pathname: "../screen/chitietkienthuc", params: { id: item._id } })}
+            >
+              <Image
+                source={item?.hinhAnh?.[0] ? { uri: item.hinhAnh[0] } : require("../../assets/images/splash-image.png")}
+                style={styles.itemImage}
+                resizeMode="cover"
+              />
+              <Text style={styles.itemTitle} numberOfLines={2} ellipsizeMode="tail">
+                {item?.tieuDe}
+              </Text>
             </TouchableOpacity>
-         </View>
-       ))}
-     </View>
-   </View>
- );
+          </View>
+        ))}
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,9 +134,9 @@ const TrangKienThuc = () => {
       </View>
 
       {/* Nội dung chính */}
-      <ScrollView style={styles.mainContent}>
+      <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: 20 }}>
         <Text style={styles.mainTitle}>Danh sách kiến thức</Text>
-        {categories.map(cat => renderSection(cat.title, data[cat.key]))}
+        {categories.map(cat => renderSection(cat.title, data[cat.key], cat.key))}
       </ScrollView>
     </SafeAreaView>
   );

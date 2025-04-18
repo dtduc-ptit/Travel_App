@@ -29,8 +29,9 @@ const UserHeader = () => {
     
   };
 
-  // Lấy thông tin người dùng
-  useEffect(() => {
+// Lấy thông tin người dùng mỗi khi màn hình focus
+useFocusEffect(
+  useCallback(() => {
     const fetchNguoiDung = async () => {
       try {
         const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
@@ -44,7 +45,9 @@ const UserHeader = () => {
     };
 
     fetchNguoiDung();
-  }, []);
+  }, [])
+);
+
 
   // Tự động cập nhật số lượng thông báo chưa đọc mỗi lần focus
   useFocusEffect(

@@ -10,6 +10,7 @@ import styles from "../style/bando.style";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { showLocation, DirectionMode } from "react-native-map-link";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import openMap from 'react-native-map-link';
 
 
 type Coordinate = {

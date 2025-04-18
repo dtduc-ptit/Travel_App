@@ -1,17 +1,22 @@
-import { StyleSheet } from "react-native";
+import { Platform, StatusBar, StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingTop: Platform.OS === 'ios' ? StatusBar.currentHeight : 10, // Đảm bảo padding trên cùng cho notch
   },
   header: {
+    paddingTop: Platform.OS === 'ios' ? StatusBar.currentHeight : 10, // Thêm padding cho ios tránh notch
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    paddingLeft: 16,
+    paddingRight: 16,
+    justifyContent: "center",
     padding: 10,
     backgroundColor: "#fff",
     elevation: 2,  // tạo shadow cho header
+    marginBottom: 10,
   },
   headerLeft: {
     flex: 1,
@@ -82,6 +87,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
   },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 16,
+  },
+  kienThucItem: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: 16,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f9f9f9',
+  },
+  kienThucImage: {
+    width: '90%',
+    aspectRatio: 16 / 9, 
+    borderRadius: 8,
+    resizeMode: 'contain',
+  },
+  kienThucTitle: {
+    marginLeft: 16,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 8,
+    flex: 1,
+  },
+  backButton: {
+    position: 'absolute', // Đặt nút Back bên trái
+    left: 10,
+    top: 10,
+  },
+  
 });
 
 export default styles;

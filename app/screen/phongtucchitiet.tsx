@@ -378,7 +378,8 @@ const PhongTucChiTiet = () => {
             style={{ margin: 16, flexDirection: 'row', alignItems: 'center' }}
             onPress={() => {
               console.log("Mở bottom sheet");
-              bottomSheetRef.current?.expand();
+             bottomSheetRef.current?.expand();
+              // bottomSheetRef.current?.snapToIndex(0);
               fetchBinhLuan(); // Load dữ liệu
             }}
           >

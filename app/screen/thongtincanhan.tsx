@@ -183,7 +183,7 @@ const ThongTinNguoiDung = () => {
               <View style={styles.card}>
                 <Text style={styles.label}>Mật khẩu xác minh</Text>
                 <TextInput
-                  placeholder="Nhập mật khẩu cũ"
+                  placeholder="Nhập mật khẩu"
                   secureTextEntry
                   value={matKhauCu}
                   onChangeText={setMatKhauCu}

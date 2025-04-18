@@ -301,7 +301,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0, bottom: 0, left: 0, right: 0,
   },
-  
+  optionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#2e86de', // Màu xanh dễ thấy
+    padding: 10,
+    borderRadius: 8,
+  },
   
     
   

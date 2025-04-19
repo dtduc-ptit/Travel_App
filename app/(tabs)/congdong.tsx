@@ -257,7 +257,7 @@ const TrangCongDong = () => {
       <View style={styles.postContainer}>
         <View style={styles.econtainer}>
           <View style={[styles.postHeader, styles.postHeaderWithBorder]}>
-            <TouchableOpacity onPress={() => router.push({ pathname: '../screen/thongtincanhan', params: { id: nguoiDung?._id } })}>
+            <TouchableOpacity onPress={() => router.push({ pathname: '../auth/trangcanhan', params: { id: nguoiDung?._id } })}>
               <Image source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')} style={styles.avatar} />
             </TouchableOpacity>
 

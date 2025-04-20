@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { router, useLocalSearchParams } from "expo-router"; // Thêm useLocalSearchParams
+import { router, useLocalSearchParams } from "expo-router"; 
 import { View, Text, Linking, TouchableOpacity } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import axios from "axios";
@@ -156,7 +156,7 @@ const BanDoVanHoa = () => {
     const viTri = viTriRaw.toLowerCase();
     const beforeHT = viTri.split("hà tĩnh")[0];
     const parts = beforeHT
-      .replace(/tỉnh|huyện|thị xã|thành phố|xã|phường|thị trấn/gi, "")
+      .replace(/tỉnh|huyện|thị xã|thành phố|xã|phường|thị trấn|thôn/gi, "")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);

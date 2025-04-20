@@ -225,7 +225,7 @@ const PhongTucChiTiet = () => {
                   }}
                   style={styles.allVideosButton}
                 >
-                  <Text style={styles.allVideosButtonText}>Xem tất cả video</Text>
+                  <Text style={styles.allVideosButtonText}>Xem tất cả</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity

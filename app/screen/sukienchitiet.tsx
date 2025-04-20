@@ -46,6 +46,7 @@ const SuKienChiTiet = () => {
   const [commentText, setCommentText] = useState("");
   const [danhSachDanhGia, setDanhSachDanhGia] = useState<DanhGia[]>([]);
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,8 +148,15 @@ const SuKienChiTiet = () => {
   };
 
   const handleRating = async () => {
+    // Kiểm tra xem người dùng đã nhập đủ thông tin chưa
+    if (selectedRating === 0 || !commentText.trim()) {
+      setErrorMessage("Vui lòng chọn số sao và viết bình luận!");
+      return;
+    }
+  
+    setErrorMessage(""); // Xóa thông báo lỗi nếu hợp lệ
     setIsSubmitting(true);
-
+  
     try {
       const userId = await AsyncStorage.getItem("idNguoiDung");
       if (!userId) {
@@ -156,16 +164,16 @@ const SuKienChiTiet = () => {
         setIsSubmitting(false);
         return;
       }
-
+  
       const userName = await AsyncStorage.getItem("tenNguoiDung");
       const userAvatar = await AsyncStorage.getItem("anhDaiDien");
-
+  
       const res = await axios.patch(`${API_BASE_URL}/api/sukien/${id}/danhgia`, {
         diem: selectedRating,
         userId,
         binhLuan: commentText,
       });
-
+  
       alert(`Đánh giá thành công: ${selectedRating} ⭐`);
       await fetchDanhGia();
       setShowRatingModal(false);
@@ -458,10 +466,16 @@ const SuKienChiTiet = () => {
                   style={styles.commentInput}
                 />
               </View>
+              {errorMessage ? (
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              ) : null}
               <View style={styles.modalButtonContainer}>
                 <TouchableOpacity
                   style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setShowRatingModal(false)}
+                  onPress={() => {
+                    setShowRatingModal(false);
+                    setErrorMessage(""); // Xóa thông báo lỗi khi đóng modal
+                  }}
                 >
                   <Text style={styles.modalButtonText}>Hủy</Text>
                 </TouchableOpacity>

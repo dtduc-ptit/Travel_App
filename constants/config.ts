@@ -1,7 +1,7 @@
 
 
 
-export const API_BASE_URL = "http://172.19.176.1:8000"; // ip cua huy http://192.168.0.101:8000 http://192.168.0.102:8000
+export const API_BASE_URL = "http://192.168.74.61:8000"; // ip cua huy http://192.168.0.101:8000 http://192.168.0.102:8000
 // export const API_BASE_URL = "http://192.168.0.102:8000"; //ip của đức
 
 

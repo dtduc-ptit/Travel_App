@@ -59,6 +59,8 @@ const stylesBinhLuan = StyleSheet.create({
       color: 'white',
       fontWeight: 'bold',
     },
+
+   
   });
   
 

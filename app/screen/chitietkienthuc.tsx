@@ -17,7 +17,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import Modal from "react-native-modal";
 import styles from "../style/chitiet.style";
+import Slider from "@react-native-community/slider";
 import { API_BASE_URL } from "@/constants/config";
+import { Audio } from "expo-av"; // chuc nang nghe audio
+
 
 const screenWidth = Dimensions.get("window").width;
 const videoHeight = (screenWidth * 9) / 16; // Tỉ lệ 16:9
@@ -28,6 +31,27 @@ const ChiTietKienThuc = () => {
   const [kienThuc, setKienThuc] = useState<any>(null);
   const [isVideoVisible, setIsVideoVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  //Chuc nang nghe audio
+  const [isAudioVisible, setIsAudioVisible] = useState(false);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [volume, setVolume] = useState(1);
+
+  useEffect(() => {
+    return () => {
+      const cleanup = async () => {
+        if (sound) {
+          await sound.stopAsync();
+          await sound.unloadAsync();
+        }
+      };
+      cleanup();
+    };
+  }, [sound]);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -44,6 +68,22 @@ const ChiTietKienThuc = () => {
 
     fetchDetail();
   }, [id]);
+
+  useEffect(() => {
+    const updateProgress = async () => {
+      if (sound) {
+        const status = await sound.getStatusAsync();
+        if (status.isLoaded) {
+          setCurrentTime(status.positionMillis);
+          setDuration(status.durationMillis || 0);
+          setProgress(status.positionMillis / (status.durationMillis || 1));
+        }
+      }
+    };
+
+    const interval = setInterval(updateProgress, 1000);
+    return () => clearInterval(interval);
+  }, [sound]);
 
   // Hàm chuyển đổi URL YouTube sang embed
   const getYouTubeEmbedUrl = (url: string) => {
@@ -101,6 +141,74 @@ const ChiTietKienThuc = () => {
 
   const embedUrl = getYouTubeEmbedUrl(kienThuc.videoUrl);
 
+  //Chuc nang nghe audio: ham xu ly am thanh
+  const playAudio = async () => {
+    if (sound) {
+      await sound.unloadAsync();
+    }
+
+    const { sound: newSound } = await Audio.Sound.createAsync(
+      { uri: kienThuc.audioUrl },
+      { shouldPlay: true, volume: volume }
+    );
+
+    setSound(newSound);
+    setIsPlaying(true);
+
+    newSound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded) {
+        setCurrentTime(status.positionMillis);
+        setDuration(status.durationMillis || 0);
+        setProgress(status.positionMillis / (status.durationMillis || 1));
+      }
+    });
+  };
+
+  const handlePlayPause = async () => {
+    if (!sound) return;
+    
+    if (isPlaying) {
+      await sound.pauseAsync();
+    } else {
+      await sound.playAsync();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleVolumeChange = async (value: number) => {
+    setVolume(value);
+    if (sound) {
+      await sound.setVolumeAsync(value);
+    }
+  };
+
+  const handleCloseModal = async () => {
+    try {
+      if (sound) {
+        await sound.stopAsync();    // Dừng phát
+        await sound.unloadAsync();  // Giải phóng tài nguyên
+        setSound(null);             // Reset sound state
+      }
+      setIsPlaying(false);          // Reset trạng thái phát
+      setCurrentTime(0);            // Reset thời gian
+      setProgress(0);               // Reset progress bar
+      setIsAudioVisible(false);     // Đóng modal
+    } catch (error) {
+      console.error("Lỗi khi đóng modal:", error);
+    }
+  };
+
+  const formatTime = (millis: number) => {
+    const minutes = Math.floor(millis / 60000);
+    const seconds = ((millis % 60000) / 1000).toFixed(0);
+    return `${minutes}:${(+seconds < 10 ? '0' : '')}${seconds}`;
+  };
+
+
+  
+  
+  
+
   return (
     <SafeAreaView style={[styles.container, { flex: 1 }]}>
       {/* Header */}
@@ -129,10 +237,17 @@ const ChiTietKienThuc = () => {
 
         {/* Action buttons */}
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => {
+              setIsAudioVisible(true);
+              playAudio();
+            }}
+          >
             <Ionicons name="volume-high" size={18} color="#fff" />
             <Text style={styles.buttonText}>Nghe audio</Text>
           </TouchableOpacity>
+
           
           <TouchableOpacity 
             style={styles.button}
@@ -211,6 +326,94 @@ const ChiTietKienThuc = () => {
           </View>
         </Modal>
       )}
+  
+        {/* Audio Modal */}
+        <Modal
+      isVisible={isAudioVisible}
+      onBackdropPress={handleCloseModal}
+      style={styles.audioModal}
+      swipeDirection="down"
+      onSwipeComplete={handleCloseModal}
+    >
+      <View style={styles.audioContent}>
+        {/* Header */}
+        <View style={styles.audioHeader}>
+          <Image
+            source={kienThuc?.hinhAnh?.[0] 
+              ? { uri: kienThuc.hinhAnh[0] }
+              : require('../../assets/images/default-audio.jpg')}
+            style={styles.audioArtwork}
+          />
+          <View style={styles.audioInfo}>
+            <Text style={styles.audioTitle} numberOfLines={1}>
+              {kienThuc?.tieuDe || 'Không có tiêu đề'}
+            </Text>
+            <Text style={styles.audioArtist}>
+              {kienThuc?.tacGia || 'Tác giả không xác định'}
+            </Text>
+          </View>
+        </View>
+
+        {/* Progress bar */}
+        <View style={styles.progress}>
+          <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
+        </View>
+
+        {/* Time info */}
+        <View style={styles.timeWrapper}>
+          <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
+          <Text style={styles.timeText}>{formatTime(duration)}</Text>
+        </View>
+
+        {/* Control buttons */}
+        <View style={styles.controlButtons}>
+          <TouchableOpacity>
+            <Ionicons name="play-skip-back" size={24} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.mainControl} 
+            onPress={handlePlayPause}
+          >
+            <Ionicons 
+              name={isPlaying ? "pause" : "play"} 
+              size={32} 
+              color="#fff" 
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Ionicons name="play-skip-forward" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Volume control */}
+        <View style={styles.volumeContainer}>
+          <Ionicons name="volume-low" size={20} color="#fff" style={styles.volumeIcon} />
+          <Slider
+            style={{flex: 1}}
+            minimumValue={0}
+            maximumValue={1}
+            value={volume}
+            onValueChange={handleVolumeChange}
+            minimumTrackTintColor="#4a90e2"
+            maximumTrackTintColor="#404040"
+            thumbTintColor="#4a90e2"
+          />
+          <Ionicons name="volume-high" size={20} color="#fff" style={styles.volumeIcon} />
+        </View>
+
+        {/* Close button */}
+        <TouchableOpacity 
+          style={styles.closeButton}
+          onPress={handleCloseModal}
+        >
+          <Ionicons name="close" size={28} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </Modal>
+
+
     </SafeAreaView>
   );
 };

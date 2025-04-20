@@ -123,4 +123,91 @@ export default StyleSheet.create({
     marginTop: 10,
     textDecorationLine: "underline",
   },
+
+   //modal nghe audio
+   audioContainer: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  audioModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  audioContent: {
+    backgroundColor: '#2c2c2e',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: 280,
+  },
+  audioHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  audioArtwork: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 15,
+  },
+  audioInfo: {
+    flex: 1,
+  },
+  audioTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 5,
+  },
+  audioArtist: {
+    color: '#9b9b9b',
+    fontSize: 14,
+  },
+  controls: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  progress: {
+    width: '100%',
+    height: 3,
+    backgroundColor: '#404040',
+    marginBottom: 10,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#4a90e2',
+  },
+  timeWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  timeText: {
+    color: '#9b9b9b',
+    fontSize: 12,
+  },
+  controlButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 15,
+  },
+  mainControl: {
+    marginHorizontal: 25,
+    backgroundColor: '#4a90e2',
+    borderRadius: 50,
+    padding: 15,
+  },
+  volumeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  volumeIcon: {
+    marginHorizontal: 10,
+  },
 });

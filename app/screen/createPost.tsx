@@ -1,29 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, Text, TouchableOpacity, Image } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context'; // Để tránh bị đè lên vùng notch
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';  // Import useRouter từ expo-router
 import styles from '../style/createPost.style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_BASE_URL } from '@/constants/config';
 import Toast from 'react-native-toast-message'; // Import thư viện Toast
+import * as ImagePicker from 'expo-image-picker'; // Thêm ImagePicker để chọn ảnh
+
+const { width } = Dimensions.get('window');
 
 const CreatePostScreen = () => {
   const router = useRouter();  // Khởi tạo router từ expo-router
   const [content, setContent] = useState('');
-  const [image, setImage] = useState('');
   const [nguoiDung, setNguoiDung] = useState<any>(null);
+  const [image, setImage] = useState<string | null>(null); // Cho phép image là string hoặc null
 
-  useEffect(() => {
-    Toast.show({
-      type: 'success',
-      position: 'top',
-      text1: 'Ứng dụng đang chạy!',
-      text2: 'Toast đang hoạt động bình thường.',
-    });
-  }, []);
 
+  // Lấy thông tin người dùng từ AsyncStorage
   useEffect(() => {
     const fetchNguoiDung = async () => {
       try {
@@ -36,53 +32,128 @@ const CreatePostScreen = () => {
         console.error("Lỗi khi lấy thông tin người dùng:", error);
       }
     };
-
     fetchNguoiDung();
   }, []);
 
-  const handlePost = async () => {
-    try {
-      if (!content || !image) {
-        console.error("Thiếu thông tin bài viết");
-        return;
+// Hàm chọn ảnh từ thư viện
+const pickImage = async () => {
+  // Yêu cầu quyền truy cập thư viện ảnh
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== 'granted') {
+    alert('Cần cấp quyền truy cập ảnh!');
+    return;
+  }
+
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: false,
+    quality: 1,
+  });
+
+  if (!result.canceled && result.assets?.[0]?.uri) {
+    setImage(result.assets[0].uri);
+  }
+};
+
+// Hàm upload ảnh lên Cloudinary
+const uploadImageToCloudinary = async (imageUri: string) => {
+  try {
+    // Tạo form data với đúng định dạng file
+    const filename = imageUri.split('/').pop(); 
+    const fileType = filename?.split('.').pop() || 'jpg'; // Fallback type
+
+    const formData = new FormData();
+    formData.append('file', {
+      uri: imageUri,
+      name: `upload.${fileType}`,
+      type: `image/${fileType}`,
+    } as any);
+    formData.append('upload_preset', 'mobile_app');
+
+    // Gửi request với timeout
+    const response = await axios.post(
+      'https://api.cloudinary.com/v1_1/drsjgc393/image/upload',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 15000, // Tăng timeout lên 15 giây
       }
+    );
+
+    return response.data.secure_url;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'Upload failed:',
+        error.response?.data || error.message
+      );
+    }
+    return null;
+  }
+};
+  // Hàm đăng bài
+  const handlePost = async () => {
+    if (!content || !image) {
+      Toast.show({
+        type: 'error',
+        text1: 'Vui lòng nhập nội dung và chọn ảnh',
+      });
+      return;
+    }
   
-      const response = await axios.post(`${API_BASE_URL}/api/baiviet`, {
-        nguoiDung: nguoiDung?._id,
+    const imageUrl = await uploadImageToCloudinary(image);
+    
+    if (!imageUrl) {
+      Toast.show({
+        type: 'error',
+        text1: 'Tải ảnh lên thất bại',
+      });
+      return;
+    }
+  
+    try {
+      await axios.post(`${API_BASE_URL}/api/baiviet`, {
+        nguoiDung: nguoiDung._id,
         noiDung: content,
-        hinhAnh: image,
+        hinhAnh: imageUrl,
       });
   
-      if (response.status === 201) {
-        // Kiểm tra nếu Toast được gọi
-        console.log('Bài viết thành công, hiển thị Toast!');
-        Toast.show({
-          type: 'success',
-          position: 'top',
-          text1: 'Bài viết đã được đăng!',
-          text2: 'Bài viết của bạn đã được tạo thành công.',
-        });
+      Toast.show({
+        type: 'success',
+        text1: 'Đăng bài thành công!',
+      });
   
-        // Quay lại màn hình trước đó
-        router.back();
-      } else {
-        console.error("Lỗi khi đăng bài:", response.data);
-      }
+      setTimeout(() => router.push('/congdong'), 2000);
     } catch (error) {
-      console.error("Lỗi khi gửi bài viết:", error);
+      console.error('Post error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi khi đăng bài',
+      });
     }
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        {/* Back Button */}
-        <TouchableOpacity onPress={() => router.back()}>
-          <FontAwesome name="arrow-left" size={24} color="black" />
+        {/* Header with back button and title */}
+        <View style={styles.boxHeader}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back-outline" size={24} color="black" />
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.headerTitle}>Tạo bài viết</Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handlePost}>
+          <Text style={styles.buttonText}>Đăng</Text>
         </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Tạo bài viết</Text>
       </View>
+
+      {/* Dấu gạch ngang phân tách */}
+      <View style={[styles.separator, { width: '100%' }]}></View>
 
       <View style={styles.postContainer}>
          {/* Avatar and User Name */}
@@ -90,7 +161,7 @@ const CreatePostScreen = () => {
            <TouchableOpacity
              onPress={() =>
                router.push({
-                 pathname: "../screen/thongtincanhan",  // Navigate to profile page
+                 pathname: "../auth/trangcanhan",  // Navigate to profile page
                  params: { id: nguoiDung?._id }
                })
              }
@@ -114,15 +185,35 @@ const CreatePostScreen = () => {
           value={content}
           onChangeText={setContent}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="URL hình ảnh"
-          value={image}
-          onChangeText={setImage}
-        />
-        <TouchableOpacity style={styles.button} onPress={handlePost}>
-          <Text style={styles.buttonText}>Đăng</Text>
+      {/* Dấu gạch ngang phân tách */}
+      <View style={[styles.separator, { width: '100%' }]}></View>
+      {!image && (
+        <TouchableOpacity  style={styles.imgContainer} onPress={pickImage} >
+          <Ionicons 
+            name="image" 
+            size={32} 
+            color="black" 
+            style={styles.img}             
+          />
+          <Text>Hình ảnh</Text>
         </TouchableOpacity>
+      )}
+
+      {/* Hiển thị ảnh đã chọn */}
+      {image && (
+        <View style={styles.imageActions}>
+          <Image source={{ uri: image }} style={styles.selectedImage} />
+          <TouchableOpacity 
+            style={styles.deleteButton}
+            onPress={() => setImage(null)}
+          >
+            <Ionicons name="close" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Dấu gạch ngang phân tách */}
+      <View style={[styles.separator, { width: '100%' }]}></View>  
       </View>
 
       {/* Toast Container */}

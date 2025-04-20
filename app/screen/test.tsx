@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons"; // Cập nhật icon từ Ionicons
 import axios from "axios";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
@@ -21,7 +21,7 @@ const screenWidth = Dimensions.get("window").width;
 const ChiTietKienThuc = () => {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const [kienThuc, setKienThuc] = useState<any>(null); 
+  const [kienThuc, setKienThuc] = useState<any>(null);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -34,8 +34,7 @@ const ChiTietKienThuc = () => {
     };
 
     fetchDetail();
-  }, [id]);  
-  
+  }, [id]);
 
   if (!kienThuc) return <Text>Đang tải...</Text>;
 
@@ -43,7 +42,7 @@ const ChiTietKienThuc = () => {
     <SafeAreaView style={styles.container}>
       {/* Nút back */}
       <TouchableOpacity onPress={() => router.push("/kienthuc")} style={styles.backButton}>
-        <FontAwesome name="arrow-left" size={24} />
+        <Ionicons name="arrow-back-outline" size={24} color="black" />
       </TouchableOpacity>
 
       <ScrollView>
@@ -63,16 +62,16 @@ const ChiTietKienThuc = () => {
 
         {/* Nút chức năng */}
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.button} >
-            <FontAwesome name="volume-up" size={18} color="#fff" />
+          <TouchableOpacity style={styles.button}>
+            <Ionicons name="volume-high" size={18} color="#fff" />
             <Text style={styles.buttonText}>Nghe audio</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>
-            <FontAwesome name="video-camera" size={18} color="#fff" />
+            <Ionicons name="videocam" size={18} color="#fff" />
             <Text style={styles.buttonText}>Xem video</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} >
-            <FontAwesome name="bookmark" size={18} color="#fff" />
+          <TouchableOpacity style={styles.button}>
+            <Ionicons name="bookmark" size={18} color="#fff" />
             <Text style={styles.buttonText}>Lưu</Text>
           </TouchableOpacity>
         </View>
@@ -90,7 +89,7 @@ const ChiTietKienThuc = () => {
 
         {/* Nội dung */}
         <Text style={styles.content}>{kienThuc.noiDung}</Text>
-      </ScrollView>     
+      </ScrollView>
     </SafeAreaView>
   );
 };

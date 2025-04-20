@@ -6,7 +6,8 @@
    ```bash
    npm install
    ```
-
+   npm install --legacy-peer-deps
+   
 2. Start the app
 
    ```bash

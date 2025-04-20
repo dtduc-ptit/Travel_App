@@ -1,115 +1,126 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { Platform, StatusBar, StyleSheet } from "react-native";
+import { Dimensions } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
+const videoHeight = (screenWidth * 9) / 16; // Tỉ lệ 16:9
+const statusBarHeight = Platform.select({
+  android: StatusBar.currentHeight || 24, // Fallback 24px nếu không lấy được
+});
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
+    backgroundColor: "#fff", 
   },
+
+  // Header - Đã sửa vị trí nút back
   backButton: {
-    marginTop: 10,
-    marginBottom: 10,
+    position: "absolute",
+    top: Platform.OS === 'ios' ? 44 : 24, // Điều chỉnh theo notch
+    left: 15,
+    zIndex: 10,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    borderRadius: 20,
+    padding: 6,
+    marginTop: 12,
+    marginLeft: -4, // Thêm khoảng cách cho Android
   },
+
+  // Phần thumbnail và tiêu đề - Chỉnh layout 50/50
   topRow: {
     flexDirection: "row",
+    padding: 15,
+    marginTop: Platform.OS === 'android' ? 16 : 9,
     alignItems: "center",
-    marginBottom: 12,
   },
   image: {
-    width: screenWidth / 2 - 20, // khoảng 50% trừ padding
-    height: 100,
-    borderRadius: 8,
-    marginRight: 10,
+    width: screenWidth * 0.5 - 30, // Chiếm 50% chiều rộng trừ padding
+    aspectRatio: 16 / 9, // Đảm bảo ảnh vuông
+    borderRadius: 10,
+    marginRight: 15,
   },
   title: {
-    width: screenWidth / 2 - 20,
+    width: screenWidth * 0.5 - 16, // Cùng kích thước với ảnh
     fontSize: 18,
-    fontWeight: "bold",
-    flexWrap: "wrap",
+    fontWeight: "600",
+    color: "#333",
+    paddingLeft: 4,
+    textAlign: "center",
   },
+
+  // Nhóm nút chức năng
   actions: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
+    justifyContent: "space-around",
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
   button: {
-    flex: 1,
     flexDirection: "row",
+    backgroundColor: "#007bff",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
     alignItems: "center",
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 8,
-    marginHorizontal: 4,
-    justifyContent: "center",
   },
   buttonText: {
     color: "#fff",
-    marginLeft: 6,
+    marginLeft: 5,
     fontSize: 14,
   },
+
+  // Nội dung chính
   content: {
+    padding: 15,
     fontSize: 16,
     lineHeight: 24,
-    color: "#333",
-    marginBottom: 40,
+    color: "#444",
     textAlign: "justify",
   },
-  modalOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.7)", // Lớp phủ mờ
+
+  /*** Các class mới thêm cho video modal ***/
+  modal: {
+    margin: 0,
+    padding: 0,
     justifyContent: "center",
-    alignItems: "center",
-    zIndex: 999, // Đảm bảo Modal hiển thị lên trên
   },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 8,
-    width: "90%",
-    alignItems: "center",
-    minHeight: 250, // Đảm bảo chiều cao cho WebView
+  videoContainer: {
+    width: screenWidth,
+    height: videoHeight,
+    backgroundColor: "#000",
+    position: "relative",
   },
   closeButton: {
     position: "absolute",
     top: 10,
     right: 10,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: 15,
+    padding: 5,
   },
-  audioOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+
+  // Trạng thái loading
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)", // lớp phủ mờ
-    zIndex: 10,
-  },
-  audioBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  audioPlayer: {
-    width: "90%",
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
   },
-  audioTitle: {
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  audioControls: {
-    flexDirection: "row",
+
+  // Xử lý lỗi
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    paddingHorizontal: 10,
+    padding: 20,
+    backgroundColor: "#f8d7da",
+    borderRadius: 10,
+    margin: 20,
+  },
+  linkText: {
+    color: "#0d6efd",
+    marginTop: 10,
+    textDecorationLine: "underline",
   },
 });

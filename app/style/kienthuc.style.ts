@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "900",
     color: "#333",
     marginBottom: 20,
   },
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   itemsContainer: {
     flexDirection: "row",
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 14,
     textAlign: "center",
+    fontWeight: "500",
   },
   headerTitle: {
     fontSize: 20,

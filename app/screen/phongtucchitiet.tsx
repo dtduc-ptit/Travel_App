@@ -220,6 +220,7 @@ const PhongTucChiTiet = () => {
   
       Alert.alert("Đã lưu phong tục thành công!");
       setMoTa('');
+      setShowSavePopup(false);
     } catch (error) {
       console.error("Lỗi khi lưu phong tục:", error);
       Alert.alert("Có lỗi xảy ra khi lưu!");
@@ -431,7 +432,6 @@ const PhongTucChiTiet = () => {
             </View>
           </View>
         </View>
-
       )}
       
       </ScrollView>

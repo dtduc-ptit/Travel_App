@@ -198,6 +198,7 @@ export default StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 1000,
   },
   
   popupBox: {

@@ -27,7 +27,7 @@ const TrangCaNhan = () => {
   const [soThongBaoChuaDoc, setSoThongBaoChuaDoc] = useState<number>(0);
 
   const [selectedTab, setSelectedTab] = useState('Di Tích');
-  interface DiaDiem {
+  interface DiTich {
     _id: string;
     ten: string;
     viTri: string;
@@ -39,9 +39,16 @@ const TrangCaNhan = () => {
     viTri: string;
     imageUrl: string;
   }
+  interface SuKien {
+    _id: string;
+    ten: string;
+    viTri: string;
+    imageUrl: string;
+  }
 
-  const [diaDiemData, setDiaDiemData] = useState<DiaDiem[]>([]);
+  const [diTichData, setDiTichData] = useState<DiTich[]>([]);
   const [phongTucData, setPhongTucData] = useState<Phongtuc[]>([]);
+  const [suKienData, setSuKienData] = useState<SuKien[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async (idNguoiDung : string , loaiNoiDung : string, idNoiDung : string) => {
@@ -54,10 +61,12 @@ const TrangCaNhan = () => {
         }
       });
   
-      if (loaiNoiDung === 'DiaDiem') {
-        setDiaDiemData((prev) => prev.filter(item => item._id !== idNoiDung));
+      if (loaiNoiDung === 'DiTich') {
+        setDiTichData((prev) => prev.filter(item => item._id !== idNoiDung));
       } else if (loaiNoiDung === 'PhongTuc') {
         setPhongTucData((prev) => prev.filter(item => item._id !== idNoiDung));
+      } else if (loaiNoiDung === 'SuKien') {
+        setSuKienData((prev) => prev.filter(item => item._id !== idNoiDung));
       }
     } catch (err) {
       console.error('Xoá thất bại:', err);
@@ -81,17 +90,17 @@ const TrangCaNhan = () => {
   };
   
   
-  const fetchDiaDiem = async () => {
+  const fetchDiTich = async () => {
     try {
       setLoading(true);
       const idNguoiDung = await AsyncStorage.getItem('idNguoiDung');
       if (!idNguoiDung) return;
 
-      const res = await axios.get(`${API_BASE_URL}/api/noidungluutru/diadiem`, {
+      const res = await axios.get(`${API_BASE_URL}/api/noidungluutru/ditich`, {
         params: { nguoiDung: idNguoiDung },
       });
 
-      setDiaDiemData(res.data.diaDiems);
+      setDiTichData(res.data.diTichs);
     } catch (error) {
       console.error('Lỗi khi fetch dữ liệu di tích:', error);
     } finally {
@@ -111,6 +120,23 @@ const TrangCaNhan = () => {
       setPhongTucData(res.data.phongTucs);
     } catch (error) {
       console.error('Lỗi khi fetch dữ liệu di tích:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchSuKien = async () => {
+    try {
+      setLoading(true);
+      const idNguoiDung = await AsyncStorage.getItem('idNguoiDung');
+      if (!idNguoiDung) return;
+
+      const res = await axios.get(`${API_BASE_URL}/api/noidungluutru/sukien`, {
+        params: { nguoiDung: idNguoiDung },
+      });
+
+      setSuKienData(res.data.suKiens);
+    } catch (error) {
+      console.error('Lỗi khi fetch dữ liệu sự kiện:', error);
     } finally {
       setLoading(false);
     }
@@ -138,11 +164,14 @@ const TrangCaNhan = () => {
   
   useEffect(() => {
     if (selectedTab === 'Di Tích') {
-      fetchDiaDiem();
+      fetchDiTich();
     }
     else if (selectedTab === 'Phong Tục') {
       fetchPhongTuc();
+    }    else if (selectedTab === 'Sự Kiện') {
+      fetchSuKien();
     }
+
   
     const fetchSoThongBaoChuaDoc = async () => {
       if (!nguoiDung?._id) return;
@@ -167,7 +196,7 @@ const TrangCaNhan = () => {
     }
   };
 
-  const renderDiaDiem = ({ item }: any) => (
+  const renderDiTich = ({ item }: any) => (
     <View style={styles.itemWrapper}>
       <TouchableOpacity
         style={styles.item}
@@ -184,7 +213,7 @@ const TrangCaNhan = () => {
   
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => confirmDelete(nguoiDung._id, 'DiaDiem', item._id)}
+        onPress={() => confirmDelete(nguoiDung._id, 'DiTich', item._id)}
       >
         <Ionicons name="trash-outline" size={20} color="#fff" />
       </TouchableOpacity>
@@ -214,6 +243,29 @@ const TrangCaNhan = () => {
       </TouchableOpacity>
     </View>
   );
+  const renderSuKien = ({ item }: any) => (
+    <View style={styles.itemWrapper}>
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => router.push({ pathname: "/screen/sukienchitiet", params: { id: item._id } })}
+      >
+        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        
+        <View style={styles.textWrapper}>
+          <Text style={styles.ten}>{item.ten}</Text>
+          <Text style={styles.viTri}>{item.viTri}</Text>
+          {item.moTa ? <Text style={styles.moTa}>{item.moTa}</Text> : null}
+        </View>
+      </TouchableOpacity>
+  
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => confirmDelete(nguoiDung._id, 'SuKien', item._id)}
+      >
+        <Ionicons name="trash-outline" size={20} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  );
   
   return (
     <View style={styles.container}>
@@ -226,17 +278,14 @@ const TrangCaNhan = () => {
           </TouchableOpacity>
           <Text style={{ fontSize: 18, fontWeight: "600" }}>Trang cá nhân</Text>
         </View>
-  
+
         {/* Header info */}
         <View style={styles.topHeader}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <TouchableOpacity onPress={() => router.push({ pathname: "/auth/trangcanhan", params: { id: nguoiDung?._id } })}>
               <Image
                 source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
                 style={styles.avatar}
               />
-            </TouchableOpacity>
-  
             <View style={styles.rightSection}>
               <TouchableOpacity
                 style={styles.profileButton}
@@ -269,6 +318,26 @@ const TrangCaNhan = () => {
             </View>
           </View>
         </View>
+
+        {/* Thêm nút Xem Bản Đồ Văn Hóa */}
+        <TouchableOpacity
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: "#007bff",
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            borderRadius: 8,
+            marginHorizontal: 16,
+            marginBottom: 12,
+          }}
+          onPress={() => router.push("/screen/bandovanhoa")}
+          >
+          <Ionicons name="map-outline" size={20} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={{ color: "#fff", fontSize: 16, fontWeight: "500" }}>
+            Xem Bản Đồ Văn Hóa
+          </Text>
+          </TouchableOpacity>
   
         {/* Tabs */}
         <View style={{ padding: 16 }}>
@@ -290,39 +359,51 @@ const TrangCaNhan = () => {
   
       {/* Phần cuộn chỉ FlatList */}
       <View style={styles.scrollArea}>
-        {selectedTab === "Di Tích" ? (
-          loading ? (
-            <Text>Đang tải...</Text>
-          ) : diaDiemData.length > 0 ? (
-            <FlatList
-              data={diaDiemData}
-              keyExtractor={(item) => item._id}
-              renderItem={renderDiaDiem}
-              contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
-              showsVerticalScrollIndicator={false}
-            />
-          ) : (
-            <Text style={{ paddingHorizontal: 16 }}>Chưa có {selectedTab} nào được lưu.</Text>
-          )
-        ) : selectedTab === "Phong Tục" ? (
-          loading ? (
-            <Text>Đang tải...</Text>
-          ) :
-          phongTucData.length > 0 ? (
-            <FlatList
-              data={phongTucData}
-              keyExtractor={(item) => item._id}
-              renderItem={renderPhongTuc}
-              contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
-              showsVerticalScrollIndicator={false}
-            />
-          ) : (
-            <Text style={{ paddingHorizontal: 16 }}>Chưa có {selectedTab} nào được lưu.</Text>
-          )
+      {selectedTab === "Di Tích" ? (
+        loading ? (
+          <Text>Đang tải...</Text>
+        ) : diTichData.length > 0 ? (
+          <FlatList
+            data={diTichData}
+            keyExtractor={(item) => item._id}
+            renderItem={renderDiTich}
+            contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
+            showsVerticalScrollIndicator={false}
+          />
         ) : (
           <Text style={{ paddingHorizontal: 16 }}>Chưa có {selectedTab} nào được lưu.</Text>
-        )}
-      </View>
+        )
+      ) : selectedTab === "Phong Tục" ? (
+        loading ? (
+          <Text>Đang tải...</Text>
+        ) : phongTucData.length > 0 ? (
+          <FlatList
+            data={phongTucData}
+            keyExtractor={(item) => item._id}
+            renderItem={renderPhongTuc}
+            contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <Text style={{ paddingHorizontal: 16 }}>Chưa có {selectedTab} nào được lưu.</Text>
+        )
+      ) : selectedTab === "Sự Kiện" ? (
+        loading ? (
+          <Text>Đang tải...</Text>
+        ) : suKienData.length > 0 ? (
+          <FlatList
+            data={suKienData}
+            keyExtractor={(item) => item._id}
+            renderItem={renderSuKien}
+            contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <Text style={{ paddingHorizontal: 16 }}>Chưa có {selectedTab} nào được lưu.</Text>
+        )
+      ) :null}
+    </View>
+
     </View>
   );
   

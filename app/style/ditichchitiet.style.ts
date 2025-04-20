@@ -195,4 +195,77 @@ export default StyleSheet.create({
     fontWeight: "600",
   },
   
+
+  popupOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  
+  popupBox: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 12,
+    width: "85%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  
+  popupTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  
+  popupInput: {
+    height: 80,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    textAlignVertical: "top",
+    marginBottom: 10,
+  },
+  
+  popupButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  
+  saveBtn: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  cancelBtn: {
+    backgroundColor: "#eee",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  
+  optionButtonSmall: {
+    backgroundColor: '#2e86de',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

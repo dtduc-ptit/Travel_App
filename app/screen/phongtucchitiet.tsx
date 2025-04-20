@@ -19,6 +19,7 @@ import stylesBinhLuan from "../style/binhluan.style";
 import YoutubeIframe from "react-native-youtube-iframe";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomSheet from '@gorhom/bottom-sheet';
+import 'react-native-reanimated'
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 
@@ -219,6 +220,7 @@ const PhongTucChiTiet = () => {
   
       Alert.alert("Đã lưu phong tục thành công!");
       setMoTa('');
+      setShowSavePopup(false);
     } catch (error) {
       console.error("Lỗi khi lưu phong tục:", error);
       Alert.alert("Có lỗi xảy ra khi lưu!");
@@ -377,16 +379,14 @@ const PhongTucChiTiet = () => {
           <TouchableOpacity
             style={{ margin: 16, flexDirection: 'row', alignItems: 'center' }}
             onPress={() => {
-              console.log("Mở bottom sheet");
-             bottomSheetRef.current?.expand();
-              // bottomSheetRef.current?.snapToIndex(0);
-              fetchBinhLuan(); // Load dữ liệu
+              router.push({
+                pathname: "/screen/bandovanhoa",
+              });
             }}
           >
             <Ionicons name="chatbubble-outline" size={20} color="black" />
             <Text style={{ marginLeft: 8 }}>Bình luận</Text>
           </TouchableOpacity>
-
   
           <Text style={styles.subTitle}>Ý nghĩa</Text>
           <Text style={styles.content}>{data.yNghia}</Text>
@@ -432,7 +432,6 @@ const PhongTucChiTiet = () => {
             </View>
           </View>
         </View>
-
       )}
       
       </ScrollView>

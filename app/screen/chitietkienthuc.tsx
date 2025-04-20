@@ -20,6 +20,7 @@ import styles from "../style/chitiet.style";
 import Slider from "@react-native-community/slider";
 import { API_BASE_URL } from "@/constants/config";
 import { Audio } from "expo-av"; // chuc nang nghe audio
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const screenWidth = Dimensions.get("window").width;
@@ -40,6 +41,9 @@ const ChiTietKienThuc = () => {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(1);
+  //Luu kien thuc
+  const [daLuu, setDaLuu] = useState(false);
+  const [nguoiDung, setNguoiDung] = useState<any>(null);
 
   useEffect(() => {
     return () => {
@@ -84,6 +88,46 @@ const ChiTietKienThuc = () => {
     const interval = setInterval(updateProgress, 1000);
     return () => clearInterval(interval);
   }, [sound]);
+
+
+  // Luu kien thuc
+
+  // Thêm useEffect để lấy thông tin người dùng
+  useEffect(() => {
+      const fetchNguoiDung = async () => {
+        try {
+          const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
+          if (idNguoiDung) {
+            const res = await axios.get(`${API_BASE_URL}/api/nguoidung/${idNguoiDung}`);
+            setNguoiDung({ ...res.data, _id: idNguoiDung });
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin người dùng:", error);
+        }
+      };
+  
+      fetchNguoiDung();
+    }, []);
+  // Thêm useEffect kiểm tra trạng thái lưu
+  useEffect(() => {
+    const checkLuuTru = async () => {
+      if (nguoiDung && kienThuc) {
+        try {
+          const res = await axios.get(`${API_BASE_URL}/api/noidungluutru/kiemtra`, {
+            params: {
+              nguoiDung: nguoiDung._id,
+              loaiNoiDung: "kienThuc",
+              idNoiDung: kienThuc._id
+            }
+          });
+          setDaLuu(res.data.daLuu);
+        } catch (error) {
+          console.error("Lỗi kiểm tra trạng thái lưu:", error);
+        }
+      }
+    };
+    checkLuuTru();
+  }, [nguoiDung, kienThuc]);
 
   // Hàm chuyển đổi URL YouTube sang embed
   const getYouTubeEmbedUrl = (url: string) => {
@@ -202,11 +246,41 @@ const ChiTietKienThuc = () => {
     const minutes = Math.floor(millis / 60000);
     const seconds = ((millis % 60000) / 1000).toFixed(0);
     return `${minutes}:${(+seconds < 10 ? '0' : '')}${seconds}`;
+  };  
+
+  // Luu kien thuc
+  // Hàm xử lý lưu/bỏ lưu
+  const handleLuu = async () => {
+    if (!nguoiDung) {
+      alert("Vui lòng đăng nhập để thực hiện chức năng này");
+      return;
+    }
+
+    try {
+      if (daLuu) {
+        // Gọi API xóa
+        await axios.delete(`${API_BASE_URL}/api/noidungluutru`, {
+          data: {
+            nguoiDung: nguoiDung._id,
+            loaiNoiDung: "kienThuc", 
+            idNoiDung: kienThuc._id
+          }
+        });
+      } else {
+        // Gọi API tạo
+        await axios.post(`${API_BASE_URL}/api/noidungluutru`, {
+          nguoiDung: nguoiDung._id,
+          loaiNoiDung: "kienThuc",
+          idNoiDung: kienThuc._id,
+          moTa: ""
+        });
+      }
+      setDaLuu(!daLuu);
+    } catch (error) {
+      console.error("Lỗi khi thực hiện lưu:", error);
+      alert("Thao tác thất bại, vui lòng thử lại");
+    }
   };
-
-
-  
-  
   
 
   return (
@@ -260,10 +334,20 @@ const ChiTietKienThuc = () => {
             <Text style={styles.buttonText}>Xem video</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.button}>
-            <Ionicons name="bookmark" size={18} color="#fff" />
-            <Text style={styles.buttonText}>Lưu</Text>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handleLuu}
+          >
+            <Ionicons 
+              name={daLuu ? "bookmark" : "bookmark-outline"} 
+              size={18} 
+              color="#fff" 
+            />
+            <Text style={styles.buttonText}>
+              {daLuu ? "Đã lưu" : "Lưu"}
+            </Text>
           </TouchableOpacity>
+
         </View>
 
         {/* Nội dung chính */}

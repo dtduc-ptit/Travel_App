@@ -108,9 +108,24 @@ const LichTrinh = () => {
           style={styles.routeButton}
           onPress={() =>
             router.push({
-              pathname: "/screen/bando",
+              pathname: "/screen/bandovanhoa",
               params: {
-                diTichId: diTichId,
+                id: diTichId,
+              },
+            })
+          }
+        >
+          <Text style={styles.routeText}>Xem đường đi</Text>
+        </TouchableOpacity>
+      )}
+      {suKienId && (
+        <TouchableOpacity
+          style={styles.routeButton}
+          onPress={() =>
+            router.push({
+              pathname: "/screen/bandovanhoa",
+              params: {
+                id: suKienId,
               },
             })
           }

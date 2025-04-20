@@ -98,12 +98,9 @@ const DanhSachKienThuc = () => {
         </View>
 
         <View style={styles.headerRight}>
-          <TouchableOpacity onPress={() => { /* handle bookmark */ }}>
+          <TouchableOpacity onPress={() => router.push("../screen/kienthucdaluu")}>
             <Ionicons name="bookmark-outline" size={24} color="black" style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => { /* handle history */ }}>
-            <Ionicons name="time-outline" size={24} color="black" style={styles.icon} />
-          </TouchableOpacity>
+          </TouchableOpacity>          
         </View>
       </View>
 

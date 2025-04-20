@@ -80,6 +80,8 @@ const WeatherDetailScreen = () => {
     };
 
     fetchWeather();
+    const intervalId = setInterval(fetchWeather, 300000); 
+    return () => clearInterval(intervalId); 
   }, []);
 
   // Xử lý dữ liệu dự báo để lấy temp_max và temp_min mỗi ngày

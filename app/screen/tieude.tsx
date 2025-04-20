@@ -97,6 +97,8 @@ const UserHeader = () => {
     };
 
     fetchWeather();
+    const intervalId = setInterval(fetchWeather, 300000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const getGradientColors = (description: string): [string, string] => {

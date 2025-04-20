@@ -15,13 +15,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import styles from "../style/phongtucchitiet.style";
-import stylesBinhLuan from "../style/binhluan.style";
 import YoutubeIframe from "react-native-youtube-iframe";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import BottomSheet from '@gorhom/bottom-sheet';
 import 'react-native-reanimated'
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-
 
 const PhongTucChiTiet = () => {
   const navigation = useNavigation();
@@ -33,17 +29,10 @@ const PhongTucChiTiet = () => {
   const [loading, setLoading] = useState(true);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const [videoList, setVideoList] = useState<any[]>([]);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [moTa, setMoTa] = useState('');
   const [showSavePopup, setShowSavePopup] = useState(false);
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const [noiDungBinhLuan, setNoiDungBinhLuan] = useState('');
-  const [danhSachBinhLuan, setDanhSachBinhLuan] = useState<any[]>([]);
-  const [isModalVisible, setModalVisible] = useState(false);
-
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,16 +80,6 @@ const PhongTucChiTiet = () => {
   
     fetchData();
   }, [id]);
-
-
-  const fetchBinhLuan = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/api/luotbinhluan/${id}`);
-      setDanhSachBinhLuan(res.data);
-    } catch (error) {
-      console.log("Lỗi khi lấy bình luận:", error);
-    }
-  };
   
   const handleMediaPress = (item: any) => {
     setMainMedia(item);
@@ -110,45 +89,6 @@ const PhongTucChiTiet = () => {
   const getYouTubeId = (url: string) => {
     const match = url.match(/(?:v=|youtu\.be\/)([^&]+)/);
     return match ? match[1] : "";
-  };
-
-  const handleNextVideo = () => {
-    const nextIndex = (currentVideoIndex + 1) % videoList.length;
-    setCurrentVideoIndex(nextIndex);
-    setMainMedia(videoList[nextIndex]);
-  };
-
-  const handlePrevVideo = () => {
-    const prevIndex = (currentVideoIndex - 1 + videoList.length) % videoList.length;
-    setCurrentVideoIndex(prevIndex);
-    setMainMedia(videoList[prevIndex]);
-  };
-  
-
-  const handleGuiBinhLuan = async () => {
-    try {
-      const userId = await AsyncStorage.getItem("idNguoiDung");
-      if (!userId) {
-        Alert.alert("Thông báo", "Vui lòng đăng nhập để bình luận.");
-        return;
-      }
-  
-      if (!noiDungBinhLuan.trim()) return;
-  
-      const res = await axios.post(`${API_BASE_URL}/api/luotbinhluan`, {
-        baiViet: id,
-        nguoiDung: userId,
-        noiDung: noiDungBinhLuan,
-      });
-  
-      setNoiDungBinhLuan('');
-      bottomSheetRef.current?.close();
-      Alert.alert("✅ Thành công", "Đã gửi bình luận!");
-      // TODO: Có thể gọi hàm load lại danh sách bình luận nếu bạn có hiển thị nó.
-    } catch (error) {
-      console.log("Lỗi gửi bình luận:", error);
-      Alert.alert("❌ Lỗi", "Không thể gửi bình luận.");
-    }
   };
   
   const handleRating = async (rating: number) => {
@@ -258,19 +198,6 @@ const PhongTucChiTiet = () => {
                 height={250}
                 play={isPlayingVideo}
               />
-              {videoList.length > 1 && (
-                <View style={styles.videoNavigation}>
-                  <TouchableOpacity onPress={handlePrevVideo} style={styles.navButton}>
-                    <FontAwesome name="chevron-left" size={24} color="#fff" />
-                  </TouchableOpacity>
-                  <Text style={styles.videoIndicator}>
-                    {currentVideoIndex + 1}/{videoList.length}
-                  </Text>
-                  <TouchableOpacity onPress={handleNextVideo} style={styles.navButton}>
-                    <FontAwesome name="chevron-right" size={24} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              )}
             </View>
           ) : (
             <Image
@@ -281,22 +208,43 @@ const PhongTucChiTiet = () => {
           )}
           
           {videoList.length > 0 && (
-            <TouchableOpacity
-              onPress={() => {
-                if (mainMedia?.type === "video") {
-                  setIsPlayingVideo(false);
-                  setMainMedia({ url: data.imageUrl, type: "image" });
-                } else {
-                  setIsPlayingVideo(true);
-                  setMainMedia(videoList[0]);
-                }
-              }}
-              style={styles.videoButton}
-            >
-              <Text style={styles.videoButtonText}>
-                {mainMedia?.type === "video" ? "🎬 Xem ảnh" : `🎬 video (${videoList.length})`}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              {mainMedia?.type === "video" && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsPlayingVideo(false); 
+                    router.push({
+                      pathname: "/screen/danhsachvideo",
+                      params: {
+                        ten: data.ten,
+                        doiTuong: "PhongTuc",
+                        doiTuongId: data._id,
+                        type: "video",
+                      },
+                    });
+                  }}
+                  style={styles.allVideosButton}
+                >
+                  <Text style={styles.allVideosButtonText}>Xem tất cả video</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                onPress={() => {
+                  if (mainMedia?.type === "video") {
+                    setIsPlayingVideo(false);
+                    setMainMedia({ url: data.imageUrl, type: "image" });
+                  } else {
+                    setIsPlayingVideo(true);
+                    setMainMedia(videoList[0]);
+                  }
+                }}
+                style={styles.videoButton}
+              >
+                <Text style={styles.videoButtonText}>
+                  {mainMedia?.type === "video" ? "🎬 Xem ảnh" : `🎬 video (${videoList.length})`}
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
           {!isPlayingVideo && media.length > 1 && (
             <View style={styles.thumbnailOverlay}>
@@ -343,17 +291,15 @@ const PhongTucChiTiet = () => {
         </View>
   
         <View style={styles.infoContainer}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title}>{data.ten}</Text>
-
-          <TouchableOpacity
-            style={styles.optionButtonSmall}
-            onPress={() => setShowSavePopup(true)}
-          >
-            <Ionicons name="bookmark-outline" size={16} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>{data.ten}</Text>
+            <TouchableOpacity
+              style={styles.optionButtonSmall}
+              onPress={() => setShowSavePopup(true)}
+            >
+              <Ionicons name="bookmark-outline" size={16} color="#fff" />
+            </TouchableOpacity>
+          </View>
   
           <View style={styles.row}>
             <FontAwesome name="map-marker" size={16} color="#666" />
@@ -375,19 +321,6 @@ const PhongTucChiTiet = () => {
               ({data.soNguoiDanhGia} người đã đánh giá)
             </Text>
           )}
-
-          <TouchableOpacity
-            style={{ margin: 16, flexDirection: 'row', alignItems: 'center' }}
-            onPress={() => {
-              router.push({
-                pathname: "/screen/bandovanhoa",
-              });
-            }}
-          >
-            <Ionicons name="chatbubble-outline" size={20} color="black" />
-            <Text style={{ marginLeft: 8 }}>Bình luận</Text>
-          </TouchableOpacity>
-  
           <Text style={styles.subTitle}>Ý nghĩa</Text>
           <Text style={styles.content}>{data.yNghia}</Text>
   
@@ -407,93 +340,35 @@ const PhongTucChiTiet = () => {
             </TouchableOpacity>
           ))}
         </View>
-      {/* Popup nhập mô tả */}
-      {showSavePopup && (
-        <View style={styles.popupOverlay}>
-          <View style={styles.popupBox}>
-            <Text style={styles.popupTitle}>Nhập mô tả</Text>
-            <TextInput
-              style={styles.popupInput}
-              placeholder="Phong tục này có ý nghĩa gì với bạn?"
-              value={moTa}
-              onChangeText={setMoTa}
-              multiline
-            />
-            <View style={styles.popupButtons}>
-              <TouchableOpacity onPress={handleSaveLocation} style={styles.saveBtn}>
-                <Text style={{ color: "#fff" }}>Lưu</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setShowSavePopup(false)}
-                style={styles.cancelBtn}
-              >
-                <Text>❌</Text>
-              </TouchableOpacity>
+        {/* Popup nhập mô tả */}
+        {showSavePopup && (
+          <View style={styles.popupOverlay}>
+            <View style={styles.popupBox}>
+              <Text style={styles.popupTitle}>Nhập mô tả</Text>
+              <TextInput
+                style={styles.popupInput}
+                placeholder="Phong tục này có ý nghĩa gì với bạn?"
+                value={moTa}
+                onChangeText={setMoTa}
+                multiline
+              />
+              <View style={styles.popupButtons}>
+                <TouchableOpacity onPress={handleSaveLocation} style={styles.saveBtn}>
+                  <Text style={{ color: "#fff" }}>Lưu</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setShowSavePopup(false)}
+                  style={styles.cancelBtn}
+                >
+                  <Text>❌</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      )}
-      
+        )}
       </ScrollView>
-
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={['50%', '80%']}
-        enablePanDownToClose
-      >
-        <View style={stylesBinhLuan.sheetContainer}>
-        <TouchableOpacity onPress={() => setModalVisible(false)} style={stylesBinhLuan.closeBtn}>
-        <Text style={{ fontSize: 18 }}>✖</Text>
-      </TouchableOpacity>
-          <Text style={stylesBinhLuan.title}>Bình luận</Text>
-
-          <ScrollView
-            style={stylesBinhLuan.commentList}
-            showsVerticalScrollIndicator={false}
-          >
-            {danhSachBinhLuan.map((bl, index) => (
-              <View key={index} style={stylesBinhLuan.commentItem}>
-                <Image
-                  source={{ uri: bl.nguoiDung?.anhDaiDien || 'https://via.placeholder.com/40' }}
-                  style={stylesBinhLuan.avatar}
-                />
-                <View style={stylesBinhLuan.commentContent}>
-                  <Text style={stylesBinhLuan.userName}>
-                    {bl.nguoiDung?.ten || "Người dùng"}
-                  </Text>
-                  <Text style={stylesBinhLuan.commentText}>{bl.noiDung}</Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-
-          <TextInput
-            placeholder="Nhập bình luận..."
-            style={stylesBinhLuan.input}
-            multiline
-            value={noiDungBinhLuan}
-            onChangeText={setNoiDungBinhLuan}
-          />
-
-          <TouchableOpacity
-            onPress={async () => {
-              await handleGuiBinhLuan();
-              fetchBinhLuan();
-            }}
-            style={stylesBinhLuan.submitButton}
-          >
-            <Text style={stylesBinhLuan.submitButtonText}>Gửi bình luận</Text>
-          </TouchableOpacity>
-        </View>
-      </BottomSheet>
-
-
     </SafeAreaView>
-    
   );
-
-  
 };
 
 export default PhongTucChiTiet;

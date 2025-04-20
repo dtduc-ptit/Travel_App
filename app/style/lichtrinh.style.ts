@@ -1,36 +1,35 @@
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f5f7fa",
     paddingHorizontal: 16,
-    paddingTop: 36,
+    paddingTop: 40,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
+  header: {
+    flexDirection: "row",
     alignItems: "center",
+    marginBottom: 20,
   },
   backButton: {
-    marginBottom: 16, 
-    marginTop: 8,     
+    marginRight: 12,
+  },
+  mainHeading: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#333",
+    flex: 1,
+    textAlign: "center",
   },
   subHeading: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#888",
-  },
-  mainHeading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#222",
+    color: "#666",
+    marginBottom: 8,
   },
   imageContainer: {
     position: "relative",
-    borderRadius: 12,
-    overflow: "hidden",
     marginBottom: 20,
   },
   mainImage: {
@@ -40,138 +39,146 @@ const styles = StyleSheet.create({
   },
   routeButton: {
     position: "absolute",
-    bottom: 10,
-    right: 10,
+    bottom: 12,
+    right: 12,
     backgroundColor: "#007bff",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
   },
   routeText: {
     color: "#fff",
+    fontSize: 14,
     fontWeight: "600",
   },
+  timelineHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
   timelineTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "600",
     color: "#333",
   },
+  calendarButton: {
+    padding: 4,
+  },
   timelineContainer: {
-    paddingVertical: 10,
-  },
-  timelineItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 30,
-  },
-  leftColumn: {
-    width: 60,
-    alignItems: "center",
-    position: "relative",
-  },
-  rightColumn: {
-    flex: 1,
-    paddingLeft: 12,
-    paddingRight: 4,
-  },
-  desc: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 2,
-  },
-  emptyNoticeContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#f9f9f9",
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 10,
-    borderColor: "#ddd",
-    borderWidth: 1,
-  },
-  emptyNoticeText: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 20,
-  },
-  timeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  
-  actionTitle: {
-    fontSize: 17,
-    fontWeight: "bold",
-    marginBottom: 4,
-    color: "#222",
+    marginBottom: 40,
   },
   timePeriodTitle: {
     fontSize: 16,
     fontWeight: "600",
     color: "#007bff",
-    marginTop: 12,
-    marginBottom: 6,
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  timelineItem: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+  leftColumn: {
+    width: 60,
+    alignItems: "center",
   },
   timeWrapper: {
-    height: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 4,
+    backgroundColor: "#e9ecef",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    marginBottom: 8,
   },
-  
   timeText: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#007bff",
+    color: "#333",
+    fontWeight: "500",
   },
-  
+  dot: {
+    width: 12,
+    height: 12,
+    backgroundColor: "#007bff",
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  verticalLine: {
+    flex: 1,
+    width: 2,
+    backgroundColor: "#007bff",
+  },
   cardItem: {
     flex: 1,
     backgroundColor: "#fff",
-    padding: 12,
-    marginBottom: 16,
     borderRadius: 12,
+    padding: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: 4,
     elevation: 2,
   },
-  
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#007bff",
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 4,
   },
-  
-  verticalLine: {
-    position: "absolute",
-    top: 24,
-    width: 2,
-    height: "100%",
-    backgroundColor: "#ccc",
+  actionTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#333",
+    marginBottom: 4,
   },
-  fixedHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    backgroundColor: "#fff",
-    zIndex: 10,
-    elevation: 5,
+  desc: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 4,
   },
-  
-  scrollSection: {
+  loadingContainer: {
     flex: 1,
-    paddingHorizontal: 16,
-    marginTop: 12,
-  },  
-   
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyNoticeContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    marginTop: 50,
+  },
+  emptyNoticeText: {
+    fontSize: 14,
+    color: "#999",
+    textAlign: "center",
+    marginTop: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  calendarContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    width: "90%",
+  },
+  calendarButtonGroup: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+  },
+  calendarActionButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginHorizontal: 4,
+  },
+  calendarActionText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });
-
-export default styles;

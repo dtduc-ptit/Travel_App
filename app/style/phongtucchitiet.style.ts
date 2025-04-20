@@ -117,20 +117,6 @@ export default StyleSheet.create({
     borderRadius: 20,
     padding: 4,
   },
-  videoButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignSelf: 'flex-end', // Change from 'center' to 'flex-end'
-    marginBottom: 12,
-    marginTop: 20, // Added marginTop to create space
-  },
-  videoButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   thumbnailListContainer: {
     marginTop: 20, // Added marginTop to create space
     flexDirection: 'row',
@@ -156,21 +142,6 @@ export default StyleSheet.create({
     padding: 10,
     zIndex: 20,
   },
-  videoNavigation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  navButton: {
-    padding: 10,
-  },
-  videoIndicator: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginHorizontal: 10,
-  },
   subText: {
     fontSize: 14,
     color: "#666",
@@ -181,7 +152,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#2e86de', // Màu xanh dễ thấy
+    backgroundColor: '#2e86de', 
     padding: 10,
     borderRadius: 8,
   },
@@ -266,5 +237,33 @@ export default StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 16,
   },
-  
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end", 
+    alignItems: "center",
+    paddingHorizontal: 12,
+    marginTop: 8,
+  },
+  videoButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  videoButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  allVideosButton: {
+    backgroundColor: "#28a745",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  allVideosButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
 });

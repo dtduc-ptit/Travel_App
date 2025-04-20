@@ -15,6 +15,7 @@ import { API_BASE_URL } from "../../constants/config";
 import YoutubeIframe from "react-native-youtube-iframe";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../style/sukienchitiet.style";
+import { Share } from 'react-native';
 
 
 const SuKienChiTiet = () => {
@@ -121,7 +122,8 @@ const SuKienChiTiet = () => {
       });
       console.log("Response:", res.data);
   
-      alert(`Đánh giá sự kiện thành công: ${res.data.danhGia} ⭐`);
+      // alert(`Đánh giá sự kiện thành công: ${res.data.danhGia} ⭐`);
+      alert(`Đánh giá thành công: ${rating} ⭐`);
   
       // Cập nhật lại dữ liệu sự kiện trong state
       setData((prev: any) => ({
@@ -137,7 +139,25 @@ const SuKienChiTiet = () => {
     }
   };
   
-
+    const onShare = async () => {
+      try {
+        const message = `📍 Khám phá sự kiện: ${data.ten}\n\n📝 ${data.moTa}\n\n🖼️ Xem hình ảnh: ${data.imageUrl}`;
+    
+        const result = await Share.share({
+          title: 'ViVu Hà Tĩnh',
+          message,
+        });
+    
+        if (result.action === Share.sharedAction) {
+          console.log('Đã chia sẻ');
+        } else if (result.action === Share.dismissedAction) {
+          console.log('Đã huỷ chia sẻ');
+        }
+      } catch (error) {
+        console.error('Lỗi khi chia sẻ:', error);
+      }
+    };
+    
   if (loading) {
     return (
       <SafeAreaView style={styles.centered}>
@@ -322,7 +342,9 @@ const SuKienChiTiet = () => {
             </TouchableOpacity>
           ))}
         </View>
-
+        <TouchableOpacity onPress={onShare} style={{ backgroundColor: '#3498db', padding: 10, margin: 10, borderRadius: 8 }}>
+          <Text style={{ color: '#fff', textAlign: 'center' }}>📤 Chia sẻ</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

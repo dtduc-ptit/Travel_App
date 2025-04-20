@@ -126,7 +126,7 @@ const DiTichChiTiet = () => {
       console.log("Response:", res.data);
   
       // Hiển thị thông báo sau khi đánh giá thành công
-      alert(`Đánh giá thành công: ${res.data.danhGia} ⭐`);
+      alert(`Đánh giá thành công: ${rating} ⭐`);
   
       // Cập nhật lại dữ liệu di tích trong state
       setData((prev: any) => ({

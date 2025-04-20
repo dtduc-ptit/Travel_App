@@ -6,7 +6,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { GestureHandlerRootView } from 'react-native-gesture-handler'; // 👈 import thêm
+import { StyleSheet } from 'react-native'; // 👈 nếu bạn cần style
 
 // Ngăn splash auto hide cho đến khi load font xong
 SplashScreen.preventAutoHideAsync();
@@ -26,29 +30,20 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right', // 🔥 Hiệu ứng chuyển trang
-        }}
-      >
-        {/* Các trang gốc */}
-        <Stack.Screen name="index" />
-        <Stack.Screen name="splash" />
-        <Stack.Screen name="auth" />
-        <Stack.Screen name="(tabs)" />
-
-        {/* ✅ Khai báo các trang trong thư mục screen/ để animation hoạt động */}
-        <Stack.Screen name="screen/sukienchitiet" />
-        <Stack.Screen name="screen/ditichchitiet" />
-        <Stack.Screen name="screen/phongtucchitiet" />
-        <Stack.Screen name="screen/ketquatimkiem" />
-        <Stack.Screen name="screen/bando" />
-        {/* Thêm các trang khác nếu có */}
-      </Stack>
-
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider> 
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+          >
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
+  
 }

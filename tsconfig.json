@@ -3,6 +3,8 @@
   "compilerOptions": {
     "types": ["node", "react", "react-native", "jest", "yargs"],
     "jsx": "react-native",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "paths": {
       "@/*": [

@@ -15,8 +15,10 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import { GestureHandlerRootView, ScrollView as GestureScrollView } from 'react-native-gesture-handler';
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
-import UserHeader from '../screen/tieude';  // Import UserHeader component
+import AsyncStorage from "@react-native-async-storage/async-storage"; 
+import UserHeader from '../screen/tieude';  
+import { useIsFocused } from '@react-navigation/native';
+
 
 const TrangDiTich = () => {
   const router = useRouter();
@@ -25,7 +27,7 @@ const TrangDiTich = () => {
   const [popularPlaces, setPopularPlaces] = useState([]);
   const [mostViewed, setMostViewed] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("Tất cả");
-
+  const isFocused = useIsFocused();
   const locations = ["Tất cả", "Hương Sơn", "Hương Khê"];
 
   useEffect(() => {
@@ -39,7 +41,7 @@ const TrangDiTich = () => {
         console.error("Lỗi khi fetch di tích nổi bật:", error);
       }
     };
-
+  
     const fetchPopular = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/ditich/phobien`);
@@ -48,7 +50,7 @@ const TrangDiTich = () => {
         console.error("Lỗi khi fetch di tích phổ biến:", error);
       }
     };
-
+  
     const fetchViewed = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/ditich/xemnhieu`);
@@ -57,30 +59,56 @@ const TrangDiTich = () => {
         console.error("Lỗi khi fetch di tích xem nhiều:", error);
       }
     };
+  
+    if (isFocused) {
+      fetchFeatured();
+      fetchPopular();
+      fetchViewed();
+    }
+  }, [selectedLocation, isFocused]);
 
-    fetchFeatured();
-    fetchPopular();
-    fetchViewed();
-  }, [selectedLocation]);
-
-  const renderItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
+  const renderItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string  ; danhGia: number} }) => (
     <TouchableOpacity
       style={styles.featuredItem}
       onPress={() => router.push({ pathname: "/screen/ditichchitiet", params: { id: item._id } })}
     >
       <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
+
+      {item.danhGia ? (
+        <View style={styles.ratingBadge}>
+          <FontAwesome name="star" size={14} color="#f1c40f" />
+          <Text style={styles.ratingText}>{item.danhGia.toFixed(1)}</Text>
+        </View>
+      ) : (
+        <View style={styles.ratingBadge}>
+          <FontAwesome name="star-o" size={14} color="#fff" />
+          <Text style={styles.ratingText}>Mới cập nhật ✨</Text>
+        </View>
+      )}
       <View style={styles.overlay}>
         <Text style={styles.placeText}>{item.ten}</Text>
       </View>
     </TouchableOpacity>
   );
 
-  const renderPopularItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string } }) => (
+  const renderPopularItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string ;  danhGia: number} }) => (
     <TouchableOpacity 
       style={styles.placeContainer}
       onPress={() => router.push({ pathname: "/screen/ditichchitiet", params: { id: item._id } })} 
       >
       <Image source={{ uri: item.imageUrl }} style={styles.placeImage} resizeMode="cover" />
+
+      {item.danhGia ? (
+        <View style={styles.ratingBadge}>
+          <FontAwesome name="star" size={14} color="#f1c40f" />
+          <Text style={styles.ratingText}>{item.danhGia.toFixed(1)}</Text>
+        </View>
+      ) : (
+        <View style={styles.ratingBadge}>
+          <FontAwesome name="star-o" size={14} color="#fff" />
+          <Text style={styles.ratingText}>Mới cập nhật ✨</Text>
+        </View>
+      )}
       <View style={styles.overlay}>
         <Text style={styles.placeText}>{item.ten}</Text>
       </View>

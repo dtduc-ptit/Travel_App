@@ -31,6 +31,7 @@ const ThongBaoScreen = () => {
   const [thongBao, setThongBao] = useState<ThongBao[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
+  const [chiHienThiChuaDoc, setChiHienThiChuaDoc] = useState(false);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -75,6 +76,7 @@ const ThongBaoScreen = () => {
         <Text style={styles.date}>
           {new Date(item.thoiGianGui).toLocaleDateString("vi-VN")}
         </Text>
+        {!item.daDoc && <View style={styles.redDot} />}
       </View>
     </TouchableOpacity>
   );
@@ -109,23 +111,56 @@ const ThongBaoScreen = () => {
           <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thông báo</Text>
-        
-        {/* View để giữ cân bằng layout, giúp tiêu đề căn giữa */}
         <View style={{ width: 24 }} />
+      </View>
+
+      {/* Nút lọc chưa đọc */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            chiHienThiChuaDoc && styles.filterButtonActive,
+          ]}
+          onPress={() => setChiHienThiChuaDoc(!chiHienThiChuaDoc)}
+        >
+          <Text
+            style={[
+              styles.filterText,
+              chiHienThiChuaDoc && styles.filterTextActive,
+            ]}
+          >
+            {chiHienThiChuaDoc
+              ? "Hiển thị tất cả"
+              : `Chưa đọc (${thongBao.filter((tb) => !tb.daDoc).length})`}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Danh sách thông báo */}
       {thongBao.length === 0 ? (
         <Text style={styles.message}>Không có thông báo nào</Text>
       ) : (
-        <FlatList
-          data={thongBao}
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-        />
+        <>
+          {
+            (() => {
+              const thongBaoHienThi = chiHienThiChuaDoc
+                ? thongBao.filter((tb) => !tb.daDoc)
+                : thongBao;
+
+              return (
+                <FlatList
+                  data={thongBaoHienThi}
+                  keyExtractor={(item) => item._id}
+                  renderItem={renderItem}
+                  showsVerticalScrollIndicator={false}
+                />
+              );
+            })()
+          }
+        </>
       )}
     </SafeAreaView>
+
   );
 };
 

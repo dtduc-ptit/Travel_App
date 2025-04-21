@@ -32,10 +32,16 @@ const TrangPhongTuc = () => {
   useEffect(() => {
     const fetchFeaturedPlaces = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/phongtucs/noibat`, {
-          params: selectedLocation !== "Tất cả" ? { diaDiem: selectedLocation } : {},
-        });
-        setFeaturedPlaces(response.data);
+        const response = await axios.get(`${API_BASE_URL}/api/phongtucs/noibat`);
+        let data = response.data;
+    
+        if (selectedLocation !== "Tất cả") {
+          data = data.filter((item: { diaDiem: string }) =>
+            item.diaDiem.toLowerCase().includes(selectedLocation.toLowerCase())
+          );
+        }
+    
+        setFeaturedPlaces(data);
       } catch (error) {
         console.error("Lỗi khi fetch phong tục nổi bật:", error);
       }

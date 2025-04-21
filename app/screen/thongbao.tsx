@@ -9,7 +9,7 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { styles } from "../style/thongbaosukien.style";
+import  styles  from "../style/thongbaosukien.style";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 

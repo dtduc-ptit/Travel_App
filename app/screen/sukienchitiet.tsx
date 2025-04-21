@@ -9,9 +9,10 @@ import {
   TextInput,
   Modal,
   Pressable,
+  Alert
 } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome , Ionicons} from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
@@ -19,6 +20,7 @@ import YoutubeIframe from "react-native-youtube-iframe";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Share } from 'react-native';
 import styles from "../style/sukienchitiet.style";
+
 
 // Define the interface for a rating (DanhGia)
 interface DanhGia {
@@ -28,6 +30,7 @@ interface DanhGia {
   diem: number;
   binhLuan: string;
 }
+
 
 const SuKienChiTiet = () => {
   const navigation = useNavigation();
@@ -46,7 +49,10 @@ const SuKienChiTiet = () => {
   const [commentText, setCommentText] = useState("");
   const [danhSachDanhGia, setDanhSachDanhGia] = useState<DanhGia[]>([]);
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [moTa, setMoTa] = useState('');
   const [errorMessage, setErrorMessage] = useState("");
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,6 +117,42 @@ const SuKienChiTiet = () => {
     return match ? match[1] : "";
   };
 
+  const handleSaveLocation = async () => {
+    const idNguoiDung = await AsyncStorage.getItem("idNguoiDung");
+    if (!idNguoiDung) return;
+  
+    try {
+      // Bước 1: Gọi API kiểm tra
+      const resCheck = await axios.get(`${API_BASE_URL}/api/noidungluutru/kiemtra`, {
+        params: {
+          nguoiDung: idNguoiDung,
+          loaiNoiDung: 'SuKien',
+          idNoiDung: id, 
+        },
+      });
+  
+      if (resCheck.data.daLuu) {
+        Alert.alert("Bạn đã lưu sự kiện này rồi!");
+        return;
+      }
+  
+      // Bước 2: Nếu chưa có, tiến hành lưu
+      await axios.post(`${API_BASE_URL}/api/noidungluutru`, {
+        nguoiDung: idNguoiDung,
+        loaiNoiDung: 'SuKien',
+        idNoiDung: id,
+        moTa: moTa
+      });
+  
+      Alert.alert("Đã lưu sự kiện thành công!");
+      setMoTa('');
+      setShowSavePopup(false);
+    } catch (error) {
+      console.error("Lỗi khi lưu sự kiện:", error);
+      Alert.alert("Có lỗi xảy ra khi lưu!");
+    }
+  };
+
   const handleNextVideo = () => {
     const nextIndex = (currentVideoIndex + 1) % videoList.length;
     setCurrentVideoIndex(nextIndex);
@@ -156,7 +198,7 @@ const SuKienChiTiet = () => {
   
     setErrorMessage(""); // Xóa thông báo lỗi nếu hợp lệ
     setIsSubmitting(true);
-  
+
     try {
       const userId = await AsyncStorage.getItem("idNguoiDung");
       if (!userId) {
@@ -164,16 +206,16 @@ const SuKienChiTiet = () => {
         setIsSubmitting(false);
         return;
       }
-  
+
       const userName = await AsyncStorage.getItem("tenNguoiDung");
       const userAvatar = await AsyncStorage.getItem("anhDaiDien");
-  
+
       const res = await axios.patch(`${API_BASE_URL}/api/sukien/${id}/danhgia`, {
         diem: selectedRating,
         userId,
         binhLuan: commentText,
       });
-  
+
       alert(`Đánh giá thành công: ${selectedRating} ⭐`);
       await fetchDanhGia();
       setShowRatingModal(false);
@@ -323,7 +365,16 @@ const SuKienChiTiet = () => {
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.title}>{data.ten}</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>{data.ten}</Text>
+
+            <TouchableOpacity
+              style={styles.optionButtonSmall}
+              onPress={() => setShowSavePopup(true)}
+            >
+              <Ionicons name="bookmark-outline" size={16} color="#fff" />
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.row}>
             <FontAwesome name="map-marker" size={16} color="#666" />
@@ -427,6 +478,35 @@ const SuKienChiTiet = () => {
             <Text style={styles.subText}>Chưa có đánh giá nào.</Text>
           )}
         </View>
+
+
+        {/* Popup nhập mô tả */}
+        {showSavePopup && (
+          <View style={styles.popupOverlay}>
+            <View style={styles.popupBox}>
+              <Text style={styles.popupTitle}>Nhập mô tả</Text>
+              <TextInput
+                style={styles.popupInput}
+                placeholder="Sự kiện này có ý nghĩa gì với bạn?"
+                value={moTa}
+                onChangeText={setMoTa}
+                multiline
+              />
+              <View style={styles.popupButtons}>
+                <TouchableOpacity onPress={handleSaveLocation} style={styles.saveBtn}>
+                  <Text style={{ color: "#fff" }}>Lưu</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setShowSavePopup(false)}
+                  style={styles.cancelBtn}
+                >
+                  <Text>❌</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+  
+        )}
       </ScrollView>
 
       <Modal

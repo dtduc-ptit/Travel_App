@@ -1,0 +1,106 @@
+import { StyleSheet } from "react-native";
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff", 
+    marginBottom: 20,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center", 
+    padding: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: "#000",
+    marginLeft: 8,
+    lineHeight: 26, 
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#fff",
+    textAlign: "center",
+    flex: 1,
+  },
+  viewImageButton: {
+    backgroundColor: "#28a745",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  viewImageButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  videoCard: {
+    marginHorizontal: 16,
+    marginBottom: 20,
+    backgroundColor: "#f8f9fd",
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  thumbnail: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+  },
+  playIconOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    borderRadius: 8,
+  },
+  moTa: {
+    fontSize: 14,
+    color: "#4a4a4a",
+    marginTop: 12,
+    lineHeight: 20,
+  },
+  xemThem: {
+    fontSize: 14,
+    color: "#007bff",
+    fontWeight: "600",
+    marginTop: 4,
+  },
+  dateText: {
+    fontSize: 12,
+    color: "#999",
+    marginTop: 8,
+  },
+  featuredVideoContainer: {
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  featuredThumbnail: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+  },
+  featuredTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1a1a1a",
+    marginTop: 8,
+  },
+});

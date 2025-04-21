@@ -13,6 +13,7 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
     justifyContent: "space-between",
+    marginBottom: 10,
   },
   headerTitle: {
     fontSize: 18,
@@ -52,4 +53,41 @@ export const styles = StyleSheet.create({
     color: "gray",
     textAlign: "right",
   },
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  
+  filterButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#ddd",
+    borderRadius: 20,
+  },
+  
+  filterButtonActive: {
+    backgroundColor: "#007AFF",
+  },
+  
+  filterText: {
+    color: "#000",
+    fontWeight: "500",
+  },
+  
+  filterTextActive: {
+    color: "#fff",
+  },
+  redDot: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "red",
+    zIndex: 10,
+  },
+  
 });

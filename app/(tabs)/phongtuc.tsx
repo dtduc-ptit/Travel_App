@@ -16,7 +16,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../../constants/config";
 import { GestureHandlerRootView, ScrollView as GestureScrollView } from 'react-native-gesture-handler';
 import UserHeader from "../screen/tieude";
-
+import { useIsFocused } from '@react-navigation/native';
 
 const TrangPhongTuc = () => {
   const router = useRouter();
@@ -25,7 +25,7 @@ const TrangPhongTuc = () => {
   const [popularPlaces, setPopularPlaces] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("Tất cả");
   const [mostViewed, setMostViewed] = useState([]);
-
+  const isFocused = useIsFocused();
   const locations = ["Tất cả", "Hương Sơn", "Hương Khê"];
   const isActive = (routeName: string) => route.name === routeName;
 
@@ -40,16 +40,16 @@ const TrangPhongTuc = () => {
         console.error("Lỗi khi fetch phong tục nổi bật:", error);
       }
     };
-
+  
     const fetchPopulerdPlaces = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/phongtucs/phobien`);
-        setPopularPlaces(response.data); 
+        setPopularPlaces(response.data);
       } catch (error) {
         console.error("Lỗi khi fetch phong tục phổ biến:", error);
       }
     };
-
+  
     const fetchMostViewed = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/phongtucs/xemnhieu`);
@@ -59,10 +59,12 @@ const TrangPhongTuc = () => {
       }
     };
   
-    fetchMostViewed();
-    fetchPopulerdPlaces();
-    fetchFeaturedPlaces();
-  }, [selectedLocation]);
+    if (isFocused) {
+      fetchMostViewed();
+      fetchPopulerdPlaces();
+      fetchFeaturedPlaces();
+    }
+  }, [selectedLocation, isFocused]);
 
   const renderFeaturedItem = ({ item }: { item: { _id: string; ten: string; imageUrl: string ; danhGia: Number} }) => (
     <TouchableOpacity 

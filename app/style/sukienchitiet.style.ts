@@ -6,293 +6,291 @@ export default StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollContainer: {
-    padding: 16,
+    paddingBottom: 20,
   },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  backButton: {
-    marginBottom: 12,
+  errorText: {
+    fontSize: 16,
+    color: "#666",
   },
-  thumbnailList: {
-    marginBottom: 12,
+  backButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 10,
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  imageContainer: {
+    position: "relative",
+    width: "100%",
+    height: 300,
+  },
+  mainImage: {
+    width: "100%",
+    height: "100%",
+  },
+  videoContainer: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  videoNavigation: {
+    position: "absolute",
+    bottom: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+  },
+  navButton: {
+    padding: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderRadius: 20,
+    marginHorizontal: 10,
+  },
+  videoIndicator: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  videoButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  videoButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  thumbnailOverlay: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    flexDirection: "row",
+  },
+  thumbnailWrapper: {
+    marginLeft: 5,
+  },
+  thumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 5,
+  },
+  moreOverlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  moreText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   infoContainer: {
-    marginTop: 10,
+    padding: 15,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 8,
+    color: "#333",
+    marginBottom: 10,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
-  },
-  location: {
-    marginLeft: 6,
-    color: "#666",
-  },
-  views: {
-    marginLeft: 6,
-    color: "#666",
-  },
-  subTitle: {
-    marginTop: 10,
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  content: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 4,
-    color: "#444",
-  },
-  imageContainer: {
-    position: "relative",
-    marginBottom: 16,
-  },
-  mainImage: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-  },
-  videoContainer: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#000",
-  },
-  video: {
-    flex: 1,
-    borderRadius: 12,
-  },
-  moreOverlay: {
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  thumbnailOverlay: {
-    position: "absolute",
-    bottom: 12,
-    left: 12,
-    flexDirection: "row",
-  },
-  thumbnailWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: "#fff",
-    marginRight: 6,
-    backgroundColor: "#eee",
-    elevation: 4, // Android shadow
-    shadowColor: "#000", // iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    zIndex: 10,
-  },
-  thumbnail: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-  },
-  moreText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  videoIconOverlay: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: [{ translateX: -12 }, { translateY: -12 }],
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-    borderRadius: 20,
-    padding: 4,
-  },
-  videoButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignSelf: 'flex-end', // Change from 'center' to 'flex-end'
-    marginBottom: 12,
-    marginTop: 20, // Added marginTop to create space
-  },
-  videoButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  thumbnailListContainer: {
-    marginTop: 20, // Added marginTop to create space
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  prevButton: {
-    position: 'absolute',
-    left: 10,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 20,
-    padding: 10,
-    zIndex: 20,
-  },
-  nextButton: {
-    position: 'absolute',
-    right: 10,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 20,
-    padding: 10,
-    zIndex: 20,
-  },
-  videoNavigation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  navButton: {
-    padding: 10,
-  },
-  videoIndicator: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginHorizontal: 10,
-  },
-  time: {
-    fontSize: 14,
-    color: '#444',
     marginBottom: 5,
   },
-  viewScheduleButton :{
-    marginTop: 20,
-    marginBottom: 30,
-    backgroundColor: "#007bff",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  viewScheduleText: {
-    color: "#fff",
+  location: {
     fontSize: 16,
-    fontWeight: "bold",
+    color: "#666",
+    marginLeft: 5,
+  },
+  time: {
+    fontSize: 16,
+    color: "#666",
+    marginLeft: 5,
+  },
+  views: {
+    fontSize: 16,
+    color: "#666",
+    marginLeft: 5,
   },
   subText: {
     fontSize: 14,
     color: "#666",
-    marginTop: 4,
+    marginLeft: 5,
+    marginBottom: 10,
   },
-  buttonLichTrinhContainer : {
-    marginTop: 16,
-    paddingHorizontal: 20,
-    alignItems: "flex-end",
-  },
-  
-  buttonLichTrinh : {
-    backgroundColor: "#007bff",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  
-  buttonLichTrinhText : {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-
-
-
-
-
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-
-  optionButtonSmall: {
-    backgroundColor: '#2e86de',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  scrollableContent: {
-    flex: 1,
-    marginTop: 10,
-    paddingHorizontal: 16,
-  },
-  popupOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-  },
-  
-  popupBox: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 12,
-    width: "85%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  
-  popupTitle: {
-    fontSize: 16,
+  subTitle: {
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    color: "#333",
+    marginTop: 10,
+    marginBottom: 5,
   },
-  
-  popupInput: {
-    height: 80,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    textAlignVertical: "top",
-    marginBottom: 10,
+  content: {
+    fontSize: 16,
+    color: "#666",
+    lineHeight: 24,
   },
-  
-  popupButtons: {
+  buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: 15,
+    marginVertical: 10,
   },
-  
-  saveBtn: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+  buttonLichTrinh: {
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 5,
+    alignItems: "center",
   },
-  cancelBtn: {
-    backgroundColor: "#eee",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+  buttonLichTrinhText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  rateButton: {
+    backgroundColor: "#28a745",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 5,
+    alignItems: "center",
+  },
+  rateButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  shareButton: {
+    backgroundColor: "#3498db",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    flex: 1,
+    marginLeft: 5,
+    alignItems: "center",
+  },
+  shareButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  ratingSection: {
+    padding: 15,
+  },
+  reviewItem: {
+    marginBottom: 15,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#f9f9f9",
+  },
+  reviewHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  reviewerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  reviewerInfo: {
+    flex: 1,
+  },
+  reviewerName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  reviewStars: {
+    flexDirection: "row",
+    marginTop: 2,
+  },
+  reviewComment: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 5,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalContent: {
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 15,
+  },
+  ratingRow: {
+    flexDirection: "row",
+    marginBottom: 15,
+  },
+  commentInputContainer: {
+    width: "100%",
+    marginBottom: 15,
+  },
+  commentInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    height: 80,
+    textAlignVertical: "top",
+    fontSize: 16,
+    color: "#333",
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginHorizontal: 5,
+    backgroundColor: "#007bff",
+  },
+  cancelButton: {
+    backgroundColor: "#dc3545",
+  },
+  disabledButton: {
+    backgroundColor: "#ccc",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

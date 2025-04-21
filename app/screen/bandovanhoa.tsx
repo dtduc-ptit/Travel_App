@@ -24,6 +24,11 @@ interface DiaDiemWithCoords extends DiaDiem {
   coords: Coordinate;
 }
 
+
+interface DiaDiemWithCoords extends DiaDiem {
+  coords: Coordinate;
+  huyen: string; // Thêm thuộc tính huyen
+}
 const BanDoVanHoa = () => {
   const mapRef = useRef<MapView>(null);
   const { id } = useLocalSearchParams(); 
@@ -60,21 +65,43 @@ const BanDoVanHoa = () => {
     return text.length > 100 ? text.slice(0, 100) + "..." : text;
   };
 
-  const geocodeAddress = async (address: string): Promise<Coordinate | null> => {
-    try {
-      const res = await axios.get("https://nominatim.openstreetmap.org/search", {
-        params: { q: `${address}, Việt Nam`, format: "json", limit: 1 },
-        headers: { "Accept-Language": "vi", "User-Agent": "MyApp/1.0" },
-      });
-      if (res.data.length === 0) throw new Error("Không tìm thấy");
-      return {
-        latitude: parseFloat(res.data[0].lat),
-        longitude: parseFloat(res.data[0].lon),
-      };
-    } catch (err) {
-      console.log("Lỗi geocode:", err);
-      return null;
+  // const geocodeAddress = async (address: string): Promise<Coordinate | null> => {
+  //   try {
+  //     const res = await axios.get("https://nominatim.openstreetmap.org/search", {
+  //       params: { q: `${address}, Việt Nam`, format: "json", limit: 1 },
+  //       headers: { "Accept-Language": "vi", "User-Agent": "MyApp/1.0" },
+  //     });
+  //     if (res.data.length === 0) throw new Error("Không tìm thấy");
+  //     return {
+  //       latitude: parseFloat(res.data[0].lat),
+  //       longitude: parseFloat(res.data[0].lon),
+  //     };
+  //   } catch (err) {
+  //     console.log("Lỗi geocode:", err);
+  //     return null;
+  //   }
+  // };
+  const geocodeAddress = async (address: string, retries = 3): Promise<Coordinate | null> => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const normalizedAddress = address.trim();
+        const res = await axios.get("https://nominatim.openstreetmap.org/search", {
+          params: { q: `${normalizedAddress}, Hà Tĩnh, Việt Nam`, format: "json", limit: 1 },
+          headers: { "Accept-Language": "vi", "User-Agent": "MyApp/1.0" },
+        });
+  
+        if (res.data.length === 0) throw new Error("Không tìm thấy");
+        return {
+          latitude: parseFloat(res.data[0].lat),
+          longitude: parseFloat(res.data[0].lon),
+        };
+      } catch (err) {
+        console.log(`Lỗi geocode (lần thử ${i + 1}):`, err);
+        if (i === retries - 1) return null;
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
     }
+    return null;
   };
 
   useEffect(() => {
@@ -85,30 +112,33 @@ const BanDoVanHoa = () => {
         const diaDiems: DiaDiem[] = res.data;
         const withCoords: DiaDiemWithCoords[] = [];
         const districts = new Set<string>();
-
+  
+        const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  
         for (const d of diaDiems) {
-          const coords = await geocodeAddress(d.viTri);
+          // Trích xuất huyện từ viTri
+          const huyen = extractDistrictName(d.viTri);
+          // Sử dụng chỉ phần huyện để geocoding
+          const coords = await geocodeAddress(huyen);
           if (coords) {
-            const huyen = extractDistrictName(d.viTri);
-            withCoords.push({ ...d, coords });
+            withCoords.push({ ...d, coords, huyen }); // Thêm thuộc tính huyen vào dữ liệu
             if (huyen !== "Không rõ") districts.add(huyen);
           }
+          await delay(1000); // Đợi 1 giây giữa các yêu cầu để tránh lỗi Nominatim
         }
-
+  
         setDiadiemList(withCoords);
         setDistrictList(["Tất cả", ...Array.from(districts)]);
-
-        // Tự động chọn địa điểm nếu có id từ tham số điều hướng
+  
         if (id && typeof id === "string") {
           const selected = withCoords.find((d) => d._id === id);
           if (selected) {
             setSelectedDiaDiem(selected);
-            // Zoom bản đồ đến địa điểm được chọn
             if (mapRef.current) {
               mapRef.current.animateToRegion({
                 latitude: selected.coords.latitude,
                 longitude: selected.coords.longitude,
-                latitudeDelta: 0.01, // Zoom gần hơn
+                latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }, 1000);
             }
@@ -120,7 +150,7 @@ const BanDoVanHoa = () => {
         setIsLoading(false);
       }
     };
-
+  
     fetchDiaDiem();
   }, [id]); // Thêm id vào dependency để useEffect chạy lại nếu id thay đổi
 
@@ -229,11 +259,16 @@ const BanDoVanHoa = () => {
     setTempDistance(10);
   };
 
+  // const filteredList = diadiemList.filter((d) => {
+  //   const matchLoai = selectedType === "Tất cả" || d.loai === selectedType;
+  //   const matchHuyen =
+  //     selectedDistrict === "Tất cả" ||
+  //     extractDistrictName(d.viTri) === selectedDistrict;
+  //   return matchLoai && matchHuyen;
+  // });
   const filteredList = diadiemList.filter((d) => {
     const matchLoai = selectedType === "Tất cả" || d.loai === selectedType;
-    const matchHuyen =
-      selectedDistrict === "Tất cả" ||
-      extractDistrictName(d.viTri) === selectedDistrict;
+    const matchHuyen = selectedDistrict === "Tất cả" || d.huyen === selectedDistrict; // Sử dụng thuộc tính huyen
     return matchLoai && matchHuyen;
   });
 

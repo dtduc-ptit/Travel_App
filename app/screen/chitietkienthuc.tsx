@@ -286,7 +286,7 @@ const ChiTietKienThuc = () => {
   return (
     <SafeAreaView style={[styles.container, { flex: 1 }]}>
       {/* Header */}
-      <TouchableOpacity onPress={() => router.push("/kienthuc")} style={styles.backButton}>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Ionicons name="arrow-back-outline" size={24} color="black" />
       </TouchableOpacity>
 
@@ -333,7 +333,7 @@ const ChiTietKienThuc = () => {
             <Ionicons name="videocam" size={18} color="#fff" />
             <Text style={styles.buttonText}>Xem video</Text>
           </TouchableOpacity>
-          
+          {/*Nut luu kien thuc*/}
           <TouchableOpacity 
             style={styles.button}
             onPress={handleLuu}

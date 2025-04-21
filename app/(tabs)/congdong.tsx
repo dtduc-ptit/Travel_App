@@ -2,15 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, FlatList, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
 import { API_BASE_URL } from '@/constants/config';
 import { formatDistanceToNow } from 'date-fns';
 import styles from '../style/congdong.style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import { useFocusEffect } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 const TrangCongDong = () => {
+  
   const [baiVietList, setBaiVietList] = useState<any[]>([]);
   const [nguoiDung, setNguoiDung] = useState<any>(null);
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -18,6 +22,12 @@ const TrangCongDong = () => {
   const [newComment, setNewComment] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
+
+  //Luu bai viet
+  const [savedPosts, setSavedPosts] = useState<string[]>([]); // Lưu trữ các postId đã lưu
+  const [daLuu, setDaLuu] = useState(false); // Trạng thái lưu bài viết
+  
+
 
   useEffect(() => {
     const fetchNguoiDung = async () => {
@@ -51,6 +61,55 @@ const TrangCongDong = () => {
     };
     fetchBaiViet();
   }, []);
+
+//Luu bai viet  
+
+useEffect(() => {
+  loadSavedPosts();
+}, [nguoiDung?._id]);
+
+
+useEffect(() => {
+  const fetchSavedStatus = async () => {
+    if (!nguoiDung?._id || !selectedPost) return;
+
+    try {
+      // Gọi API kiểm tra trạng thái lưu
+      const response = await axios.get(`${API_BASE_URL}/api/noidungluutru/kiemtra`, {
+        params: {
+          nguoiDung: nguoiDung._id.toString(), // Chuyển đổi sang string theo yêu cầu API
+          loaiNoiDung: "baiViet",
+          idNoiDung: selectedPost.toString() // Chuyển đổi sang string
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Xử lý response theo cấu trúc API trả về { daLuu: boolean }
+      if (response.data?.daLuu !== undefined) {
+        setDaLuu(response.data.daLuu);
+      } else {
+        console.warn("API trả về cấu trúc không mong đợi:", response.data);
+        setDaLuu(false);
+      }
+    } catch (error) {
+      console.error("Chi tiết lỗi:", {
+        status: (error as any)?.response?.status,
+        message: (error as any)?.response?.data?.message || (error as any)?.message,
+        params: (error as any)?.config?.params
+      });
+      setDaLuu(false);
+    }
+  };
+
+  fetchSavedStatus();
+}, [nguoiDung?._id, selectedPost]); // Thêm selectedPost vào dependencies
+
+
+
+
+  
 
   const openCommentModal = async (postId: string) => {
     try {
@@ -184,6 +243,161 @@ const TrangCongDong = () => {
     }
   };
 
+  // Luu bai viet
+const loadSavedPosts = async () => {
+  try {
+    // 1. Load từ AsyncStorage trước (để UI phản hồi nhanh)
+    const cachedSavedPosts = await AsyncStorage.getItem('savedPosts');
+    if (cachedSavedPosts) {
+      setSavedPosts(JSON.parse(cachedSavedPosts));
+    }
+
+    // 2. Đồng bộ với server (nếu có người dùng)
+    if (nguoiDung?._id) {
+      const res = await axios.get(`${API_BASE_URL}/api/noidungluutru`, {
+        params: { 
+          nguoiDung: nguoiDung._id, 
+          loaiNoiDung: "baiViet" // Thay đổi từ "baiViet" sang loại phù hợp
+        }
+      });
+
+      // Kiểm tra cấu trúc response
+      const serverSavedPosts = res?.data?.data && Array.isArray(res.data.data)
+        ? res.data.data.map((item: any) => item.idNoiDung)
+        : [];
+
+      setSavedPosts(serverSavedPosts);
+      await AsyncStorage.setItem('savedPosts', JSON.stringify(serverSavedPosts));
+    }
+  } catch (error) {
+    console.error('Lỗi khi load bài viết đã lưu:', error);
+    // In thêm chi tiết lỗi để debug
+    if ((error as any)?.response) {
+      console.error('Chi tiết lỗi API:', {
+        status: (error as any).response.status,
+        data: (error as any).response.data
+      });
+    }
+    // Fallback: Đặt lại state rỗng nếu có lỗi
+    setSavedPosts([]);
+  }
+};
+
+  
+  
+  // Hàm xử lý lưu/bỏ lưu
+  const handleLuu = async (postId: string) => {
+    if (!nguoiDung) {
+      Toast.show({ type: 'error', text1: 'Vui lòng đăng nhập' });
+      return;
+    }
+  
+    try {
+      const isSaved = savedPosts.includes(postId);
+      let updatedSavedPosts: string[];
+  
+      // Optimistic update
+      updatedSavedPosts = isSaved 
+        ? savedPosts.filter(id => id !== postId)
+        : [...savedPosts, postId];
+      
+      setSavedPosts(updatedSavedPosts);
+      await AsyncStorage.setItem('savedPosts', JSON.stringify(updatedSavedPosts));
+  
+      // Gọi API
+      if (isSaved) {
+        await axios.delete(`${API_BASE_URL}/api/noidungluutru`, {
+          data: { 
+            nguoiDung: nguoiDung._id, 
+            loaiNoiDung: "baiViet", 
+            idNoiDung: postId 
+          }
+        });
+        Toast.show({ type: 'success', text1: 'Đã bỏ lưu bài viết thành công' });
+      } else {
+        await axios.post(`${API_BASE_URL}/api/noidungluutru`, {
+          nguoiDung: nguoiDung._id, 
+          loaiNoiDung: "baiViet", 
+          idNoiDung: postId
+        });
+        Toast.show({ type: 'success', text1: 'Đã lưu bài viết thành công' });
+      }
+  
+    } catch (error) {
+      // Rollback nếu có lỗi
+      const cachedSavedPosts = await AsyncStorage.getItem('savedPosts');
+      setSavedPosts(cachedSavedPosts ? JSON.parse(cachedSavedPosts) : []);
+      
+      Toast.show({ 
+        type: 'error', 
+        text1: 'Lỗi', 
+        text2: 'Thao tác thất bại' 
+      });
+    }
+  };
+
+  //Xử lí đăng bài với hình ảnh
+
+  // Hàm kiểm tra quyền
+  const checkPermissions = async () => {
+    const libraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (libraryStatus.status !== 'granted') {
+      alert('Cần cấp quyền truy cập thư viện ảnh!');
+      return false;
+    }
+    return true;
+  };
+  
+  // Hàm sao chép file đến thư mục cache cố định
+  const copyFileToCache = async (uri: string) => {
+    try {
+      const fileName = uri.split('/').pop();
+      const newPath = `${FileSystem.cacheDirectory}${fileName}`;
+      await FileSystem.copyAsync({
+        from: uri,
+        to: newPath,
+      });
+      console.log('File sao chép thành công đến:', newPath);
+      return newPath;
+    } catch (error) {
+      console.error('Lỗi khi sao chép file:', error);
+      return null;
+    }
+  };
+  // Hàm chọn ảnh từ thư viện
+const pickImage = async () => {
+  const hasPermission = await checkPermissions();
+  if (!hasPermission) return;
+
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: false,
+    quality: 1,
+  });
+
+  if (!result.canceled && result.assets?.[0]?.uri) {
+    const imageUri = result.assets[0].uri;
+    console.log('Ảnh được chọn:', imageUri);
+    const cachedUri = await copyFileToCache(imageUri);
+    if (cachedUri) {
+      // Chuyển đến màn hình tạo bài viết với đường dẫn file đã sao chép
+      router.push({
+        pathname: '../screen/createPost',
+        params: { imageUri: cachedUri },
+      });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi xử lý ảnh',
+        text2: 'Không thể sao chép file ảnh',
+      });
+    }
+  }
+};
+  
+  
+  
+  
   const renderBaiViet = (baiViet: any) => {
     const timeAgo = formatDistanceToNow(new Date(baiViet.thoiGian), { addSuffix: true });
 
@@ -225,9 +439,16 @@ const TrangCongDong = () => {
             <TouchableOpacity style={styles.actionButton}>
               <Ionicons name="share-social-outline" size={24} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="bookmark-outline" size={24} color="black" />
+            <TouchableOpacity 
+              onPress={() => handleLuu(baiViet._id)}
+            >
+              <Ionicons 
+                name={savedPosts.includes(baiViet._id) ? "bookmark" : "bookmark-outline"} 
+                size={18} 
+                color={savedPosts.includes(baiViet._id) ? "#007bff" : "#000"}
+              />                      
             </TouchableOpacity>
+
           </View>
         </View>
       </View>
@@ -250,7 +471,7 @@ const TrangCongDong = () => {
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
             <Ionicons name="bookmark-outline" size={22} color="black" />
-          </TouchableOpacity>
+          </TouchableOpacity>          
         </View>
       </View>
 
@@ -265,8 +486,8 @@ const TrangCongDong = () => {
               <Text style={styles.placeholderText}>Bạn đang nghĩ gì?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.iconButton}>
-              <Ionicons name="image-outline" size={32} color="black" style={styles.imageIcon} />
+            <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
+              <Ionicons name="image" size={28} color="#007bff" style={styles.imageIcon} />
             </TouchableOpacity>
           </View>
         </View>
@@ -285,7 +506,7 @@ const TrangCongDong = () => {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Bình luận</Text>
             <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Ionicons name="close-circle-outline" size={30} color="black" />
+              <Ionicons name="close-circle-outline" size={30} color="#007bff" />
             </TouchableOpacity>
           </View>
 

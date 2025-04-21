@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // Để tránh bị đè lên vùng notch
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';  // Import useRouter từ expo-router
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import styles from '../style/createPost.style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_BASE_URL } from '@/constants/config';
-import Toast from 'react-native-toast-message'; // Import thư viện Toast
-import * as ImagePicker from 'expo-image-picker'; // Thêm ImagePicker để chọn ảnh
+import Toast from 'react-native-toast-message';
+import * as ImagePicker from 'expo-image-picker';
 
 const { width } = Dimensions.get('window');
 
 const CreatePostScreen = () => {
-  const router = useRouter();  // Khởi tạo router từ expo-router
+  const router = useRouter();
+  const { imageUri } = useLocalSearchParams(); // Lấy imageUri từ params (nếu có)
+  console.log('Received imageUri from params:', imageUri);
   const [content, setContent] = useState('');
   const [nguoiDung, setNguoiDung] = useState<any>(null);
-  const [image, setImage] = useState<string | null>(null); // Cho phép image là string hoặc null
-
+  const [image, setImage] = useState<string | null>(null); // Lưu URL ảnh (cục bộ tạm thời hoặc Cloudinary)
+  const [isUploading, setIsUploading] = useState(false); // Trạng thái upload ảnh
 
   // Lấy thông tin người dùng từ AsyncStorage
   useEffect(() => {
@@ -35,64 +37,88 @@ const CreatePostScreen = () => {
     fetchNguoiDung();
   }, []);
 
-// Hàm chọn ảnh từ thư viện
-const pickImage = async () => {
-  // Yêu cầu quyền truy cập thư viện ảnh
-  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (status !== 'granted') {
-    alert('Cần cấp quyền truy cập ảnh!');
-    return;
-  }
-
-  let result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: false,
-    quality: 1,
-  });
-
-  if (!result.canceled && result.assets?.[0]?.uri) {
-    setImage(result.assets[0].uri);
-  }
-};
-
-// Hàm upload ảnh lên Cloudinary
-const uploadImageToCloudinary = async (imageUri: string) => {
-  try {
-    // Tạo form data với đúng định dạng file
-    const filename = imageUri.split('/').pop(); 
-    const fileType = filename?.split('.').pop() || 'jpg'; // Fallback type
-
-    const formData = new FormData();
-    formData.append('file', {
-      uri: imageUri,
-      name: `upload.${fileType}`,
-      type: `image/${fileType}`,
-    } as any);
-    formData.append('upload_preset', 'mobile_app');
-
-    // Gửi request với timeout
-    const response = await axios.post(
-      'https://api.cloudinary.com/v1_1/drsjgc393/image/upload',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        timeout: 15000, // Tăng timeout lên 15 giây
+  // Xử lý imageUri từ params (nếu có)
+  useEffect(() => {
+    if (imageUri && typeof imageUri === 'string') {
+      console.log('Cập nhật image từ imageUri params:', imageUri);
+      setImage(imageUri); // Lưu đường dẫn (cục bộ hoặc URL)
+      // Nếu imageUri không phải URL Cloudinary (tức là đường dẫn cục bộ), upload lên Cloudinary
+      if (!imageUri.startsWith('https://res.cloudinary.com')) {
+        uploadImageToCloudinary(imageUri);
       }
-    );
-
-    return response.data.secure_url;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        'Upload failed:',
-        error.response?.data || error.message
-      );
     }
-    return null;
-  }
-};
+  }, [imageUri]);
+
+  // Hàm upload ảnh lên Cloudinary
+  const uploadImageToCloudinary = async (imageUri: string) => {
+    try {
+      setIsUploading(true);
+      console.log('Bắt đầu upload ảnh:', imageUri);
+      const filename = imageUri.split('/').pop();
+      const fileType = filename?.split('.').pop() || 'jpg';
+
+      const formData = new FormData();
+      formData.append('file', {
+        uri: imageUri,
+        name: `upload.${fileType}`,
+        type: `image/${fileType}`,
+      } as any);
+      formData.append('upload_preset', 'mobile_app');
+
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/drsjgc393/image/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 15000,
+        }
+      );
+
+      console.log('Upload thành công, URL:', response.data.secure_url);
+      setImage(response.data.secure_url); // Cập nhật state với URL từ Cloudinary
+      return response.data.secure_url;
+    } catch (error) {
+      console.error('Lỗi upload ảnh lên Cloudinary:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Chi tiết lỗi upload:', error.response?.data || error.message);
+      }
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi upload ảnh',
+        text2: 'Không thể upload ảnh lên server. Vui lòng thử lại.',
+      });
+      setImage(null); // Reset nếu upload thất bại
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Hàm chọn ảnh từ thư viện
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Cần cấp quyền truy cập ảnh!');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      const newImageUri = result.assets[0].uri;
+      console.log('Ảnh mới được chọn:', newImageUri);
+      setImage(newImageUri); // Lưu đường dẫn cục bộ để hiển thị ngay lập tức
+      // Upload ảnh lên Cloudinary
+      await uploadImageToCloudinary(newImageUri);
+    }
+  };
+
   // Hàm đăng bài
   const handlePost = async () => {
     if (!content || !image) {
@@ -102,43 +128,80 @@ const uploadImageToCloudinary = async (imageUri: string) => {
       });
       return;
     }
-  
-    const imageUrl = await uploadImageToCloudinary(image);
-    
-    if (!imageUrl) {
+
+    if (isUploading) {
       Toast.show({
         type: 'error',
-        text1: 'Tải ảnh lên thất bại',
+        text1: 'Đang upload ảnh',
+        text2: 'Vui lòng đợi ảnh upload hoàn tất trước khi đăng bài.',
       });
       return;
     }
-  
-    try {
-      await axios.post(`${API_BASE_URL}/api/baiviet`, {
-        nguoiDung: nguoiDung._id,
-        noiDung: content,
-        hinhAnh: imageUrl,
+
+    // Kiểm tra xem image có phải là URL hợp lệ từ Cloudinary không
+    if (!image.startsWith('https://res.cloudinary.com')) {
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi ảnh',
+        text2: 'Hình ảnh chưa được upload lên server. Vui lòng thử lại.',
       });
-  
+      console.warn('Hình ảnh chưa được upload, giá trị image:', image);
+      return;
+    }
+
+    try {
+      const postData = {
+        nguoiDung: nguoiDung?._id,
+        noiDung: content,
+        hinhAnh: image, // Đảm bảo image là URL từ Cloudinary
+      };
+      console.log('Dữ liệu gửi lên server:', postData);
+
+      const token = await AsyncStorage.getItem("token");
+      const config = token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : {};
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/baiviet`,
+        postData,
+        config
+      );
+      console.log('Phản hồi từ server:', response.data);
+
       Toast.show({
         type: 'success',
         text1: 'Đăng bài thành công!',
       });
-  
+
       setTimeout(() => router.push('/congdong'), 2000);
     } catch (error) {
       console.error('Post error:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Chi tiết lỗi Axios:', error.response?.data, error.status);
+      }
       Toast.show({
         type: 'error',
         text1: 'Lỗi khi đăng bài',
+        text2: axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : 'Có lỗi xảy ra từ server',
       });
     }
+  };
+
+  // Hàm xóa ảnh
+  const handleRemoveImage = () => {
+    setImage(null); // Reset image về null
+    Toast.show({
+      type: 'info',
+      text1: 'Ảnh đã được xóa',
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        {/* Header with back button and title */}
         <View style={styles.boxHeader}>
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back-outline" size={24} color="black" />
@@ -152,71 +215,72 @@ const uploadImageToCloudinary = async (imageUri: string) => {
         </TouchableOpacity>
       </View>
 
-      {/* Dấu gạch ngang phân tách */}
       <View style={[styles.separator, { width: '100%' }]}></View>
 
       <View style={styles.postContainer}>
-         {/* Avatar and User Name */}
-         <View style={styles.avatarContainer}>
-           <TouchableOpacity
-             onPress={() =>
-               router.push({
-                 pathname: "../auth/trangcanhan",  // Navigate to profile page
-                 params: { id: nguoiDung?._id }
-               })
-             }
-           >
-             <Image
-               source={ 
-                 nguoiDung?.anhDaiDien
-                   ? { uri: nguoiDung.anhDaiDien }
-                   : require("../../assets/images/logo.jpg") // Default image if not set
-               }
-               style={styles.avatar} 
-             />
-           </TouchableOpacity>
-           <Text style={styles.userName}>{nguoiDung?.ten}</Text>
-         </View>
+        <View style={styles.avatarContainer}>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "../auth/trangcanhan",
+                params: { id: nguoiDung?._id }
+              })
+            }
+          >
+            <Image
+              source={
+                nguoiDung?.anhDaiDien
+                  ? { uri: nguoiDung.anhDaiDien }
+                  : require("../../assets/images/logo.jpg")
+              }
+              style={styles.avatar}
+            />
+          </TouchableOpacity>
+          <Text style={styles.userName}>{nguoiDung?.ten}</Text>
+        </View>
 
-         <TextInput
+        <TextInput
           style={styles.input}
           multiline
           placeholder="Bạn đang nghĩ gì?"
           value={content}
           onChangeText={setContent}
         />
-      {/* Dấu gạch ngang phân tách */}
-      <View style={[styles.separator, { width: '100%' }]}></View>
-      {!image && (
-        <TouchableOpacity  style={styles.imgContainer} onPress={pickImage} >
-          <Ionicons 
-            name="image" 
-            size={32} 
-            color="black" 
-            style={styles.img}             
-          />
-          <Text>Hình ảnh</Text>
-        </TouchableOpacity>
-      )}
 
-      {/* Hiển thị ảnh đã chọn */}
-      {image && (
-        <View style={styles.imageActions}>
-          <Image source={{ uri: image }} style={styles.selectedImage} />
-          <TouchableOpacity 
-            style={styles.deleteButton}
-            onPress={() => setImage(null)}
-          >
-            <Ionicons name="close" size={24} color="black" />
+        <View style={[styles.separator, { width: '100%' }]}></View>
+
+        {!image && (
+          <TouchableOpacity style={styles.imgContainer} onPress={pickImage}>
+            <Ionicons
+              name="image"
+              size={32}
+              color="black"
+              style={styles.img}
+            />
+            <Text>Hình ảnh</Text>
           </TouchableOpacity>
-        </View>
-      )}
+        )}
 
-      {/* Dấu gạch ngang phân tách */}
-      <View style={[styles.separator, { width: '100%' }]}></View>  
+        <View style={[styles.separator, { width: '100%' }]}></View>
+
+        {image && (
+          <View style={styles.imageActions}>
+            <Image
+              source={{ uri: image }}
+              style={styles.selectedImage}
+            />
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleRemoveImage}
+            >
+              <Ionicons name="close" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={[styles.separator, { width: '100%' }]}></View>
       </View>
 
-      {/* Toast Container */}
       <Toast />
     </SafeAreaView>
   );

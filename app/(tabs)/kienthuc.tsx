@@ -75,7 +75,7 @@ const TrangKienThuc = () => {
         {(items || []).slice(0, 2).map((item, index) => (
           <View key={index} style={styles.item}>
             <TouchableOpacity
-              onPress={() => router.replace({ pathname: "../screen/chitietkienthuc", params: { id: item._id } })}
+              onPress={() => router.push({ pathname: "../screen/chitietkienthuc", params: { id: item._id } })}
             >
               <Image
                 source={item?.hinhAnh?.[0] ? { uri: item.hinhAnh[0] } : require("../../assets/images/splash-image.png")}

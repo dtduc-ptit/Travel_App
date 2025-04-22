@@ -1,4 +1,3 @@
-// app/screen/kienthucdaluu.tsx
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -31,38 +30,41 @@ const KienThucDaLuu = () => {
     fetchNguoiDung();
   }, []);
 
- useEffect(() => {
-  const fetchSavedKnowledge = async () => {
-    try {
-      if (nguoiDung?._id) {
-        const res = await axios.get(`${API_BASE_URL}/api/noidungluutru`, {
-          params: {
-            nguoiDung: nguoiDung._id,
-            loaiNoiDung: "kienThuc"
-          }
-        });
-        console.log(res.data);  // Kiểm tra dữ liệu trả về từ API
+  useEffect(() => {
+    const fetchSavedKnowledge = async () => {
+      try {
+        if (nguoiDung?._id) {
+          const res = await axios.get(`${API_BASE_URL}/api/noidungluutru`, {
+            params: {
+              nguoiDung: nguoiDung._id,
+              loaiNoiDung: "kienThuc"
+            }
+          });
+          console.log(res.data);  // Kiểm tra dữ liệu trả về từ API
 
-        // Truy cập đúng thuộc tính data để set savedItems
-        if (res.data?.data && Array.isArray(res.data.data)) {
-          setSavedItems(res.data.data);  // Lưu mảng dữ liệu vào state
-        } else {
-          console.error("Dữ liệu không đúng định dạng hoặc không có");
-          setSavedItems([]);  // Nếu dữ liệu không hợp lệ, set savedItems là mảng rỗng
+          // Truy cập đúng thuộc tính data để set savedItems
+          if (res.data?.data && Array.isArray(res.data.data)) {
+            setSavedItems(res.data.data);  // Lưu mảng dữ liệu vào state
+          } else {
+            console.error("Dữ liệu không đúng định dạng hoặc không có");
+            setSavedItems([]);  // Nếu dữ liệu không hợp lệ, set savedItems là mảng rỗng
+          }
         }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu đã lưu:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu đã lưu:", error);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    if (nguoiDung) fetchSavedKnowledge();
+  }, [nguoiDung]); // Fetch lại khi nguoiDung thay đổi
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
   };
 
-  if (nguoiDung) fetchSavedKnowledge();
-}, [nguoiDung]); // Fetch lại khi nguoiDung thay đổi
-
-
-  
   const renderItem = (item: any) => (
     <TouchableOpacity
       key={item._id}
@@ -73,7 +75,12 @@ const KienThucDaLuu = () => {
         source={item.hinhAnh?.[0] ? { uri: item.hinhAnh[0] } : require("../../assets/images/splash-image.png")}
         style={styles.savedItemImage}
       />
-      <Text style={styles.savedItemTitle} numberOfLines={2}>{item.tieuDe}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.savedItemTitle} numberOfLines={2}>{item.tieuDe}</Text>
+        <Text style={styles.savedItemDate}>
+          Ngày lưu: {item.thoiGianLuu ? formatDate(item.thoiGianLuu) : "Không rõ"}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 
@@ -95,7 +102,6 @@ const KienThucDaLuu = () => {
         
         <Text style={styles.savedHeaderTitle}>Kiến thức đã lưu</Text>
         
-       
       </View>
 
       {/* Nội dung chính */}

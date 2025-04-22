@@ -4,10 +4,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: Platform.OS === 'ios' ? StatusBar.currentHeight : 10, // Đảm bảo padding trên cùng cho notch
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? StatusBar.currentHeight : 10, // Thêm padding cho ios tránh notch
     flexDirection: "row",
     alignItems: "center",
     paddingLeft: 16,
@@ -58,7 +56,6 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 16,
-    paddingHorizontal: 16,
   },
   sectionHeader: {
     flexDirection: "row",

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, FlatList, Modal, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Image, FlatList, Modal, TextInput, Image as RNImage } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
 import { API_BASE_URL } from '@/constants/config';
@@ -12,9 +12,93 @@ import Toast from 'react-native-toast-message';
 import { useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import UserHeader from '../screen/tieudecongdong';
+
+// Component riêng để render từng bài viết
+const PostItem = ({ baiViet, nguoiDung, toggleLike, openCommentModal, handleLuu, savedPosts }: any) => {
+  const timeAgo = formatDistanceToNow(new Date(baiViet.thoiGian), { addSuffix: true });
+  const [aspectRatio, setAspectRatio] = useState<number>(4 / 3); // Tỉ lệ mặc định
+
+  const getImageAspectRatio = (uri: string, callback: (aspectRatio: number) => void) => {
+    RNImage.getSize(
+      uri,
+      (width, height) => {
+        const aspectRatio = width / height;
+        callback(aspectRatio);
+      },
+      (error) => {
+        console.error('Lỗi khi lấy kích thước ảnh:', error);
+        callback(4 / 3); // Fallback tỉ lệ mặc định
+      }
+    );
+  };
+
+  useEffect(() => {
+    if (baiViet.hinhAnh) {
+      getImageAspectRatio(baiViet.hinhAnh, (ratio) => {
+        setAspectRatio(ratio);
+      });
+    }
+  }, [baiViet.hinhAnh]);
+
+  return (
+    <View style={styles.postContainer} key={baiViet._id}>
+      <View style={styles.postContentCover}>
+        <View style={styles.postHeader}>
+          <TouchableOpacity>
+            <Image
+              source={baiViet.nguoiDung?.anhDaiDien ? { uri: baiViet.nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')}
+              style={styles.avatar}
+            />
+          </TouchableOpacity>
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{baiViet.nguoiDung?.ten}</Text>
+            <Text style={styles.postTime}>{timeAgo}</Text>
+          </View>
+        </View>
+      </View>
+      <Text style={styles.postContent}>{baiViet.noiDung}</Text>
+      {baiViet.hinhAnh && (
+        <Image
+          source={{ uri: baiViet.hinhAnh }}
+          style={[styles.postImage, { aspectRatio }]}
+          resizeMode="contain"
+        />
+      )}
+      <View style={styles.itemCenter}>
+        <View style={styles.postActions}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => toggleLike(baiViet._id)}>
+            <Ionicons
+              name={baiViet.luotThich?.includes(nguoiDung?._id) ? 'thumbs-up' : 'thumbs-up-outline'}
+              size={24}
+              color={baiViet.luotThich?.includes(nguoiDung?._id) ? '#007bff' : 'black'}
+            />
+            <Text style={styles.actionText}>{baiViet.likeCount || 0}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => openCommentModal(baiViet._id)}>
+            <Ionicons name="chatbubble-outline" size={24} color="black" />
+            <Text style={styles.actionText}>{baiViet.luotBinhLuan?.length || 0}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} >
+            <Ionicons name="share-outline" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleLuu(baiViet._id)}>
+            <Ionicons
+              name={savedPosts.includes(baiViet._id) ? "bookmark" : "bookmark-outline"}
+              size={18}
+              color={savedPosts.includes(baiViet._id) ? "#007bff" : "#000"}
+            />
+          </TouchableOpacity>
+          
+        </View>
+      </View>
+      <View style={[styles.separator, { width: '100%' }]}></View>
+    </View>
+  );
+};
 
 const TrangCongDong = () => {
-  
+  const insets = useSafeAreaInsets();
   const [baiVietList, setBaiVietList] = useState<any[]>([]);
   const [nguoiDung, setNguoiDung] = useState<any>(null);
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -22,12 +106,8 @@ const TrangCongDong = () => {
   const [newComment, setNewComment] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
-
-  //Luu bai viet
-  const [savedPosts, setSavedPosts] = useState<string[]>([]); // Lưu trữ các postId đã lưu
-  const [daLuu, setDaLuu] = useState(false); // Trạng thái lưu bài viết
-  
-
+  const [savedPosts, setSavedPosts] = useState<string[]>([]);
+  const [daLuu, setDaLuu] = useState(false);
 
   useEffect(() => {
     const fetchNguoiDung = async () => {
@@ -41,7 +121,6 @@ const TrangCongDong = () => {
         console.error('Lỗi khi lấy thông tin người dùng:', error);
       }
     };
-
     fetchNguoiDung();
   }, []);
 
@@ -62,66 +141,50 @@ const TrangCongDong = () => {
     fetchBaiViet();
   }, []);
 
-//Luu bai viet  
+  useEffect(() => {
+    loadSavedPosts();
+  }, [nguoiDung?._id]);
 
-useEffect(() => {
-  loadSavedPosts();
-}, [nguoiDung?._id]);
-
-
-useEffect(() => {
-  const fetchSavedStatus = async () => {
-    if (!nguoiDung?._id || !selectedPost) return;
-
-    try {
-      // Gọi API kiểm tra trạng thái lưu
-      const response = await axios.get(`${API_BASE_URL}/api/noidungluutru/kiemtra`, {
-        params: {
-          nguoiDung: nguoiDung._id.toString(), // Chuyển đổi sang string theo yêu cầu API
-          loaiNoiDung: "baiViet",
-          idNoiDung: selectedPost.toString() // Chuyển đổi sang string
-        },
-        headers: {
-          'Content-Type': 'application/json'
+  useEffect(() => {
+    const fetchSavedStatus = async () => {
+      if (!nguoiDung?._id || !selectedPost) return;
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/noidungluutru/kiemtra`, {
+          params: {
+            nguoiDung: nguoiDung._id.toString(),
+            loaiNoiDung: "baiViet",
+            idNoiDung: selectedPost.toString(),
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.data?.daLuu !== undefined) {
+          setDaLuu(response.data.daLuu);
+        } else {
+          console.warn("API trả về cấu trúc không mong đợi:", response.data);
+          setDaLuu(false);
         }
-      });
-
-      // Xử lý response theo cấu trúc API trả về { daLuu: boolean }
-      if (response.data?.daLuu !== undefined) {
-        setDaLuu(response.data.daLuu);
-      } else {
-        console.warn("API trả về cấu trúc không mong đợi:", response.data);
+      } catch (error) {
+        console.error("Chi tiết lỗi:", {
+          status: (error as any)?.response?.status,
+          message: (error as any)?.response?.data?.message || (error as any)?.message,
+          params: (error as any)?.config?.params,
+        });
         setDaLuu(false);
       }
-    } catch (error) {
-      console.error("Chi tiết lỗi:", {
-        status: (error as any)?.response?.status,
-        message: (error as any)?.response?.data?.message || (error as any)?.message,
-        params: (error as any)?.config?.params
-      });
-      setDaLuu(false);
-    }
-  };
-
-  fetchSavedStatus();
-}, [nguoiDung?._id, selectedPost]); // Thêm selectedPost vào dependencies
-
-
-
-
-  
+    };
+    fetchSavedStatus();
+  }, [nguoiDung?._id, selectedPost]);
 
   const openCommentModal = async (postId: string) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/luotbinhluan/${postId}`);
-      
-      // Sắp xếp bình luận theo thời gian giảm dần (mới nhất đầu tiên)
       const sortedComments = response.data.sort((a: any, b: any) => {
         const dateA = new Date(a.thoiGian).getTime();
         const dateB = new Date(b.thoiGian).getTime();
         return dateB - dateA;
       });
-      
       setComments(sortedComments);
       setSelectedPost(postId);
       setModalVisible(true);
@@ -130,105 +193,85 @@ useEffect(() => {
       Toast.show({
         type: 'error',
         text1: 'Lỗi',
-        text2: 'Không thể tải bình luận'
+        text2: 'Không thể tải bình luận',
       });
     }
   };
-  
 
   const submitComment = async () => {
     if (!newComment.trim()) return;
-  
-    // Tạo ID tạm độc nhất
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // 1. Tạo bình luận tạm với animation
     const tempComment = {
       _id: tempId,
       noiDung: newComment,
       nguoiDung: {
         _id: nguoiDung?._id,
         ten: nguoiDung?.ten || 'Bạn',
-        anhDaiDien: nguoiDung?.anhDaiDien
+        anhDaiDien: nguoiDung?.anhDaiDien,
       },
       thoiGian: new Date().toISOString(),
       isTemp: true,
-      isSending: true // Thêm trạng thái loading
+      isSending: true,
     };
-  
-    // 2. Optimistic update
     setComments(prev => [tempComment, ...prev]);
     setNewComment('');
-  
     try {
-      // 3. Gọi API
       const response = await axios.post(`${API_BASE_URL}/api/luotbinhluan`, {
         nguoiDung: nguoiDung?._id,
         baiViet: selectedPost,
         noiDung: newComment,
       });
-  
-      // 4. Thay thế bằng dữ liệu thật
       setComments(prev => [
         {
           ...response.data,
           nguoiDung: tempComment.nguoiDung,
-          thoiGian: response.data.thoiGian || new Date().toISOString()
+          thoiGian: response.data.thoiGian || new Date().toISOString(),
         },
-        ...prev.filter(c => c._id !== tempId)
+        ...prev.filter(c => c._id !== tempId),
       ]);
-  
-      // 5. Cập nhật UI
-      setBaiVietList(prev => prev.map(post => 
-        post._id === selectedPost 
-          ? { ...post, luotBinhLuan: [...(post.luotBinhLuan || []), response.data._id] } 
-          : post
-      ));
-  
-    } catch (error) {
-      // 6. Rollback UI
-      setComments(prev => prev.filter(c => c._id !== tempId));
-      setNewComment(tempComment.noiDung);
-      
+      setBaiVietList(prev =>
+        prev.map(post =>
+          post._id === selectedPost
+            ? { ...post, luotBinhLuan: [...(post.luotBinhLuan || []), response.data._id] }
+            : post
+        )
+      );
       Toast.show({
         type: 'error',
         text1: 'Lỗi',
-        text2: 'Gửi bình luận không thành công'
+        text2: 'Bình luận thành công',
+      });
+    } catch (error) {
+      setComments(prev => prev.filter(c => c._id !== tempId));
+      setNewComment(tempComment.noiDung);
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: 'Gửi bình luận không thành công',
       });
     }
   };
-  
-  
-  
 
   const toggleLike = async (baiVietId: string) => {
     console.log('----- BẮT ĐẦU DEBUG -----');
     console.log('Bài viết ID:', baiVietId);
-
     try {
       const nguoiDungId = await AsyncStorage.getItem('idNguoiDung');
       console.log('User ID từ AsyncStorage:', nguoiDungId || 'KHÔNG TÌM THẤY');
-
       if (!nguoiDungId) return;
-
       const postIndex = baiVietList.findIndex((p: any) => p._id === baiVietId);
       if (postIndex === -1) return;
-
       const updatedPosts = [...baiVietList];
       const post = updatedPosts[postIndex];
-
       const isLiked = post.luotThich?.includes(nguoiDungId);
       const apiUrl = `${API_BASE_URL}/api/luotthich/like`;
-
       console.log('Sending request to:', apiUrl);
       console.log('Payload:', { baiVietId, nguoiDungId });
-
       if (isLiked) {
         await axios.delete(apiUrl, { data: { baiVietId, nguoiDungId } });
       } else {
         await axios.post(apiUrl, { baiVietId, nguoiDungId });
       }
-
       updatedPosts[postIndex] = {
         ...post,
         luotThich: isLiked
@@ -236,109 +279,84 @@ useEffect(() => {
           : [...(post.luotThich || []), nguoiDungId],
         likeCount: isLiked ? post.likeCount - 1 : post.likeCount + 1,
       };
-
       setBaiVietList(updatedPosts);
     } catch (error) {
       console.error('----- LỖI -----', error);
     }
   };
 
-  // Luu bai viet
-const loadSavedPosts = async () => {
-  try {
-    // 1. Load từ AsyncStorage trước (để UI phản hồi nhanh)
-    const cachedSavedPosts = await AsyncStorage.getItem('savedPosts');
-    if (cachedSavedPosts) {
-      setSavedPosts(JSON.parse(cachedSavedPosts));
+  const loadSavedPosts = async () => {
+    try {
+      const cachedSavedPosts = await AsyncStorage.getItem('savedPosts');
+      if (cachedSavedPosts) {
+        setSavedPosts(JSON.parse(cachedSavedPosts));
+      }
+      if (nguoiDung?._id) {
+        const res = await axios.get(`${API_BASE_URL}/api/noidungluutru`, {
+          params: {
+            nguoiDung: nguoiDung._id,
+            loaiNoiDung: "baiViet",
+          },
+        });
+        const serverSavedPosts = res?.data?.data && Array.isArray(res.data.data)
+          ? res.data.data.map((item: any) => item.idNoiDung)
+          : [];
+        setSavedPosts(serverSavedPosts);
+        await AsyncStorage.setItem('savedPosts', JSON.stringify(serverSavedPosts));
+      }
+    } catch (error) {
+      console.error('Lỗi khi load bài viết đã lưu:', error);
+      if ((error as any)?.response) {
+        console.error('Chi tiết lỗi API:', {
+          status: (error as any).response.status,
+          data: (error as any).response.data,
+        });
+      }
+      setSavedPosts([]);
     }
+  };
 
-    // 2. Đồng bộ với server (nếu có người dùng)
-    if (nguoiDung?._id) {
-      const res = await axios.get(`${API_BASE_URL}/api/noidungluutru`, {
-        params: { 
-          nguoiDung: nguoiDung._id, 
-          loaiNoiDung: "baiViet" // Thay đổi từ "baiViet" sang loại phù hợp
-        }
-      });
-
-      // Kiểm tra cấu trúc response
-      const serverSavedPosts = res?.data?.data && Array.isArray(res.data.data)
-        ? res.data.data.map((item: any) => item.idNoiDung)
-        : [];
-
-      setSavedPosts(serverSavedPosts);
-      await AsyncStorage.setItem('savedPosts', JSON.stringify(serverSavedPosts));
-    }
-  } catch (error) {
-    console.error('Lỗi khi load bài viết đã lưu:', error);
-    // In thêm chi tiết lỗi để debug
-    if ((error as any)?.response) {
-      console.error('Chi tiết lỗi API:', {
-        status: (error as any).response.status,
-        data: (error as any).response.data
-      });
-    }
-    // Fallback: Đặt lại state rỗng nếu có lỗi
-    setSavedPosts([]);
-  }
-};
-
-  
-  
-  // Hàm xử lý lưu/bỏ lưu
   const handleLuu = async (postId: string) => {
     if (!nguoiDung) {
       Toast.show({ type: 'error', text1: 'Vui lòng đăng nhập' });
       return;
     }
-  
     try {
       const isSaved = savedPosts.includes(postId);
       let updatedSavedPosts: string[];
-  
-      // Optimistic update
-      updatedSavedPosts = isSaved 
+      updatedSavedPosts = isSaved
         ? savedPosts.filter(id => id !== postId)
         : [...savedPosts, postId];
-      
       setSavedPosts(updatedSavedPosts);
       await AsyncStorage.setItem('savedPosts', JSON.stringify(updatedSavedPosts));
-  
-      // Gọi API
       if (isSaved) {
         await axios.delete(`${API_BASE_URL}/api/noidungluutru`, {
-          data: { 
-            nguoiDung: nguoiDung._id, 
-            loaiNoiDung: "baiViet", 
-            idNoiDung: postId 
-          }
+          data: {
+            nguoiDung: nguoiDung._id,
+            loaiNoiDung: "baiViet",
+            idNoiDung: postId,
+          },
         });
         Toast.show({ type: 'success', text1: 'Đã bỏ lưu bài viết thành công' });
       } else {
         await axios.post(`${API_BASE_URL}/api/noidungluutru`, {
-          nguoiDung: nguoiDung._id, 
-          loaiNoiDung: "baiViet", 
-          idNoiDung: postId
+          nguoiDung: nguoiDung._id,
+          loaiNoiDung: "baiViet",
+          idNoiDung: postId,
         });
         Toast.show({ type: 'success', text1: 'Đã lưu bài viết thành công' });
       }
-  
     } catch (error) {
-      // Rollback nếu có lỗi
       const cachedSavedPosts = await AsyncStorage.getItem('savedPosts');
       setSavedPosts(cachedSavedPosts ? JSON.parse(cachedSavedPosts) : []);
-      
-      Toast.show({ 
-        type: 'error', 
-        text1: 'Lỗi', 
-        text2: 'Thao tác thất bại' 
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: 'Thao tác thất bại',
       });
     }
   };
 
-  //Xử lí đăng bài với hình ảnh
-
-  // Hàm kiểm tra quyền
   const checkPermissions = async () => {
     const libraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (libraryStatus.status !== 'granted') {
@@ -347,8 +365,7 @@ const loadSavedPosts = async () => {
     }
     return true;
   };
-  
-  // Hàm sao chép file đến thư mục cache cố định
+
   const copyFileToCache = async (uri: string) => {
     try {
       const fileName = uri.split('/').pop();
@@ -364,143 +381,68 @@ const loadSavedPosts = async () => {
       return null;
     }
   };
-  // Hàm chọn ảnh từ thư viện
-const pickImage = async () => {
-  const hasPermission = await checkPermissions();
-  if (!hasPermission) return;
 
-  let result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: false,
-    quality: 1,
-  });
-
-  if (!result.canceled && result.assets?.[0]?.uri) {
-    const imageUri = result.assets[0].uri;
-    console.log('Ảnh được chọn:', imageUri);
-    const cachedUri = await copyFileToCache(imageUri);
-    if (cachedUri) {
-      // Chuyển đến màn hình tạo bài viết với đường dẫn file đã sao chép
-      router.push({
-        pathname: '../screen/createPost',
-        params: { imageUri: cachedUri },
-      });
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Lỗi xử lý ảnh',
-        text2: 'Không thể sao chép file ảnh',
-      });
+  const pickImage = async () => {
+    const hasPermission = await checkPermissions();
+    if (!hasPermission) return;
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      const imageUri = result.assets[0].uri;
+      console.log('Ảnh được chọn:', imageUri);
+      const cachedUri = await copyFileToCache(imageUri);
+      if (cachedUri) {
+        router.push({
+          pathname: '../screen/createPost',
+          params: { imageUri: cachedUri },
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Lỗi xử lý ảnh',
+          text2: 'Không thể sao chép file ảnh',
+        });
+      }
     }
-  }
-};
-  
-  
-  
-  
-  const renderBaiViet = (baiViet: any) => {
-    const timeAgo = formatDistanceToNow(new Date(baiViet.thoiGian), { addSuffix: true });
-
-    return (
-      <View style={styles.postContainer} key={baiViet._id}>
-        <View style={styles.imageJustify}>
-          <View style={styles.postContentCover}>
-            <View style={styles.postHeader}>
-              <TouchableOpacity>
-                <Image
-                  source={baiViet.nguoiDung?.anhDaiDien ? { uri: baiViet.nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')}
-                  style={styles.avatar}
-                />
-              </TouchableOpacity>
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>{baiViet.nguoiDung?.ten}</Text>
-                <Text style={styles.postTime}>{timeAgo}</Text>
-              </View>
-            </View>
-            <Text style={styles.postContent}>{baiViet.noiDung}</Text>
-          </View>
-          <Image source={{ uri: baiViet.hinhAnh }} style={styles.postImage} />
-        </View>
-
-        <View style={styles.itemCenter}>
-          <View style={styles.postActions}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => toggleLike(baiViet._id)}>
-              <Ionicons
-                name={baiViet.luotThich?.includes(nguoiDung?._id) ? 'thumbs-up' : 'thumbs-up-outline'}
-                size={24}
-                color={baiViet.luotThich?.includes(nguoiDung?._id) ? '#007bff' : 'black'}
-              />
-              <Text style={styles.actionText}>{baiViet.likeCount || 0}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={() => openCommentModal(baiViet._id)}>
-              <Ionicons name="chatbubble-outline" size={24} color="black" />
-              <Text style={styles.actionText}>{baiViet.luotBinhLuan?.length || 0}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="share-social-outline" size={24} color="black" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => handleLuu(baiViet._id)}
-            >
-              <Ionicons 
-                name={savedPosts.includes(baiViet._id) ? "bookmark" : "bookmark-outline"} 
-                size={18} 
-                color={savedPosts.includes(baiViet._id) ? "#007bff" : "#000"}
-              />                      
-            </TouchableOpacity>
-
-          </View>
-        </View>
-      </View>
-    );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>
-          <Text style={styles.duLichText}>DU LỊCH </Text>
-          <Text style={styles.haTinhText}>HÀ TĨNH</Text>
-        </Text>
-        <View style={styles.iconContainer}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="search-outline" size={22} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="notifications-outline" size={22} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="bookmark-outline" size={22} color="black" />
-          </TouchableOpacity>          
-        </View>
-      </View>
-
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <UserHeader />
       <View style={styles.postContainer}>
         <View style={styles.econtainer}>
           <View style={[styles.postHeader, styles.postHeaderWithBorder]}>
             <TouchableOpacity onPress={() => router.push({ pathname: '../auth/trangcanhan', params: { id: nguoiDung?._id } })}>
               <Image source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')} style={styles.avatar} />
             </TouchableOpacity>
-
             <TouchableOpacity onPress={() => router.push('../screen/createPost')} style={styles.createPostContainer}>
               <Text style={styles.placeholderText}>Bạn đang nghĩ gì?</Text>
             </TouchableOpacity>
-
             <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
-              <Ionicons name="image" size={28} color="#007bff" style={styles.imageIcon} />
+              <Ionicons name="image-outline" size={28} color="#007bff" style={styles.imageIcon} />
             </TouchableOpacity>
           </View>
         </View>
       </View>
-
-
+      <View style={[styles.separator, { width: '100%' }]}></View>
       <FlatList
         data={baiVietList || []}
-        renderItem={({ item }) => renderBaiViet(item)}
+        renderItem={({ item }) => (
+          <PostItem
+            baiViet={item}
+            nguoiDung={nguoiDung}
+            toggleLike={toggleLike}
+            openCommentModal={openCommentModal}
+            handleLuu={handleLuu}
+            savedPosts={savedPosts}
+          />
+        )}
         keyExtractor={(item) => item._id ? item._id.toString() : String(item)}
-        contentContainerStyle={{ paddingBottom: 16 }}
+        contentContainerStyle={{ paddingBottom: 80 }}
       />
-
       <Modal visible={modalVisible} onRequestClose={() => setModalVisible(false)} animationType="slide">
         <SafeAreaView style={styles.container}>
           <View style={styles.modalHeader}>
@@ -509,7 +451,6 @@ const pickImage = async () => {
               <Ionicons name="close-circle-outline" size={30} color="#007bff" />
             </TouchableOpacity>
           </View>
-
           <FlatList
             data={comments || []}
             renderItem={({ item }) => (
@@ -535,10 +476,8 @@ const pickImage = async () => {
               </View>
             )}
             keyExtractor={(item) => item._id ? item._id.toString() : String(item)}
-            contentContainerStyle={{ paddingBottom: 16 }}
+            contentContainerStyle={{ paddingBottom: insets.bottom }}
           />
-
-
           <View style={styles.commentInputContainer}>
             <Image
               source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require('../../assets/images/logo.jpg')}
@@ -554,6 +493,7 @@ const pickImage = async () => {
               <Ionicons name="paper-plane-outline" size={24} color="black" />
             </TouchableOpacity>
           </View>
+          <Toast />
         </SafeAreaView>
       </Modal>
       <Toast />

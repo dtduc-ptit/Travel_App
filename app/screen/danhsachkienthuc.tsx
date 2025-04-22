@@ -12,7 +12,6 @@ const DanhSachKienThuc = () => {
   const router = useRouter();
   const { categoryTitle, categoryKey } = useLocalSearchParams();
   const [nguoiDung, setNguoiDung] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [kienThucList, setKienThucList] = useState<any[]>([]);
 
   // Lấy vùng an toàn từ useSafeAreaInsets
@@ -71,39 +70,7 @@ const DanhSachKienThuc = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: "../screen/thongtincanhan",
-              params: { id: nguoiDung?._id }
-            })
-          }
-        >
-          <Image
-            source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
-            style={styles.avatar}
-          />
-        </TouchableOpacity>
-
-        <View style={styles.headerCenter}>
-          <TextInput
-            placeholder="Tìm kiếm nội dung"
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-
-        <View style={styles.headerRight}>
-          <TouchableOpacity onPress={() => router.push("../screen/kienthucdaluu")}>
-            <Ionicons name="bookmark-outline" size={24} color="black" style={styles.icon} />
-          </TouchableOpacity>          
-        </View>
-      </View>
-
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>      
       <View style={[styles.header, { marginTop: 10 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back-outline" size={24} color="black" />

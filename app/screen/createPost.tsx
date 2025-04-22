@@ -261,7 +261,7 @@ const CreatePostScreen = () => {
           </TouchableOpacity>
         )}
 
-        <View style={[styles.separator, { width: '100%' }]}></View>
+        
 
         {image && (
           <View style={styles.imageActions}>

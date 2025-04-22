@@ -21,6 +21,7 @@ import Slider from "@react-native-community/slider";
 import { API_BASE_URL } from "@/constants/config";
 import { Audio } from "expo-av"; // chuc nang nghe audio
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
 
 
 const screenWidth = Dimensions.get("window").width;
@@ -266,6 +267,10 @@ const ChiTietKienThuc = () => {
             idNoiDung: kienThuc._id
           }
         });
+        Toast.show({
+          type: 'success',
+          text1: 'Bỏ lưu thành công!',
+        });
       } else {
         // Gọi API tạo
         await axios.post(`${API_BASE_URL}/api/noidungluutru`, {
@@ -274,11 +279,17 @@ const ChiTietKienThuc = () => {
           idNoiDung: kienThuc._id,
           moTa: ""
         });
+        Toast.show({
+          type: 'success',
+          text1: 'Lưu thành công!',
+        });
       }
       setDaLuu(!daLuu);
     } catch (error) {
-      console.error("Lỗi khi thực hiện lưu:", error);
-      alert("Thao tác thất bại, vui lòng thử lại");
+      Toast.show({
+        type: 'failure',
+        text1: 'Lỗi khi thực hiện lưu!',
+      });
     }
   };
   
@@ -290,11 +301,7 @@ const ChiTietKienThuc = () => {
         <Ionicons name="arrow-back-outline" size={24} color="black" />
       </TouchableOpacity>
 
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: 20 }}
-        style={{ flex: 1 }}
-        contentInsetAdjustmentBehavior="automatic"
-      >
+      <View>
         {/* Thumbnail và tiêu đề */}
         <View style={styles.topRow}>
           <Image
@@ -348,11 +355,14 @@ const ChiTietKienThuc = () => {
             </Text>
           </TouchableOpacity>
 
-        </View>
-
+        </View >
         {/* Nội dung chính */}
-        <Text style={styles.content}>{kienThuc.noiDung}</Text>
-      </ScrollView>
+        <ScrollView 
+          contentContainerStyle={{ paddingBottom: 20 }}          
+          contentInsetAdjustmentBehavior="automatic">          
+          <Text style={styles.content}>{kienThuc.noiDung}</Text>
+        </ScrollView>
+      </View>
 
       {/* Video Modal */}
       {kienThuc.videoUrl && (
@@ -497,7 +507,7 @@ const ChiTietKienThuc = () => {
       </View>
     </Modal>
 
-
+      <Toast/>
     </SafeAreaView>
   );
 };

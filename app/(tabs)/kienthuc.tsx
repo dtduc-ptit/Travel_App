@@ -7,6 +7,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../style/kienthuc.style";
 import { API_BASE_URL } from "@/constants/config";
+import UserHeader from "../screen/tieudekienthuc";
 
 const categories = [
   { title: "Nổi bật", key: "noibat" },
@@ -54,7 +55,7 @@ const TrangKienThuc = () => {
     };
 
     fetchData();
-  }, []);
+  }, []);  
 
   const renderSection = (title: string, items: any[], categoryKey: string) => (
     <View style={styles.section} key={title}>
@@ -94,40 +95,10 @@ const TrangKienThuc = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: "../auth/trangcanhan",
-              params: { id: nguoiDung?._id }
-            })
-          }
-        >
-          <Image
-            source={nguoiDung?.anhDaiDien ? { uri: nguoiDung.anhDaiDien } : require("../../assets/images/logo.jpg")}
-            style={styles.avatar}
-          />
-        </TouchableOpacity>
-
-        <View style={styles.headerCenter}>
-          <TextInput
-            placeholder="Tìm kiếm nội dung"
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-
-        <View style={styles.headerRight}>
-          <TouchableOpacity onPress={() => router.push("../screen/kienthucdaluu")}>
-            <Ionicons name="bookmark-outline" size={24} color="black" style={styles.icon} />
-          </TouchableOpacity>          
-        </View>
-      </View>
+      <UserHeader />      
 
       {/* Nội dung chính */}
-      <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: 80 }}>
         <Text style={styles.mainTitle}>Danh sách kiến thức</Text>
         {categories.map(cat => renderSection(cat.title, data[cat.key], cat.key))}
       </ScrollView>

@@ -82,6 +82,11 @@ const styles = StyleSheet.create({
       backgroundColor: '#f8f9fa', // Màu nền nhẹ
       flexGrow: 1, // Đảm bảo scroll view hoạt động đúng
     },
+    savedItemDate: {
+      fontSize: 12,
+      color: "#666",
+      marginTop: 4,
+    }
    // ... Thêm các style khác nếu cần
  });
 
